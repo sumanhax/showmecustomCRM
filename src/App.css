@@ -1,0 +1,10 @@
+@import "flowbite/dist/flowbite.css";
+
+.syncfusion-license-error {
+    display: none !important;
+  }
+  
+  div[style*="position: fixed"][style*="z-index: 99999"] {
+    display: none !important;
+  }
+  

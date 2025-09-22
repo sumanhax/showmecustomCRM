@@ -1,0 +1,15 @@
+body {
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  overflow: scroll;
+  overflow-x: hidden;
+  -ms-overflow-style: none; /* For Internet Explorer and Edge */
+  scrollbar-width: none; /* For Firefox */
+}
+
+::-webkit-scrollbar {
+  display: none; /* For Chrome, Safari, and Opera */
+}
