@@ -21,7 +21,7 @@ const ManageKanban = () => {
                 Add Mood Master
               </Button> */}
             </div>
-            <div className={`overflow-x-auto w-[1090px] ${sidebarOpen ? 'w-[1090px]' : 'w-[1250px]'}`}>
+            <div className={`overflow-x-auto w-[1090px] ${sidebarOpen ? 'w-[1090px]' : 'w-full'}`}>
             <KanbanBoard />
             </div>
           </div>
