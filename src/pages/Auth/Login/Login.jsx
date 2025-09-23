@@ -64,7 +64,7 @@ const Login = () => {
             Cookies.remove("username");
             Cookies.remove("password");
           }
-          navigate("/manage-category");
+          navigate("/crm-dashboard");
         }
       } else if (res?.payload?.response?.data?.status_code === 400) {
         setErrorMessage(res?.payload?.response?.data?.message);

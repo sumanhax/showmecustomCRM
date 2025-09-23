@@ -9,6 +9,7 @@ import { AgGridReact } from "ag-grid-react";
 import { ToastContainer } from "react-toastify";
 import { Button } from "flowbite-react";
 import axios from "axios";
+import Loader from "../../components/Loader";
 
 
 const ManageReps = () => {
@@ -22,12 +23,22 @@ const ManageReps = () => {
     useState(false);
 
     const [repData, setRepData] = useState([]);
+    const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    axios.get("https://n8nnode.bestworks.cloud/webhook/airtable-rep-fetch").then((res) => {
-      console.log("res", res.data);
-      setRepData(res.data);
-    });
+    setIsLoading(true);
+    axios.get("https://n8nnode.bestworks.cloud/webhook/airtable-rep-fetch")
+      .then((res) => {
+        console.log("res", res.data);
+        setRepData(res.data);
+      })
+      .catch((error) => {
+        console.error("Error fetching reps:", error);
+        setRepData([]);
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
   }, []);
   console.log("repData", repData);
 
@@ -283,6 +294,17 @@ const ManageReps = () => {
 //     setMoodMasterId(id);
 //     dispatch(getMoodMasterSingle({ user_input: id }));
 //   };
+
+  // Show loader while data is being fetched
+  if (isLoading) {
+    return (
+      <div className="wrapper_area my-0 mx-auto p-6 rounded-xl bg-white">
+        <div className="h-full lg:h-screen flex items-center justify-center">
+          <Loader size="large" text="Loading Reps..." />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <>
