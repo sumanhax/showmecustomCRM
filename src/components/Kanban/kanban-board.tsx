@@ -298,8 +298,8 @@ console.log('args',args)
 
   return (
     <div style={{ 
-      padding: '20px',
-      backgroundColor: '#f8fafc'
+      padding: '5px',
+      backgroundColor: '#fff'
     }}>
       <div style={{ 
         overflowX: "auto", 

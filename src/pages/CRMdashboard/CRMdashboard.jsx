@@ -38,8 +38,8 @@ const CRMdashboard = () => {
     setIsLoadingLeads(true);
     axios.get("https://n8nnode.bestworks.cloud/webhook/airtable-lead-fetch")
       .then((res) => {
-        console.log("res", res.data);
-        setLeadData(res.data);
+      console.log("res", res.data);
+      setLeadData(res.data);
       })
       .catch((error) => {
         console.error("Error fetching leads:", error);
@@ -47,15 +47,15 @@ const CRMdashboard = () => {
       })
       .finally(() => {
         setIsLoadingLeads(false);
-      });
+    });
   }, []);
 
   useEffect(() => {
     setIsLoadingReps(true);
     axios.get("https://n8nnode.bestworks.cloud/webhook/airtable-rep-fetch")
       .then((res) => {
-        console.log("res", res.data);
-        setRepData(res.data);
+      console.log("res", res.data);
+      setRepData(res.data);
       })
       .catch((error) => {
         console.error("Error fetching reps:", error);
@@ -63,7 +63,7 @@ const CRMdashboard = () => {
       })
       .finally(() => {
         setIsLoadingReps(false);
-      });
+    });
   }, []);
 
   // Calculate dynamic data for cards
@@ -278,12 +278,12 @@ const CRMdashboard = () => {
                 </div>
                 <div className="w-12 h-12 bg-gradient-to-r from-red-500 to-red-400 rounded-lg flex items-center justify-center">
                   <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                  </svg>
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                      </svg>
+                    </div>
+                  </div>
                 </div>
-              </div>
-              </div>
-              
+
             {/* Total Profit Card */}
             <div className="bg-white rounded-xl p-6 shadow-sm">
               <div className="flex items-center justify-between">
@@ -312,9 +312,9 @@ const CRMdashboard = () => {
                   <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
                       </svg>
+                    </div>
+                  </div>
                 </div>
-              </div>
-            </div>
 
             {/* Total Reps Card */}
             <div className="bg-white rounded-xl p-6 shadow-sm">
@@ -326,12 +326,12 @@ const CRMdashboard = () => {
                 </div>
                 <div className="w-12 h-12 bg-gradient-to-r from-red-500 to-red-400 rounded-lg flex items-center justify-center">
                   <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
-                  </svg>
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
+                      </svg>
+                    </div>
                 </div>
               </div>
             </div>
-          </div>
 
           {/* Second Row - Lead by Date and Lead Status */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
@@ -348,7 +348,7 @@ const CRMdashboard = () => {
                   <option value={15}>Last 15 days</option>
                   <option value={30}>Last 30 days</option>
                 </select>
-              </div>
+          </div>
               <ResponsiveContainer width="100%" height={300}>
                 <BarChart data={leadTrendsData}>
                   <CartesianGrid strokeDasharray="3 3" />
