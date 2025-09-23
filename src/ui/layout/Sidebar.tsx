@@ -13,6 +13,8 @@ import { SiLevelsdotfyi } from "react-icons/si";
 import { RiSoundModuleFill } from 'react-icons/ri';
 import { GiFireZone } from "react-icons/gi";
 import { CiShoppingTag } from 'react-icons/ci';
+import { toggleSidebar } from '../../Reducer/SidebarSlice';
+import { useDispatch } from 'react-redux';
 
 interface SidebarProps {
   sidebarOpen: boolean;
@@ -65,9 +67,10 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
       document.querySelector('body')?.classList.remove('sidebar-expanded');
     }
   }, [sidebarExpanded]);
-
+  // const dispatch = useDispatch();
   const onHoverOpenSidebar = () => {
     setSidebarOpen(false);
+    // dispatch(toggleSidebar())
   }
   //   const onHoverCloseSidebar = () => {
   //   setSidebarOpen(true);
