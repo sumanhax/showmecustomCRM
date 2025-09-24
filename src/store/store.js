@@ -38,7 +38,7 @@ import AnswerSlice from '../Reducer/AnswerSlice'
 import BlogSlice from '../Reducer/BlogSlice'
 import EquilizerSlice from '../Reducer/EquilizerSlice'
 import SidebarSlice from '../Reducer/SidebarSlice'
-
+import AddSlice from '../Reducer/AddSlice'
 const store = configureStore({
   reducer: {
     auth: AuthSlice,
@@ -80,6 +80,7 @@ const store = configureStore({
     blog:BlogSlice,
     equilize:EquilizerSlice,
     sidebar: SidebarSlice,
+    add: AddSlice,
   },
   devTools: import.meta.env.DEV,
 });

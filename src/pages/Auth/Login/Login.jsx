@@ -4,13 +4,13 @@ import { FcGoogle } from "react-icons/fc";
 import { useDispatch } from "react-redux";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import { login } from "../../../Reducer/AuthSlice";
+import { login, managerLogin } from "../../../Reducer/AuthSlice";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Cookies from "js-cookie";
 
 import AfterLoginModal from "./AfterLoginModal";
-import { Checkbox, Label } from "flowbite-react";
+import { Checkbox, Label, Select } from "flowbite-react";
 import { useSelector } from "react-redux";
 
 const Login = () => {
@@ -51,31 +51,33 @@ const Login = () => {
   }, [setValue]);
 
   const onSubmit = (data) => {
-    dispatch(login(data)).then((res) => {
-      console.log("Res: ", res);
-      if (res?.payload?.status_code === 200) {
-        if (res?.payload?.sub_domain === false) {
-          setOpenModal(true);
-        } else {
-          if (data?.rememberMe) {
-            Cookies.set("username", data?.username, { expires: 7 });
-            Cookies.set("password", data?.password, { expires: 7 });
-          } else {
-            Cookies.remove("username");
-            Cookies.remove("password");
-          }
+    if (data?.rememberMe) {
+      Cookies.set("username", data?.username, { expires: 7 });
+      Cookies.set("password", data?.password, { expires: 7 });
+    } else {
+      Cookies.remove("username");
+      Cookies.remove("password");
+    }
+    if (data.role === "Manager") {
+      dispatch(managerLogin(data)).then((res) => {
+        console.log("Res admin: ", res);
+        if (res?.payload?.status_code === 200) {
           navigate("/crm-dashboard");
         }
-      } else if (res?.payload?.response?.data?.status_code === 400) {
-        setErrorMessage(res?.payload?.response?.data?.message);
-      } else if (res?.payload?.status === 422) {
-        setErrorMessage(
-          res?.payload?.response?.data?.data?.[0]?.message
-            ? res?.payload?.response?.data?.data?.[0]?.message
-            : res?.payload?.response?.data?.message
-        );
-      }
-    });
+      })
+      .catch((err)=>{
+        console.log("err",err)
+        toast.error(err?.payload?.message);
+      });
+    } else {
+      dispatch(login(data)).then((res) => {
+        console.log("Res manager: ", res);
+        if (res?.payload?.status_code === 200) {
+          navigate("/crm-dashboard");
+        }
+      });
+    }
+
   };
   return (
     <div className="my-0 lg:my-0 mx-4 lg:mx-0 flex justify-center items-center wrapper_bg_area">
@@ -141,7 +143,21 @@ const Login = () => {
                       </small>
                     )}
                   </div>
-
+                  <div className="mb-6">
+                    <div className="mb-2 block">
+                      <Label htmlFor="countries">User Role</Label>
+                    </div>
+                    <Select id="countries" {...register("role", { required: true })}>
+                      <option value="">Select User Role</option>
+                      <option value="Admin">Admin</option>
+                      <option value="Manager">Manager</option>
+                    </Select>
+                    {errors.role && (
+                      <small className="text-red-500">
+                        User Role is required
+                      </small>
+                    )}
+                  </div>
                   <button
                     type="submit"
                     className="text-white bg-[#f20c32] font-Manrope font-extrabold text-[23px] mb-2 hover:bg-black focus:ring-4 focus:outline-none focus:ring-blue-300 rounded-0 text-xl w-full px-5 py-3 text-center"

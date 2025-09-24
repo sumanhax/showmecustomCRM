@@ -5,8 +5,9 @@ import {
   changeStatus,
   getMoodMaster
 } from "../../Reducer/MoodMasterSlice";
+import { addManager } from "../../Reducer/AddSlice";
 import { AgGridReact } from "ag-grid-react";
-import { ToastContainer } from "react-toastify";
+import { ToastContainer, toast } from "react-toastify";
 import { Button } from "flowbite-react";
 import axios from "axios";
 import {
@@ -25,6 +26,9 @@ import {
   ResponsiveContainer
 } from "recharts";
 import Loader from "../../components/Loader";
+import { useForm } from "react-hook-form";
+import { FaUsers, FaDollarSign, FaChartLine, FaUserTie } from "react-icons/fa";
+
 
 const CRMdashboard = () => {
    const [leadData, setLeadData] = useState([]);
@@ -32,6 +36,21 @@ const CRMdashboard = () => {
   const [selectedPeriod, setSelectedPeriod] = useState(7);
   const [isLoadingLeads, setIsLoadingLeads] = useState(true);
   const [isLoadingReps, setIsLoadingReps] = useState(true);
+  const [openManagerModal, setOpenManagerModal] = useState(false);
+
+  // React Hook Form setup
+  const { register, handleSubmit, reset, formState: { errors } } = useForm();
+  const dispatch = useDispatch();
+
+  // Form submission handler for manager
+  const onSubmitManager =  (data) => {
+      dispatch(addManager(data)).then(res=>{
+        console.log("res",res)
+      })
+      .catch(err=>{
+        console.log("err",err)
+      });
+  };
 
   // Fetch data
   useEffect(() => {
@@ -151,11 +170,17 @@ const CRMdashboard = () => {
     }));
   }, [leadData]);
 
-  // Hat Usage data
+  // Hat Usage data with fixed colors
   const hatUsageData = useMemo(() => {
     const usageCount = {};
-    const colors = ['#3B82F6', '#10B981', '#F59E0B', '#8B5CF6', '#EF4444', '#EC4899'];
+    const availableColors = [
+      '#EF4444', '#10B981', '#F59E0B', '#8B5CF6', '#06B6D4', '#EC4899', 
+      '#84CC16', '#3B82F6', '#F97316', '#6366F1', '#14B8A6', '#DC2626',
+      '#059669', '#7C3AED', '#EA580C', '#BE185D', '#0D9488', '#1D4ED8',
+      '#16A34A', '#9333EA', '#6B7280', '#374151'
+    ];
     
+    // First pass: collect all unique options
     leadData.forEach(lead => {
       if (lead["Hat Usage"] && Array.isArray(lead["Hat Usage"])) {
         lead["Hat Usage"].forEach(usage => {
@@ -164,18 +189,31 @@ const CRMdashboard = () => {
       }
     });
     
-    return Object.entries(usageCount).map(([name, value], index) => ({
+    // Create a consistent color mapping for each unique option
+    const uniqueOptions = Object.keys(usageCount);
+    const colorMap = {};
+    uniqueOptions.forEach((option, index) => {
+      colorMap[option] = availableColors[index % availableColors.length];
+    });
+    
+    return Object.entries(usageCount).map(([name, value]) => ({
       name,
       value,
-      color: colors[index % colors.length]
+      color: colorMap[name] || '#6B7280' // Fallback color
     }));
   }, [leadData]);
 
-  // Past Headwear Issues data
+  // Past Headwear Issues data with fixed colors
   const headwearIssuesData = useMemo(() => {
     const issuesCount = {};
-    const colors = ['#3B82F6', '#10B981', '#F59E0B', '#8B5CF6', '#EF4444', '#EC4899'];
+    const availableColors = [
+      '#EF4444', '#10B981', '#F59E0B', '#8B5CF6', '#06B6D4', '#EC4899', 
+      '#84CC16', '#3B82F6', '#F97316', '#6366F1', '#14B8A6', '#DC2626',
+      '#059669', '#7C3AED', '#EA580C', '#BE185D', '#0D9488', '#1D4ED8',
+      '#16A34A', '#9333EA', '#6B7280', '#374151'
+    ];
     
+    // First pass: collect all unique options
     leadData.forEach(lead => {
       if (lead["Past Headwear Issues"] && Array.isArray(lead["Past Headwear Issues"])) {
         lead["Past Headwear Issues"].forEach(issue => {
@@ -184,18 +222,31 @@ const CRMdashboard = () => {
       }
     });
     
-    return Object.entries(issuesCount).map(([name, value], index) => ({
+    // Create a consistent color mapping for each unique option
+    const uniqueOptions = Object.keys(issuesCount);
+    const colorMap = {};
+    uniqueOptions.forEach((option, index) => {
+      colorMap[option] = availableColors[index % availableColors.length];
+    });
+    
+    return Object.entries(issuesCount).map(([name, value]) => ({
       name,
       value,
-      color: colors[index % colors.length]
+      color: colorMap[name] || '#6B7280' // Fallback color
     }));
   }, [leadData]);
 
-  // What's Most Important data
+  // What's Most Important data with fixed colors
   const mostImportantData = useMemo(() => {
     const importantCount = {};
-    const colors = ['#3B82F6', '#10B981', '#F59E0B', '#8B5CF6', '#EF4444', '#EC4899'];
+    const availableColors = [
+      '#EF4444', '#10B981', '#F59E0B', '#8B5CF6', '#06B6D4', '#EC4899', 
+      '#84CC16', '#3B82F6', '#F97316', '#6366F1', '#14B8A6', '#DC2626',
+      '#059669', '#7C3AED', '#EA580C', '#BE185D', '#0D9488', '#1D4ED8',
+      '#16A34A', '#9333EA', '#6B7280', '#374151'
+    ];
     
+    // First pass: collect all unique options
     leadData.forEach(lead => {
       if (lead["What's Most Important"] && Array.isArray(lead["What's Most Important"])) {
         lead["What's Most Important"].forEach(item => {
@@ -204,10 +255,17 @@ const CRMdashboard = () => {
       }
     });
     
-    return Object.entries(importantCount).map(([name, value], index) => ({
+    // Create a consistent color mapping for each unique option
+    const uniqueOptions = Object.keys(importantCount);
+    const colorMap = {};
+    uniqueOptions.forEach((option, index) => {
+      colorMap[option] = availableColors[index % availableColors.length];
+    });
+    
+    return Object.entries(importantCount).map(([name, value]) => ({
       name,
       value,
-      color: colors[index % colors.length]
+      color: colorMap[name] || '#6B7280' // Fallback color
     }));
   }, [leadData]);
 
@@ -234,21 +292,33 @@ const CRMdashboard = () => {
     }).filter(rep => rep.assignedLeads > 0);
   }, [repData, leadData]);
 
-  // Helper function to generate random colors
-  const getRandomColor = () => {
-    const colors = [
-      'bg-blue-100 text-blue-800',
-      'bg-green-100 text-green-800', 
-      'bg-yellow-100 text-yellow-800',
-      'bg-red-100 text-red-800',
-      'bg-purple-100 text-purple-800',
-      'bg-pink-100 text-pink-800',
-      'bg-indigo-100 text-indigo-800',
-      'bg-cyan-100 text-cyan-800',
-      'bg-orange-100 text-orange-800',
-      'bg-teal-100 text-teal-800'
-    ];
-    return colors[Math.floor(Math.random() * colors.length)];
+  // Helper function to get fixed color classes
+  const getFixedColorClass = (color) => {
+    const colorMap = {
+      '#3B82F6': 'bg-blue-100 text-blue-800',
+      '#10B981': 'bg-green-100 text-green-800',
+      '#F59E0B': 'bg-yellow-100 text-yellow-800',
+      '#8B5CF6': 'bg-purple-100 text-purple-800',
+      '#EF4444': 'bg-red-100 text-red-800',
+      '#EC4899': 'bg-pink-100 text-pink-800',
+      '#06B6D4': 'bg-cyan-100 text-cyan-800',
+      '#84CC16': 'bg-lime-100 text-lime-800',
+      '#6B7280': 'bg-gray-100 text-gray-800',
+      '#F97316': 'bg-orange-100 text-orange-800',
+      '#6366F1': 'bg-indigo-100 text-indigo-800',
+      '#14B8A6': 'bg-teal-100 text-teal-800',
+      '#DC2626': 'bg-red-100 text-red-800',
+      '#059669': 'bg-emerald-100 text-emerald-800',
+      '#7C3AED': 'bg-violet-100 text-violet-800',
+      '#EA580C': 'bg-orange-100 text-orange-800',
+      '#BE185D': 'bg-pink-100 text-pink-800',
+      '#0D9488': 'bg-teal-100 text-teal-800',
+      '#1D4ED8': 'bg-blue-100 text-blue-800',
+      '#16A34A': 'bg-green-100 text-green-800',
+      '#9333EA': 'bg-violet-100 text-violet-800',
+      '#374151': 'bg-gray-100 text-gray-800'
+    };
+    return colorMap[color] || 'bg-gray-100 text-gray-800';
   };
 
   // Show loader while data is being fetched
@@ -266,6 +336,18 @@ const CRMdashboard = () => {
     <>
       <div className="wrapper_area my-0 mx-auto p-6 rounded-xl bg-gray-50 min-h-screen">
         <div className="h-full lg:h-full">
+          {/* Header with Add Manager Button */}
+          <div className="flex justify-between items-center mb-6">
+            <h1 className="text-3xl font-bold text-gray-900">CRM Dashboard</h1>
+            <Button
+              onClick={() => setOpenManagerModal(true)}
+              className="bg-[#f20c32] hover:bg-black px-4 py-2 text-white text-base font-semibold flex justify-center items-center rounded-md"
+            >
+              <FaUserTie className="mr-2" />
+              Add Manager
+            </Button>
+          </div>
+
           {/* Top Section - Cards Row */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
             {/* Total Leads Card */}
@@ -277,9 +359,7 @@ const CRMdashboard = () => {
                   {/* <p className="text-sm text-green-600">+12% from last month</p> */}
                 </div>
                 <div className="w-12 h-12 bg-gradient-to-r from-red-500 to-red-400 rounded-lg flex items-center justify-center">
-                  <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                      </svg>
+                  <FaUsers className="w-6 h-6 text-white" />
                     </div>
                   </div>
                 </div>
@@ -293,9 +373,7 @@ const CRMdashboard = () => {
                   {/* <p className="text-sm text-green-600">+8% from last month</p> */}
                 </div>
                 <div className="w-12 h-12 bg-gradient-to-r from-red-500 to-red-400 rounded-lg flex items-center justify-center">
-                  <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
-                      </svg>
+                  <FaDollarSign className="w-6 h-6 text-white" />
                     </div>
                   </div>
                 </div>
@@ -309,9 +387,7 @@ const CRMdashboard = () => {
                   {/* <p className="text-sm text-green-600">+15% from last month</p> */}
                 </div>
                 <div className="w-12 h-12 bg-gradient-to-r from-red-500 to-red-400 rounded-lg flex items-center justify-center">
-                  <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
-                      </svg>
+                  <FaChartLine className="w-6 h-6 text-white" />
                     </div>
                   </div>
                 </div>
@@ -325,9 +401,7 @@ const CRMdashboard = () => {
                   {/* <p className="text-sm text-green-600">+2 from last month</p> */}
                 </div>
                 <div className="w-12 h-12 bg-gradient-to-r from-red-500 to-red-400 rounded-lg flex items-center justify-center">
-                  <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
-                      </svg>
+                  <FaUserTie className="w-6 h-6 text-white" />
                     </div>
                 </div>
               </div>
@@ -457,7 +531,7 @@ const CRMdashboard = () => {
               <div className="space-y-3">
                 {hatUsageData.map((item, index) => (
                   <div key={index} className="flex items-center justify-between">
-                    <span className={`px-3 py-1 rounded-full text-sm font-medium ${getRandomColor()}`}>
+                    <span className={`px-3 py-1 text-sm font-medium ${getFixedColorClass(item.color)}`}>
                       {item.name}
                     </span>
                     <span className="text-lg font-bold text-gray-900">{item.value}</span>
@@ -477,7 +551,7 @@ const CRMdashboard = () => {
               <div className="space-y-3">
                 {headwearIssuesData.map((item, index) => (
                   <div key={index} className="flex items-center justify-between">
-                    <span className={`px-3 py-1 rounded-full text-sm font-medium ${getRandomColor()}`}>
+                    <span className={`px-3 py-1 text-sm font-medium ${getFixedColorClass(item.color)}`}>
                       {item.name}
                     </span>
                     <span className="text-lg font-bold text-gray-900">{item.value}</span>
@@ -497,7 +571,7 @@ const CRMdashboard = () => {
               <div className="space-y-3">
                 {mostImportantData.map((item, index) => (
                   <div key={index} className="flex items-center justify-between">
-                    <span className={`px-3 py-1 rounded-full text-sm font-medium ${getRandomColor()}`}>
+                    <span className={`px-3 py-1 text-sm font-medium ${getFixedColorClass(item.color)}`}>
                       {item.name}
                     </span>
                     <span className="text-lg font-bold text-gray-900">{item.value}</span>
@@ -507,6 +581,216 @@ const CRMdashboard = () => {
             </div>
           </div>
         </div>
+
+        {/* Add Manager Modal */}
+        {openManagerModal && (
+          <div style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: 'rgba(0, 0, 0, 0.5)',
+            backdropFilter: 'blur(4px)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 1000
+          }}>
+            <div style={{
+              backgroundColor: 'white',
+              borderRadius: '12px',
+              padding: '24px',
+              width: '90%',
+              maxWidth: '500px',
+              boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
+              position: 'relative'
+            }}>
+              {/* Close Button */}
+              <button
+                onClick={() => {
+                  setOpenManagerModal(false);
+                  reset();
+                }}
+                style={{
+                  position: 'absolute',
+                  top: '16px',
+                  right: '16px',
+                  background: 'none',
+                  border: 'none',
+                  fontSize: '24px',
+                  cursor: 'pointer',
+                  color: '#6b7280',
+                  padding: '4px'
+                }}
+              >
+                ×
+              </button>
+
+              {/* Modal Header */}
+              <div style={{ marginBottom: '20px' }}>
+                <h2 style={{
+                  fontSize: '20px',
+                  fontWeight: '700',
+                  color: '#1f2937',
+                  margin: 0
+                }}>
+                  Add New Manager
+                </h2>
+                <p style={{
+                  fontSize: '14px',
+                  color: '#6b7280',
+                  margin: '4px 0 0 0'
+                }}>
+                  Add a new manager to the system
+                </p>
+              </div>
+
+              {/* Form */}
+              <form onSubmit={handleSubmit(onSubmitManager)} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                {/* Full Name Field */}
+                <div>
+                  <label style={{
+                    display: 'block',
+                    fontSize: '14px',
+                    fontWeight: '600',
+                    color: '#374151',
+                    marginBottom: '6px'
+                  }}>
+                    Full Name *
+                  </label>
+                  <input
+                    type="text"
+                    {...register('full_name', { required: 'Full name is required' })}
+                    style={{
+                      width: '100%',
+                      padding: '10px 12px',
+                      border: errors.full_name ? '1px solid #ef4444' : '1px solid #d1d5db',
+                      borderRadius: '6px',
+                      fontSize: '14px',
+                      outline: 'none',
+                      transition: 'border-color 0.2s'
+                    }}
+                  />
+                  {errors.full_name && (
+                    <p style={{ color: '#ef4444', fontSize: '12px', marginTop: '4px' }}>
+                      {errors.full_name.message}
+                    </p>
+                  )}
+                </div>
+
+                {/* Email Field */}
+                <div>
+                  <label style={{
+                    display: 'block',
+                    fontSize: '14px',
+                    fontWeight: '600',
+                    color: '#374151',
+                    marginBottom: '6px'
+                  }}>
+                    Email Address *
+                  </label>
+                  <input
+                    type="email"
+                    {...register('email', { 
+                      required: 'Email is required',
+                      pattern: {
+                        value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+                        message: 'Invalid email address'
+                      }
+                    })}
+                    style={{
+                      width: '100%',
+                      padding: '10px 12px',
+                      border: errors.email ? '1px solid #ef4444' : '1px solid #d1d5db',
+                      borderRadius: '6px',
+                      fontSize: '14px',
+                      outline: 'none',
+                      transition: 'border-color 0.2s'
+                    }}
+                  />
+                  {errors.email && (
+                    <p style={{ color: '#ef4444', fontSize: '12px', marginTop: '4px' }}>
+                      {errors.email.message}
+                    </p>
+                  )}
+                </div>
+
+                {/* Avatar Upload Field */}
+                {/* <div>
+                  <label style={{
+                    display: 'block',
+                    fontSize: '14px',
+                    fontWeight: '600',
+                    color: '#374151',
+                    marginBottom: '6px'
+                  }}>
+                    Avatar (Image Upload)
+                  </label>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    {...register('avatar')}
+                    style={{
+                      width: '100%',
+                      padding: '10px 12px',
+                      border: '1px solid #d1d5db',
+                      borderRadius: '6px',
+                      fontSize: '14px',
+                      outline: 'none',
+                      transition: 'border-color 0.2s'
+                    }}
+                  />
+                </div> */}
+
+                {/* Action Buttons */}
+                <div style={{
+                  display: 'flex',
+                  gap: '12px',
+                  justifyContent: 'flex-end',
+                  marginTop: '8px'
+                }}>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setOpenManagerModal(false);
+                      reset();
+                    }}
+                    style={{
+                      padding: '10px 20px',
+                      border: '1px solid #d1d5db',
+                      borderRadius: '6px',
+                      fontSize: '14px',
+                      fontWeight: '600',
+                      color: '#374151',
+                      background: 'white',
+                      cursor: 'pointer',
+                      transition: 'all 0.2s'
+                    }}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    style={{
+                      padding: '10px 20px',
+                      border: 'none',
+                      borderRadius: '6px',
+                      fontSize: '14px',
+                      fontWeight: '600',
+                      color: 'white',
+                      background: 'linear-gradient(135deg, #f20c32 0%, #dc2626 100%)',
+                      cursor: 'pointer',
+                      transition: 'all 0.2s'
+                    }}
+                  >
+                    Add Manager
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
       </div>
     </>
   );
