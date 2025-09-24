@@ -85,10 +85,10 @@ const Login = () => {
         <div className="lg:flex h-screen">
           <div className="lg:w-6/12 flex justify-center items-center">
             <div className="w-10/12 lg:w-7/12">
-              <div className="text-center lg:mb-10">
+              <div className="text-center lg:mb-0">
                 <img src={showme} alt="logo" className="inline-block w-7/12" />
               </div>
-              <h1 className="text-center font-medium text-[20px] lg:text-[25px] leading-[45px] text-black pb-4 lg:pb-12">
+              <h1 className="text-center font-medium text-[20px] lg:text-[25px] leading-[45px] text-black pb-4 lg:pb-6">
                 Sign In to Your Account
               </h1>
               <div className="login_area">
