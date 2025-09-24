@@ -29,10 +29,21 @@ const ManageReps = () => {
 
   // React Hook Form setup
   const { register, handleSubmit, reset, formState: { errors } } = useForm();
-
+  const {loading} = useSelector((state)=>state.add);
   // Form submission handler
   const onSubmit = (data)=>{
-    
+    dispatch(addRep(data))
+    .then((res) => {
+      console.log("res", res);
+      toast.success(res?.payload?.message);
+      reset();
+      setOpenMoodMasterModal(false);
+      axios.get("https://n8nnode.bestworks.cloud/webhook/airtable-rep-fetch")
+    })
+    .catch((err) => {
+      console.log("err", err);
+      toast.error(res?.payload?.message);
+    });
   }
 
   useEffect(() => {
@@ -323,7 +334,7 @@ const ManageReps = () => {
         <div className="wrapper_area my-0 mx-auto p-6 rounded-xl bg-white">
           <div className="h-full lg:h-screen">
             <div className="flex justify-between items-center mb-4">
-              <h2 className="text-2xl font-semibold">Mood Master</h2>
+              <h2 className="text-2xl font-semibold">Reps</h2>
               <Button
                 onClick={() => setOpenMoodMasterModal(true)}
                 className="bg-[#f20c32] hover:bg-black px-4 py-1 text-white text-base font-semibold flex justify-center items-center rounded-md"
@@ -566,6 +577,7 @@ const ManageReps = () => {
                     </button>
                     <button
                       type="submit"
+                      disabled={loading}
                       style={{
                         padding: '10px 20px',
                         border: 'none',
@@ -578,7 +590,7 @@ const ManageReps = () => {
                         transition: 'all 0.2s'
                       }}
                     >
-                      Add Rep
+                      {loading?"Processing...":"Add Rep"}
                     </button>
                   </div>
                 </form>

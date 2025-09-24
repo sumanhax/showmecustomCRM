@@ -28,6 +28,7 @@ const ManageLeads = () => {
       .then((res) => {
         console.log("res", res.data);
         setLeadData(res.data);
+       
       })
       .catch((error) => {
         console.error("Error fetching leads:", error);
@@ -268,7 +269,7 @@ const ManageLeads = () => {
         <div className="wrapper_area my-0 mx-auto p-6 rounded-xl bg-white">
           <div className="h-full lg:h-screen">
             <div className="flex justify-between items-center mb-4">
-              <h2 className="text-2xl font-semibold">Mood Master</h2>
+              <h2 className="text-2xl font-semibold">Leads</h2>
               <Button
                 onClick={() => setOpenMoodMasterModal(true)}
                 className="bg-[#f20c32] hover:bg-black px-4 py-1 text-white text-base font-semibold flex justify-center items-center rounded-md"

@@ -34,6 +34,7 @@ const CRMdashboard = () => {
   const [isLoadingReps, setIsLoadingReps] = useState(true);
   const [openManagerModal, setOpenManagerModal] = useState(false);
 
+  const {loading} = useSelector((state)=>state.add);
   // React Hook Form setup
   const {
     register,
@@ -45,12 +46,18 @@ const CRMdashboard = () => {
 
   // Form submission handler for manager
   const onSubmitManager = (data) => {
+   
     dispatch(addManager(data))
       .then((res) => {
         console.log("res", res);
+        toast.success(res?.payload?.message);
+        reset();
+        setOpenManagerModal(false);
+        axios.get("https://n8nnode.bestworks.cloud/webhook/airtable-lead-fetch")
       })
       .catch((err) => {
         console.log("err", err);
+        toast.error(res?.payload?.message);
       });
   };
 
@@ -434,10 +441,10 @@ const CRMdashboard = () => {
             </h1>
             <Button
               onClick={() => setOpenManagerModal(true)}
-              className="bg-[#f20c32] hover:bg-black px-4 py-2 text-white text-base font-semibold flex justify-center items-center rounded-md"
+              className="bg-[#f20c32] hover:bg-black px-4 py-2 text-white text-base font-semibold flex justify-center items-center rounded-md "
             >
               <FaUserTie className="mr-2" />
-              Add Manager
+             Add Manager
             </Button>
           </div>
 
@@ -1009,6 +1016,7 @@ const CRMdashboard = () => {
                   </button>
                   <button
                     type="submit"
+                    disabled={loading}
                     style={{
                       padding: "10px 20px",
                       border: "none",
@@ -1022,7 +1030,7 @@ const CRMdashboard = () => {
                       transition: "all 0.2s",
                     }}
                   >
-                    Add Manager
+                    {loading?"Processing...":"Add Manager"}
                   </button>
                 </div>
               </form>
