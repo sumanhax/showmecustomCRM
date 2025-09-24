@@ -13,7 +13,7 @@ import "@syncfusion/ej2-inputs/styles/material.css";
 import "@syncfusion/ej2-navigations/styles/material.css";
 import "@syncfusion/ej2-popups/styles/material.css";
 import "@syncfusion/ej2-react-kanban/styles/material.css";
-
+import { IoDocumentTextOutline } from "react-icons/io5";
 import React from "react";
 import axios from "axios";
 import { useEffect, useState } from "react";
@@ -33,6 +33,15 @@ export function KanbanBoard() {
   const [emailForm, setEmailForm] = useState({
     to: '',
     subject: '',
+    message: ''
+  });
+  const [callModal, setCallModal] = useState<{isOpen: boolean, phoneNumber: string, leadName: string}>({
+    isOpen: false,
+    phoneNumber: '',
+    leadName: ''
+  });
+  const [callForm, setCallForm] = useState({
+    phone: '',
     message: ''
   });
 
@@ -115,9 +124,30 @@ const handleEmailModalClose = () => {
   setEmailForm({ to: '', subject: '', message: '' });
 };
 
-// Call handler function
-const handleCallClick = (phoneNumber: string) => {
-  window.open(`tel:${phoneNumber}`, '_self');
+// Call modal handler functions
+const handleCallClick = (phoneNumber: string, leadName: string) => {
+  setCallModal({
+    isOpen: true,
+    phoneNumber,
+    leadName
+  });
+  setCallForm({
+    phone: phoneNumber,
+    message: `Hi ${leadName},\n\nI hope this call finds you well. I wanted to follow up on our previous conversation...\n\nBest regards,`
+  });
+};
+
+const handleCallSend = () => {
+  // Sample handler function
+  console.log("Sending call message:", callForm);
+  alert("Call message sent successfully!");
+  setCallModal({ isOpen: false, phoneNumber: '', leadName: '' });
+  setCallForm({ phone: '', message: '' });
+};
+
+const handleCallModalClose = () => {
+  setCallModal({ isOpen: false, phoneNumber: '', leadName: '' });
+  setCallForm({ phone: '', message: '' });
 };
   // Prevent incorrect drags
   // function onDragStart(args: any) {
@@ -244,7 +274,7 @@ console.log('args',args)
             <button
               onClick={(e) => {
                 e.stopPropagation();
-                handleCallClick(props.Phone);
+                handleCallClick(props.Phone, props.Title);
               }}
               style={{
                 background: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
@@ -271,10 +301,8 @@ console.log('args',args)
                 (e.target as HTMLButtonElement).style.boxShadow = 'none';
               }}
             >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
-              </svg>
-              Call
+              <IoDocumentTextOutline />
+              Text
             </button>
           </div>
         </div>
@@ -597,6 +625,187 @@ console.log('args',args)
                   }}
                 >
                   Send Email
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Call Modal */}
+      {callModal.isOpen && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'rgba(0, 0, 0, 0.5)',
+          backdropFilter: 'blur(4px)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 1000
+        }}>
+          <div style={{
+            backgroundColor: 'white',
+            borderRadius: '12px',
+            padding: '24px',
+            width: '90%',
+            maxWidth: '500px',
+            boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
+            position: 'relative'
+          }}>
+            {/* Close Button */}
+            <button
+              onClick={handleCallModalClose}
+              style={{
+                position: 'absolute',
+                top: '16px',
+                right: '16px',
+                background: 'none',
+                border: 'none',
+                fontSize: '24px',
+                cursor: 'pointer',
+                color: '#6b7280',
+                padding: '4px'
+              }}
+            >
+              ×
+            </button>
+
+            {/* Modal Header */}
+            <div style={{ marginBottom: '20px' }}>
+              <h2 style={{
+                fontSize: '20px',
+                fontWeight: '700',
+                color: '#1f2937',
+                margin: 0
+              }}>
+                Text Message
+              </h2>
+              <p style={{
+                fontSize: '14px',
+                color: '#6b7280',
+                margin: '4px 0 0 0'
+              }}>
+                Send a text message to {callModal.leadName}
+              </p>
+            </div>
+
+            {/* Call Form */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              {/* Phone Field */}
+              <div>
+                <label style={{
+                  display: 'block',
+                  fontSize: '14px',
+                  fontWeight: '600',
+                  color: '#374151',
+                  marginBottom: '6px'
+                }}>
+                  Phone Number
+                </label>
+                <input
+                  type="tel"
+                  value={callForm.phone}
+                  onChange={(e) => setCallForm({...callForm, phone: e.target.value})}
+                  style={{
+                    width: '100%',
+                    padding: '10px 12px',
+                    border: '1px solid #d1d5db',
+                    borderRadius: '6px',
+                    fontSize: '14px',
+                    outline: 'none',
+                    transition: 'border-color 0.2s'
+                  }}
+                  onFocus={(e) => (e.target as HTMLInputElement).style.borderColor = '#3b82f6'}
+                  onBlur={(e) => (e.target as HTMLInputElement).style.borderColor = '#d1d5db'}
+                />
+              </div>
+
+              {/* Message Field */}
+              <div>
+                <label style={{
+                  display: 'block',
+                  fontSize: '14px',
+                  fontWeight: '600',
+                  color: '#374151',
+                  marginBottom: '6px'
+                }}>
+                  Message
+                </label>
+                <textarea
+                  value={callForm.message}
+                  onChange={(e) => setCallForm({...callForm, message: e.target.value})}
+                  rows={6}
+                  style={{
+                    width: '100%',
+                    padding: '10px 12px',
+                    border: '1px solid #d1d5db',
+                    borderRadius: '6px',
+                    fontSize: '14px',
+                    outline: 'none',
+                    resize: 'vertical',
+                    transition: 'border-color 0.2s'
+                  }}
+                  onFocus={(e) => (e.target as HTMLTextAreaElement).style.borderColor = '#3b82f6'}
+                  onBlur={(e) => (e.target as HTMLTextAreaElement).style.borderColor = '#d1d5db'}
+                />
+              </div>
+
+              {/* Action Buttons */}
+              <div style={{
+                display: 'flex',
+                gap: '12px',
+                justifyContent: 'flex-end',
+                marginTop: '8px'
+              }}>
+                <button
+                  onClick={handleCallModalClose}
+                  style={{
+                    padding: '10px 20px',
+                    border: '1px solid #d1d5db',
+                    borderRadius: '6px',
+                    fontSize: '14px',
+                    fontWeight: '600',
+                    color: '#374151',
+                    background: 'white',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s'
+                  }}
+                  onMouseOver={(e) => {
+                    (e.target as HTMLButtonElement).style.backgroundColor = '#f9fafb';
+                  }}
+                  onMouseOut={(e) => {
+                    (e.target as HTMLButtonElement).style.backgroundColor = 'white';
+                  }}
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleCallSend}
+                  style={{
+                    padding: '10px 20px',
+                    border: 'none',
+                    borderRadius: '6px',
+                    fontSize: '14px',
+                    fontWeight: '600',
+                    color: 'white',
+                    background: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s'
+                  }}
+                  onMouseOver={(e) => {
+                    (e.target as HTMLButtonElement).style.transform = 'translateY(-1px)';
+                    (e.target as HTMLButtonElement).style.boxShadow = '0 4px 8px rgba(240, 147, 251, 0.3)';
+                  }}
+                  onMouseOut={(e) => {
+                    (e.target as HTMLButtonElement).style.transform = 'translateY(0)';
+                    (e.target as HTMLButtonElement).style.boxShadow = 'none';
+                  }}
+                >
+                  Send Message
                 </button>
               </div>
             </div>

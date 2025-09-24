@@ -4,18 +4,12 @@ import errorHandler from "../store/ErrorHandler";
 import { Base64, decode, encode } from "js-base64";
 import api from "../store/Api";
 
-
-
-
-
 //For Register
-
-
 export const registerUser = createAsyncThunk(
     'user/register',
     async (userInput, { rejectWithValue }) => {
         try {
-            const response = await api.post('auth/register', userInput);
+            const response = await api.post('/api/admin/register', userInput);
             if (response?.data?.status_code === 201) {
                 return response.data;
             } else {
@@ -30,10 +24,7 @@ export const registerUser = createAsyncThunk(
         }
     }
 )
-
-
 //for OTP
-
 export const verifyOtp = createAsyncThunk(
     'user/verify-otp',
     async (userInput, { rejectWithValue }) => {
@@ -54,16 +45,13 @@ export const verifyOtp = createAsyncThunk(
     }
 );
 
-
 // For Login
-
-
 export const login = createAsyncThunk(
     'auth/login',
     async (userInput, { rejectWithValue }) => {
 
         try {
-            const response = await api.post('api/auth/login', {email: userInput?.username, password: userInput?.password});
+            const response = await api.post('/api/admin/login', {email: userInput?.username, password: userInput?.password});
             if (response?.data?.status_code === 200) {
                 return response.data;
             } else {
@@ -75,6 +63,26 @@ export const login = createAsyncThunk(
         }
     }
 )
+
+export const managerLogin = createAsyncThunk(
+    'auth/managerLogin',
+    async (userInput, { rejectWithValue }) => {
+
+        try {
+            const response = await api.post('/api/manager/login', {email: userInput?.username, password: userInput?.password});
+            if (response?.data?.status_code === 200) {
+                return response.data;
+            } else {
+                return rejectWithValue(response.data);
+            }
+        } catch (err) {
+            // let errors = errorHandler(err);
+            return rejectWithValue(err);
+        }
+    }
+)
+
+
 
 export const forgotPassword = createAsyncThunk(
     'auth/forgotPassword',
@@ -153,6 +161,8 @@ const initialState = {
     currentUser: {},
     subdomain: [],
     loadingLogin: false,
+    authData:{}
+    
 }
 
 
@@ -176,9 +186,9 @@ const AuthSlice = createSlice(
                 state.currentUser = {};
                 state.message = null;
                 state.error = null
-                sessionStorage.removeItem('good_mood_admin_token')
-                localStorage.removeItem('user_role_id')
-                localStorage.removeItem('user_short_name')
+                sessionStorage.removeItem('crm_login_token')
+                // localStorage.removeItem('user_role')
+                // localStorage.removeItem('fullname')
                 localStorage.clear()
 
             }
@@ -233,16 +243,17 @@ const AuthSlice = createSlice(
                 .addCase(login.fulfilled, (state, { payload }) => {
 
                     console.log("Payload", payload);
+                    state.authData = payload;
                     state.isLoggedIn = true;
-
                     state.message = payload?.message;
                     state.loadingLogin = false;
-
                     sessionStorage.setItem(
-                        'good_mood_admin_token',
-                        JSON.stringify({ token: payload?.token })
+                        'crm_login_token',
+                        JSON.stringify({ access_token: payload?.access_token, refresh_token: payload?.refresh_token })
                     )
-                    // localStorage.setItem('user_role_id', payload?.role_id)
+                    localStorage.setItem('user_id', payload?.data?.id)
+                    localStorage.setItem('user_role', payload?.data?.role)
+                    localStorage.setItem('fullname', payload?.data?.fullname)
                     // localStorage.setItem("user_short_name", payload?.role_short_name)
 
                 })
@@ -256,6 +267,40 @@ const AuthSlice = createSlice(
                             ? response
                             : 'Something went wrong. Try again later.';
                 })
+                .addCase(managerLogin.pending, (state) => {
+                    state.loadingLogin = true;
+                    state.isLoggedIn = false;
+                    state.error = false;
+                })
+                .addCase(managerLogin.fulfilled, (state, { payload }) => {
+
+                    console.log("Payload", payload);
+                    state.authData = payload;
+                    state.isLoggedIn = true;
+                    state.message = payload?.message;
+                    state.loadingLogin = false;
+                    sessionStorage.setItem(
+                        'crm_login_token',
+                        JSON.stringify({ access_token: payload?.access_token, refresh_token: payload?.refresh_token })
+                    )
+                    localStorage.setItem('user_id', payload?.data?.id)
+                    localStorage.setItem('user_role', payload?.data?.role)
+                    localStorage.setItem('fullname', payload?.data?.fullname)
+                    // localStorage.setItem("user_short_name", payload?.role_short_name)
+
+                })
+
+                .addCase(managerLogin.rejected, (state, response) => {
+                    // console.log("Payload: ", payload);
+                    state.error = true;
+                    state.loadingLogin = false;
+                    state.message =
+                        response !== undefined && response
+                            ? response
+                            : 'Something went wrong. Try again later.';
+                })
+
+
                 .addCase(forgotPassword.pending, (state) => {
                     state.loading = true;
                 })

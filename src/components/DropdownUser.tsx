@@ -12,6 +12,8 @@ import { useSelector } from 'react-redux';
 const DropdownUser = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const navigate = useNavigate();
+  const userRole = localStorage.getItem('user_role');
+  const fullname = localStorage.getItem('fullname');
 
   const { profileDetail } = useSelector((state) => state.profile);
 
@@ -68,16 +70,16 @@ const DropdownUser = () => {
       >
         <span className="hidden text-right lg:block">
           <span className="block text-xs font-medium text-black">
-            User Name
+           {fullname}
           </span>
           <span className="block text-xs text-gray-400">
             {/* {parseUserName?.user_type} */}
-            Admin
+            {userRole}
           </span>
         </span>
 
         <span className="h-8 w-8 rounded-full">
-          {/* <img src={profileDetail?.data?.avatar ? profileDetail?.data?.avatar : UserOne} alt="User" /> */}
+          <img src={UserOne} alt="User" />
         </span>
 
         <svg

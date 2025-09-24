@@ -2,16 +2,16 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 const api = axios.create({ baseURL: import.meta.env.VITE_API_BASE_URL });
 let domain = window.location.origin
-const formDataURL = ['/admin/category/add-category', '/admin/category/change-category-image', '/admin/mood-meter/add', '/admin/mood-meter/update-image', '/mood-master/create', '/mood-master/image-update','/admin-blog-manage/add','/admin/mood-equelizer/create'];
+const formDataURL = ['/api/admin/dashboard/add-rep', '/api/admin/dashboard/add-manager'];
 api.interceptors.request.use((req) => {
   let userTokenData;
   try {
-    userTokenData = JSON.parse(sessionStorage.getItem('good_mood_admin_token'));
+    userTokenData = JSON.parse(sessionStorage.getItem('crm_login_token'));
     // console.log("UserTokenData", userTokenData);
   } catch (error) {
     userTokenData = null;
   }
-  let token = userTokenData && userTokenData.token ? userTokenData.token : null;
+  let token = userTokenData && userTokenData.access_token ? userTokenData.access_token : null;
   // console.log("Req: ", req.url);
   req.headers['Content-Type'] = 'application/json';
   // if (formDataURL.includes(req.url)) {
@@ -33,7 +33,7 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response && [401, 403].includes(error.response.status)) {
-      sessionStorage.removeItem('good_mood_admin_token');
+      sessionStorage.removeItem('crm_login_token');
     }
     return Promise.reject(error);
   }
