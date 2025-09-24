@@ -56,7 +56,7 @@ const InsideLayout = () => {
           {/* <!-- ===== Sidebar End ===== --> */}
 
           {/* <!-- ===== Content Area Start ===== --> */}
-          <div className="relative flex flex-1 flex-col mb-24 py-0 mr-6 ml-12">
+          <div className="relative flex flex-1 flex-col mb-24 py-0 mr-6 lg:ml-12">
             {/* <!-- ===== Header Start ===== --> */}
             <Header sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
             {/* <!-- ===== Header End ===== --> */}

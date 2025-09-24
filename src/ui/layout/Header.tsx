@@ -31,14 +31,14 @@ function Header(props: {
                 props.setSidebarOpen(!props.sidebarOpen);
                 dispatch(toggleSidebar());
               }}
-              className="z-99999 block rounded-lg bg-[#f20c32] p-1 absolute top-[28px] left-[-60px]"
+              className="z-99999 block rounded-lg bg-[#f20c32] p-1 absolute top-[28px] left-[-12px]"
             >
               <IoMdArrowForward className="text-xl text-white hover:text-black" />
             </button>
             {/* <!-- Hamburger Toggle BTN --> */}
             <Link className="block flex-shrink-0" to="/">
               {/* <img src={logoIcon} alt="Logo" /> */}
-              <p className="text-3xl font-bold text-gray-900 mb-2">Dashboard</p>
+              <p className="text-3xl text-gray-900 mb-2">Dashboard</p>
               <span className="text-gray-600">
                 Monitor and analyze your lead generation performance
               </span>
@@ -61,12 +61,12 @@ function Header(props: {
                   props.setSidebarOpen(!props.sidebarOpen);
                   dispatch(toggleSidebar())
                 }}
-                className="z-99999 block rounded-lg bg-[#f20c32] p-1 absolute top-[28px] left-[-60px]"
+                className="z-99999 block rounded-lg bg-[#f20c32] p-1 absolute top-[28px] left-[-12px]"
               >
                 <IoMdArrowBack className="text-xl text-white hover:text-black" />
               </button>
               {/* <!-- Hamburger Toggle BTN --> */}
-              <Link className="block flex-shrink-0" to="/">
+              <Link className="block flex-shrink-0 opacity-0" to="/">
                 {/* <img src={logoIcon} alt="Logo" /> */}
                 <p className="text-black text-[30px] font-medium">Dashboard</p>
                 <span className="text-base text-[#323232]">

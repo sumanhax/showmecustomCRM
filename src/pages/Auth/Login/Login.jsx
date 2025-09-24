@@ -59,16 +59,17 @@ const Login = () => {
       Cookies.remove("password");
     }
     if (data.role === "Manager") {
-      dispatch(managerLogin(data)).then((res) => {
-        console.log("Res admin: ", res);
-        if (res?.payload?.status_code === 200) {
-          navigate("/crm-dashboard");
-        }
-      })
-      .catch((err)=>{
-        console.log("err",err)
-        toast.error(err?.payload?.message);
-      });
+      dispatch(managerLogin(data))
+        .then((res) => {
+          console.log("Res admin: ", res);
+          if (res?.payload?.status_code === 200) {
+            navigate("/crm-dashboard");
+          }
+        })
+        .catch((err) => {
+          console.log("err", err);
+          toast.error(err?.payload?.message);
+        });
     } else {
       dispatch(login(data)).then((res) => {
         console.log("Res manager: ", res);
@@ -77,18 +78,17 @@ const Login = () => {
         }
       });
     }
-
   };
   return (
     <div className="my-0 lg:my-0 mx-4 lg:mx-0 flex justify-center items-center wrapper_bg_area">
       <div className="w-full my-0 mx-auto">
-        <div className="flex h-screen">
-          <div className="w-6/12 flex justify-center items-center">
-            <div className="w-7/12">
-              <div className="text-center mb-10">
+        <div className="lg:flex h-screen">
+          <div className="lg:w-6/12 flex justify-center items-center">
+            <div className="w-10/12 lg:w-7/12">
+              <div className="text-center lg:mb-10">
                 <img src={showme} alt="logo" className="inline-block w-7/12" />
               </div>
-              <h1 className="text-center font-medium text-[25px] leading-[45px] text-black pb-12">
+              <h1 className="text-center font-medium text-[20px] lg:text-[25px] leading-[45px] text-black pb-4 lg:pb-12">
                 Sign In to Your Account
               </h1>
               <div className="login_area">
@@ -147,7 +147,10 @@ const Login = () => {
                     <div className="mb-2 block">
                       <Label htmlFor="countries">User Role</Label>
                     </div>
-                    <Select id="countries" {...register("role", { required: true })}>
+                    <Select
+                      id="countries"
+                      {...register("role", { required: true })}
+                    >
                       <option value="">Select User Role</option>
                       <option value="Admin">Admin</option>
                       <option value="Manager">Manager</option>
@@ -218,7 +221,7 @@ const Login = () => {
             </div>
           </div>
           <div
-            className="w-6/12 bg-cover"
+            className="w-6/12 bg-cover hidden lg:block"
             style={{ backgroundImage: `url("${LoginImg}")` }}
           >
             &nbsp;

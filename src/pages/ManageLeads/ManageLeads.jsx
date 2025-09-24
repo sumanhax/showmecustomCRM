@@ -1,16 +1,12 @@
 import { useEffect, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useSelector } from "react-redux";
-import {
-  changeStatus,
-  getMoodMaster
-} from "../../Reducer/MoodMasterSlice";
+import { changeStatus, getMoodMaster } from "../../Reducer/MoodMasterSlice";
 import { AgGridReact } from "ag-grid-react";
 import { ToastContainer } from "react-toastify";
 import { Button } from "flowbite-react";
 import axios from "axios";
 import Loader from "../../components/Loader";
-
 
 const ManageLeads = () => {
   const { moodsList, singleMoodMaster } = useSelector(
@@ -22,12 +18,13 @@ const ManageLeads = () => {
   const [openUpdateMoodMasterModal, setOpenUpdateMoodMasterModal] =
     useState(false);
 
-    const [leadData, setLeadData] = useState([]);
-    const [isLoading, setIsLoading] = useState(true);
+  const [leadData, setLeadData] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     setIsLoading(true);
-    axios.get("https://n8nnode.bestworks.cloud/webhook/airtable-lead-fetch")
+    axios
+      .get("https://n8nnode.bestworks.cloud/webhook/airtable-lead-fetch")
       .then((res) => {
         console.log("res", res.data);
         setLeadData(res.data);
@@ -42,61 +39,63 @@ const ManageLeads = () => {
   }, []);
   console.log("leadData", leadData);
 
-//   const rowData = useMemo(() => {
-//     return (
-//       moodsList?.data?.map((tags) => ({
-//         id: tags?.id,
-//         mood_master_name: tags?.mood_master_name,
-//         mood_master_description: tags?.mood_master_description,
-//         mood_master_color_code: tags?.mood_master_color_code,
-//         mood_master_icon:
-//           "https://goodmoodapi.bestworks.cloud/" + tags?.mood_master_icon,
-//         status: tags.status,
-//       })) || []
-//     );
-//   }, [moodsList?.data]);
+  //   const rowData = useMemo(() => {
+  //     return (
+  //       moodsList?.data?.map((tags) => ({
+  //         id: tags?.id,
+  //         mood_master_name: tags?.mood_master_name,
+  //         mood_master_description: tags?.mood_master_description,
+  //         mood_master_color_code: tags?.mood_master_color_code,
+  //         mood_master_icon:
+  //           "https://goodmoodapi.bestworks.cloud/" + tags?.mood_master_icon,
+  //         status: tags.status,
+  //       })) || []
+  //     );
+  //   }, [moodsList?.data]);
 
   // Custom cell renderer for Lead Status
   const StatusRenderer = (params) => {
     const status = params.value;
-    
+
     // Define vibrant colors for each status with white text
     const getStatusStyle = (status) => {
       const statusStyles = {
         "Sample Submitted": {
           backgroundColor: "#3B82F6", // Vibrant blue
-          color: "#FFFFFF"
+          color: "#FFFFFF",
         },
         "Sample Art Approved": {
           backgroundColor: "#06B6D4", // Vibrant green
-          color: "#FFFFFF"
+          color: "#FFFFFF",
         },
         "Sample Shipped": {
           backgroundColor: "#F59E0B", // Vibrant orange
-          color: "#FFFFFF"
+          color: "#FFFFFF",
         },
         "Sample Delivered": {
           backgroundColor: "#10B981", // Vibrant cyan
-          color: "#FFFFFF"
+          color: "#FFFFFF",
         },
         "Nurture Sequence": {
           backgroundColor: "#8B5CF6", // Vibrant purple
-          color: "#FFFFFF"
+          color: "#FFFFFF",
         },
         "Warm Lead": {
           backgroundColor: "#EF4444", // Vibrant red
-          color: "#FFFFFF"
+          color: "#FFFFFF",
         },
         "Cold Lead": {
           backgroundColor: "#EC4899", // Vibrant pink
-          color: "#FFFFFF"
+          color: "#FFFFFF",
+        },
+      };
+
+      return (
+        statusStyles[status] || {
+          backgroundColor: "#6B7280", // Default gray
+          color: "#FFFFFF",
         }
-      };
-      
-      return statusStyles[status] || {
-        backgroundColor: "#6B7280", // Default gray
-        color: "#FFFFFF"
-      };
+      );
     };
 
     const style = getStatusStyle(status);
@@ -115,7 +114,7 @@ const ManageLeads = () => {
           textAlign: "center",
           minWidth: "140px",
           boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)", // Subtle shadow for depth
-          ...style
+          ...style,
         }}
       >
         {status}
@@ -244,12 +243,12 @@ const ManageLeads = () => {
     []
   );
 
-//   const handleUpdateMoodMaster = (id) => {
-//     console.log(id, "id");
-//     setOpenUpdateMoodMasterModal(true);
-//     setMoodMasterId(id);
-//     dispatch(getMoodMasterSingle({ user_input: id }));
-//   };
+  //   const handleUpdateMoodMaster = (id) => {
+  //     console.log(id, "id");
+  //     setOpenUpdateMoodMasterModal(true);
+  //     setMoodMasterId(id);
+  //     dispatch(getMoodMasterSingle({ user_input: id }));
+  //   };
 
   // Show loader while data is being fetched
   if (isLoading) {
@@ -264,7 +263,7 @@ const ManageLeads = () => {
 
   return (
     <>
-       <>
+      <>
         <ToastContainer />
         <div className="wrapper_area my-0 mx-auto p-6 rounded-xl bg-white">
           <div className="h-full lg:h-screen">
@@ -306,8 +305,7 @@ const ManageLeads = () => {
             />
           )} */}
         </div>
-      </> 
-    
+      </>
     </>
   );
 };

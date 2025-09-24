@@ -16,6 +16,12 @@ import { CiShoppingTag } from 'react-icons/ci';
 import { toggleSidebar } from '../../Reducer/SidebarSlice';
 import { useDispatch } from 'react-redux';
 
+import { IoMagnet } from "react-icons/io5";
+
+import { PiKanbanFill } from "react-icons/pi";
+
+import { MdOutlineRepeat } from "react-icons/md";
+
 interface SidebarProps {
   sidebarOpen: boolean;
   setSidebarOpen: (arg: boolean) => void;
@@ -86,13 +92,13 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
     <aside
       ref={sidebar}
       style={{ zIndex: 1 }}
-      className={`left-0 top-[50px] z-9999 flex w-72 rounded-3xl flex-col overflow-y-hidden bg-white duration-300 ease-linear absolute h-full lg:h-full min-h-[700px] shadow-xl ${sidebarOpen ? '-translate-x-full lg:static lg:w-24 lg:translate-x-0 ' : 'lg:translate-x-0 lg:static'
+      className={`left-0 top-[0px] z-9999 flex w-72 rounded-3xl flex-col overflow-y-hidden bg-white duration-300 ease-linear absolute h-full lg:h-full min-h-[700px] shadow-xl ${sidebarOpen ? '-translate-x-full lg:static lg:w-24 lg:translate-x-0 ' : 'lg:translate-x-0 lg:static'
         }`}
       onMouseEnter={onHoverOpenSidebar}
     >
       {/* <!-- SIDEBAR HEADER --> */}
       <div className="flex items-center justify-between gap-2 px-4 py-5 lg:py-[23px]">
-        <NavLink className="text-center w-full" to="/manage-zone">
+        <NavLink className="text-center w-full" to="/">
    
           {sidebarOpen ?
             <>
@@ -213,11 +219,11 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                 >
                   {sidebarOpen ?
                     <>
-                      <CiShoppingTag className='text-xl' />
+                      <IoMagnet className='text-xl' />
                     </>
                     :
                     <>
-                      <CiShoppingTag className='text-xl' />
+                      <IoMagnet className='text-xl' />
                       Leads
                     </>
                   }
@@ -232,11 +238,11 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                 >
                   {sidebarOpen ?
                     <>
-                      <CiShoppingTag className='text-xl' />
+                      <MdOutlineRepeat className='text-xl' />
                     </>
                     :
                     <>
-                      <CiShoppingTag className='text-xl' />
+                      <MdOutlineRepeat className='text-xl' />
                       Reps
                     </>
                   }
@@ -253,11 +259,11 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                 >
                   {sidebarOpen ?
                     <>
-                      <CiShoppingTag className='text-xl' />
+                      <PiKanbanFill className='text-xl' />
                     </>
                     :
                     <>
-                      <CiShoppingTag className='text-xl' />
+                      <PiKanbanFill className='text-xl' />
                       Kanban
                     </>
                   }

@@ -1102,7 +1102,26 @@ input[type="time"]::-webkit-calendar-picker-indicator {
   -webkit-appearance: none;
 }
 
+.sidebarOpenWidth {
+  width: 1090px;
+}
+.sidebarCloseWidth {
+  width: 900px;
+}
+
+
+
 @media only screen and (max-width: 767px) {
+
+.sidebarCloseWidth {
+    width: auto;
+  }
+
+    .sidebarOpenWidth {
+      width: auto;
+    }
+
+
   .header_area nav ul li a.active,
   .header_area nav ul li a:hover {
     background: none;
@@ -1144,7 +1163,56 @@ input[type="time"]::-webkit-calendar-picker-indicator {
   }
 }
 
+@media screen and (min-width: 1280px) and (max-width: 1365px) {
+
+  .sidebarOpenWidth {
+    width: 1000px;
+  }
+
+  .sidebarCloseWidth {
+    width: 810px;
+  }
+
+}
+
+
+@media screen and (min-width: 1440px) and (max-width: 1599px) {
+
+  .sidebarOpenWidth {
+      width: 1160px;
+  }
+
+  .sidebarCloseWidth {
+    width: 970px;
+  }
+
+}
+
+/* @media screen and (min-width: 1600px) and (max-width: 1799px) {
+
+  .sidebarOpenWidth {
+    width: 1360px;
+  }
+
+  .sidebarCloseWidth {
+    width: 1160px;
+  }
+
+} */
+
+
+
+
 @media screen and (min-width: 1600px) and (max-width: 1999px) {
+
+  .sidebarOpenWidth {
+      width: 1230px;
+    }
+  
+    .sidebarCloseWidth {
+      width: 1420px;
+    }
+
   .product_step_flow.coupon_step:before {
     position: absolute;
     left: 40px;
