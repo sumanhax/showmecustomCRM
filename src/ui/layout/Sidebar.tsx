@@ -98,7 +98,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
     >
       {/* <!-- SIDEBAR HEADER --> */}
       <div className="flex items-center justify-between gap-2 px-4 py-5 lg:py-[23px]">
-        <NavLink className="text-center w-full" to="/">
+        <NavLink className="text-center w-full" to="/crm-dashboard">
    
           {sidebarOpen ?
             <>
