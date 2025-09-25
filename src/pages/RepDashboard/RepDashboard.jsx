@@ -1,12 +1,17 @@
 import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { AgGridReact } from "ag-grid-react";
-import { actionList } from "../../Reducer/AddSlice";
+import { actionList, repDashboard } from "../../Reducer/AddSlice";
 
 const RepDashboard = () => {
-  const { loading, actionListData } = useSelector((state) => state.add);
+  const { loading, repDashboardData } = useSelector((state) => state.add);
+  const {  authData } = useSelector((state) => state.auth);
   const dispatch = useDispatch();
 
+  console.log("authData", authData);
+  const userId = authData?.data?.id;
+  console.log("userId", userId);
+  console.log("repDashboardData", repDashboardData);
   // Custom cell renderer for Status
   const StatusRenderer = (params) => {
     const status = params.value;
@@ -35,7 +40,7 @@ const RepDashboard = () => {
   };
 
   useEffect(() => {
-    dispatch(actionList()).then((res) => {
+    dispatch(repDashboard(userId)).then((res) => {
       console.log("actionlist", res);
     }).catch((err) => {
       console.log("actionlist err", err);
@@ -59,7 +64,7 @@ const RepDashboard = () => {
           </h2>
           <div className="ag-theme-alpine" style={{ height: 400, width: '100%' }}>
             <AgGridReact
-              rowData={actionListData?.data || []}
+              rowData={repDashboardData?.data || []}
               columnDefs={[
                 {
                   headerName: "ID",

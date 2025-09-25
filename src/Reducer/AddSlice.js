@@ -64,9 +64,10 @@ export const actionList = createAsyncThunk(
 export const repDashboard = createAsyncThunk(
     'add/repDashboard',
     async (userInput, { rejectWithValue }) => {
+        console.log("userInput",userInput);
         try {
-            const response = await api.get('/api/admin/dashboard/actions/list');
-            console.log("response",response)
+            const response = await api.get(`/api/rep/dashboard/${userInput}/task-list`);
+            console.log("action response",response)
             if (response?.data?.status_code === 200) {
                 return response.data;
             } else {
