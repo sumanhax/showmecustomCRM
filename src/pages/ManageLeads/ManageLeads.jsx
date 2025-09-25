@@ -219,29 +219,29 @@ const ManageLeads = () => {
       //     );
       //   },
       // },
-      {
-        width: 400,
-        headerName: "Actions",
-        field: "actions",
-        cellRenderer: (params) => {
-          return (
-            <div className="flex gap-2">
-              <button
-                onClick={() => handleUpdateMoodMaster(params?.data?.id)}
-                className="bg-[#10B981] hover:bg-black px-4 py-1 text-white text-base flex justify-center items-center rounded-full"
-              >
-                Update
-              </button>
+      // {
+      //   width: 400,
+      //   headerName: "Actions",
+      //   field: "actions",
+      //   cellRenderer: (params) => {
+      //     return (
+      //       <div className="flex gap-2">
+      //         <button
+      //           onClick={() => handleUpdateMoodMaster(params?.data?.id)}
+      //           className="bg-[#10B981] hover:bg-black px-4 py-1 text-white text-base flex justify-center items-center rounded-full"
+      //         >
+      //           Update
+      //         </button>
 
-              {/* <button
-              // onClick={() => handleDeleteZone(params?.data?.id)}
-              >
-                <MdDelete size={20} color="red" />
-              </button> */}
-            </div>
-          );
-        },
-      },
+      //         {/* <button
+      //         // onClick={() => handleDeleteZone(params?.data?.id)}
+      //         >
+      //           <MdDelete size={20} color="red" />
+      //         </button> */}
+      //       </div>
+      //     );
+      //   },
+      // },
         {
         width: 400,
         headerName: "Task",
@@ -301,13 +301,13 @@ const ManageLeads = () => {
         <div className="wrapper_area my-0 mx-auto p-6 rounded-xl bg-white">
           <div className="h-full lg:h-screen">
             <div className="flex justify-between items-center mb-4">
-              <h2 className="text-2xl font-semibold">Leads</h2>
+              {/* <h2 className="text-2xl font-semibold">Leads</h2>
               <Button
                 onClick={() => setOpenMoodMasterModal(true)}
                 className="bg-[#f20c32] hover:bg-black px-4 py-1 text-white text-base font-semibold flex justify-center items-center rounded-md"
               >
                 Add New Lead
-              </Button>
+              </Button> */}
             </div>
             <div
               className="ag-theme-alpine"

@@ -73,7 +73,7 @@ const Login = () => {
     }else if(data.role==='Reps'){
       dispatch(repsLogin(data)).then((res)=>{
         if(res?.payload?.status_code===200){
-          navigate("/crm-dashboard");
+          navigate("/rep-dashboard");
         }
       })
     } 
