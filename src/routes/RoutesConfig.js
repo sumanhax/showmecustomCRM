@@ -32,12 +32,12 @@ import ManageMoodMeter from '../pages/MoodMeter/ManageMoodMeter.jsx';
 import ManageMoodMaster from '../pages/ManageMoodMaster/ManageMoodMaster.jsx';
 import ManageQuestion from '../pages/ManageQuestion/ManageQuestion.jsx';
 import AnswerManagement from '../pages/AnswerManagement/AnswerManagement.jsx';
-import ManageBlogs from '../pages/Blogs/ManageBlogs.jsx';
 import ManageEquilizer from '../pages/Equilizer/ManageEquilizer.jsx';
 import ManageKanban from '../pages/Kanban/ManageKanban.jsx';
 import ManageLeads from '../pages/ManageLeads/ManageLeads.jsx';
 import ManageReps from '../pages/ManageReps/ManageReps.jsx';
 import CRMdashboard from '../pages/CRMdashboard/CRMdashboard.jsx';
+import TaskManager from '../pages/TaskManager/TaskManager.jsx';
 
 
 const allRoutes = [
@@ -145,16 +145,7 @@ const allRoutes = [
       },
     ],
   },
-    {
-    path: '/manage-blog',
-    element: <InsideLayout />,
-    children: [
-      {
-        index: true,
-        element: <ManageBlogs />,
-      },
-    ],
-  },
+ 
   {
     path: '/manage-question',
     element: <InsideLayout />,
@@ -281,6 +272,17 @@ const allRoutes = [
       {
         index: true,
         element: <ManageRoles />,
+      },
+    ],
+  },
+
+    {
+    path: '/task-manager',
+    element: <InsideLayout />,
+    children: [
+      {
+        index: true,
+        element: <TaskManager />,
       },
     ],
   },

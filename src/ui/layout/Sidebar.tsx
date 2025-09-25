@@ -270,6 +270,26 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                 </NavLink>
               </li>
 
+                 {/* <li>
+                <NavLink
+                  to="/task-manager"
+                  className={`group relative flex items-center gap-2 rounded-sm px-4 py-2 ${sidebarOpen ? 'justify-center' : 'justify-start'} font-normal text-sm text-gray-600 duration-300 ease-in-out hover:bg-graydark mb-2 ${pathname.includes('manage-mood-masters') &&
+                    'bg-graydark dark:bg-meta-4'
+                    }`}
+                >
+                  {sidebarOpen ?
+                    <>
+                      <PiKanbanFill className='text-xl' />
+                    </>
+                    :
+                    <>
+                      <PiKanbanFill className='text-xl' />
+                      Task Manager
+                    </>
+                  }
+                </NavLink>
+              </li> */}
+
                {/* <li>
                 <NavLink
                   to="/manage-question"

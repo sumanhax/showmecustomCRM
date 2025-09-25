@@ -7,6 +7,7 @@ import { ToastContainer } from "react-toastify";
 import { Button } from "flowbite-react";
 import axios from "axios";
 import Loader from "../../components/Loader";
+import LeadsTaskModal from "./LeadsTaskModal";
 
 const ManageLeads = () => {
   const { moodsList, singleMoodMaster } = useSelector(
@@ -17,9 +18,10 @@ const ManageLeads = () => {
   const [mood_masterId, setMoodMasterId] = useState();
   const [openUpdateMoodMasterModal, setOpenUpdateMoodMasterModal] =
     useState(false);
-
+  const [leadsId,setLeadsId]=useState()
   const [leadData, setLeadData] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [opentaskModal,setOpenTaskModal]=useState(false)
 
   useEffect(() => {
     setIsLoading(true);
@@ -240,9 +242,39 @@ const ManageLeads = () => {
           );
         },
       },
+        {
+        width: 400,
+        headerName: "Task",
+        field: "actions",
+        cellRenderer: (params) => {
+          return (
+            <div className="flex gap-2">
+              <button
+                onClick={() => handleAddTask(params?.data?.id)}
+                className="bg-[#10B981] hover:bg-black px-4 py-1 text-white text-base flex justify-center items-center rounded-full"
+              >
+                Add Task
+              </button>
+
+              {/* <button
+              // onClick={() => handleDeleteZone(params?.data?.id)}
+              >
+                <MdDelete size={20} color="red" />
+              </button> */}
+            </div>
+          );
+        },
+      },
     ],
     []
   );
+
+  const handleAddTask=(id)=>{
+    console.log("Task_id",id)
+    
+    setLeadsId(id)
+    setOpenTaskModal(true)
+  }
 
   //   const handleUpdateMoodMaster = (id) => {
   //     console.log(id, "id");
@@ -297,6 +329,7 @@ const ManageLeads = () => {
               setOpenMoodMasterModal={setOpenMoodMasterModal}
             />
           )}
+            
           {singleMoodMaster && openUpdateMoodMasterModal && (
             <UpdateMoodMasterModal
               openUpdateMoodMasterModal={openUpdateMoodMasterModal}
@@ -305,6 +338,15 @@ const ManageLeads = () => {
               singleMoodMaster={singleMoodMaster}
             />
           )} */}
+          {
+            opentaskModal&&(
+              <LeadsTaskModal
+              leadsId={leadsId}
+              opentaskModal={opentaskModal}
+              setOpenTaskModal={setOpenTaskModal}
+              />
+            )
+          }
         </div>
       </>
     </>

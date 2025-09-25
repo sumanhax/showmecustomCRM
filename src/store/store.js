@@ -39,6 +39,7 @@ import BlogSlice from '../Reducer/BlogSlice'
 import EquilizerSlice from '../Reducer/EquilizerSlice'
 import SidebarSlice from '../Reducer/SidebarSlice'
 import AddSlice from '../Reducer/AddSlice'
+import TaskSlice from '../Reducer/TaskSlice'
 const store = configureStore({
   reducer: {
     auth: AuthSlice,
@@ -81,6 +82,7 @@ const store = configureStore({
     equilize:EquilizerSlice,
     sidebar: SidebarSlice,
     add: AddSlice,
+    tasks:TaskSlice,
   },
   devTools: import.meta.env.DEV,
 });
