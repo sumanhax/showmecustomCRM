@@ -82,6 +82,24 @@ export const managerLogin = createAsyncThunk(
     }
 )
 
+export const repsLogin = createAsyncThunk(
+    'auth/repsLogin',
+    async (userInput, { rejectWithValue }) => {
+
+        try {
+            const response = await api.post('/api/rep/login', {email: userInput?.username, password: userInput?.password});
+            if (response?.data?.status_code === 200) {
+                return response.data;
+            } else {
+                return rejectWithValue(response.data);
+            }
+        } catch (err) {
+            // let errors = errorHandler(err);
+            return rejectWithValue(err);
+        }
+    }
+)
+
 
 
 export const forgotPassword = createAsyncThunk(
@@ -291,6 +309,38 @@ const AuthSlice = createSlice(
                 })
 
                 .addCase(managerLogin.rejected, (state, response) => {
+                    // console.log("Payload: ", payload);
+                    state.error = true;
+                    state.loadingLogin = false;
+                    state.message =
+                        response !== undefined && response
+                            ? response
+                            : 'Something went wrong. Try again later.';
+                })
+                .addCase(repsLogin.pending, (state) => {
+                    state.loadingLogin = true;
+                    state.isLoggedIn = false;
+                    state.error = false;
+                })
+                .addCase(repsLogin.fulfilled, (state, { payload }) => {
+
+                    console.log("Payload", payload);
+                    state.authData = payload;
+                    state.isLoggedIn = true;
+                    state.message = payload?.message;
+                    state.loadingLogin = false;
+                    sessionStorage.setItem(
+                        'crm_login_token',
+                        JSON.stringify({ access_token: payload?.access_token, refresh_token: payload?.refresh_token })
+                    )
+                    localStorage.setItem('user_id', payload?.data?.id)
+                    localStorage.setItem('user_role', payload?.data?.role)
+                    localStorage.setItem('fullname', payload?.data?.fullname)
+                    // localStorage.setItem("user_short_name", payload?.role_short_name)
+
+                })
+
+                .addCase(repsLogin.rejected, (state, response) => {
                     // console.log("Payload: ", payload);
                     state.error = true;
                     state.loadingLogin = false;

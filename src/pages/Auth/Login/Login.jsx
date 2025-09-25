@@ -4,7 +4,7 @@ import { FcGoogle } from "react-icons/fc";
 import { useDispatch } from "react-redux";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import { login, managerLogin } from "../../../Reducer/AuthSlice";
+import { login, managerLogin, repsLogin } from "../../../Reducer/AuthSlice";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Cookies from "js-cookie";
@@ -70,7 +70,15 @@ const Login = () => {
           console.log("err", err);
           toast.error(err?.payload?.message);
         });
-    } else {
+    }else if(data.role==='Reps'){
+      dispatch(repsLogin(data)).then((res)=>{
+        if(res?.payload?.status_code===200){
+          navigate("/crm-dashboard");
+        }
+      })
+    } 
+    
+    else {
       dispatch(login(data)).then((res) => {
         console.log("Res manager: ", res);
         if (res?.payload?.status_code === 200) {
@@ -154,6 +162,7 @@ const Login = () => {
                       <option value="">Select User Role</option>
                       <option value="Admin">Admin</option>
                       <option value="Manager">Manager</option>
+                      <option value="Reps">Representative</option>
                     </Select>
                     {errors.role && (
                       <small className="text-red-500">
