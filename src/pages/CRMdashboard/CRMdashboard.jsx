@@ -691,25 +691,37 @@ const CRMdashboard = () => {
                     }
                   },
                   {
-                    headerName: "Lead ID",
+                    headerName: "Lead Name",
                     field: "lead",
-                    width: 150,
+                    width: 200,
                     sortable: true,
                     filter: true,
                     cellRenderer: (params) => {
                       if (!params.value || !Array.isArray(params.value)) return "N/A";
-                      return params.value.join(", ");
+                      
+                      const leadNames = params.value.map(leadId => {
+                        const lead = leadData.find(l => l.id === leadId);
+                        return lead ? lead["Lead Name"] || "Unknown Lead" : "Unknown Lead";
+                      });
+                      
+                      return leadNames.join(", ");
                     }
                   },
                   {
                     headerName: "Assigned To",
                     field: "assigned_to",
-                    width: 150,
+                    width: 200,
                     sortable: true,
                     filter: true,
                     cellRenderer: (params) => {
                       if (!params.value || !Array.isArray(params.value) || params.value.length === 0) return "Unassigned";
-                      return params.value.join(", ");
+                      
+                      const repNames = params.value.map(repId => {
+                        const rep = repData.find(r => r.id === repId);
+                        return rep ? rep["Rep Name"] || "Unknown Rep" : "Unknown Rep";
+                      });
+                      
+                      return repNames.join(", ");
                     }
                   }
                 ]}

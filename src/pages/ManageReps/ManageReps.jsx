@@ -38,7 +38,8 @@ const ManageReps = () => {
       toast.success(res?.payload?.message);
       reset();
       setOpenMoodMasterModal(false);
-      axios.get("https://n8nnode.bestworks.cloud/webhook/airtable-rep-fetch")
+      // Refresh the reps data
+      fetchReps();
     })
     .catch((err) => {
       console.log("err", err);
@@ -46,11 +47,13 @@ const ManageReps = () => {
     });
   }
 
-  useEffect(() => {
+  // Function to fetch reps data
+  const fetchReps = () => {
+    console.log("fetchReps called - refreshing reps data");
     setIsLoading(true);
     axios.get("https://n8nnode.bestworks.cloud/webhook/airtable-rep-fetch")
       .then((res) => {
-        console.log("res", res.data);
+        console.log("Reps data refreshed:", res.data);
         setRepData(res.data);
       })
       .catch((error) => {
@@ -60,6 +63,10 @@ const ManageReps = () => {
       .finally(() => {
         setIsLoading(false);
       });
+  };
+
+  useEffect(() => {
+    fetchReps();
   }, []);
   console.log("repData", repData);
 

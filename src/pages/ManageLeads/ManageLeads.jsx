@@ -3,11 +3,13 @@ import { useDispatch } from "react-redux";
 import { useSelector } from "react-redux";
 import { changeStatus, getMoodMaster } from "../../Reducer/MoodMasterSlice";
 import { AgGridReact } from "ag-grid-react";
-import { ToastContainer } from "react-toastify";
+import { ToastContainer, toast } from "react-toastify";
 import { Button } from "flowbite-react";
 import axios from "axios";
 import Loader from "../../components/Loader";
 import LeadsTaskModal from "./LeadsTaskModal";
+import AddLeadModal from "./AddLeadModal";
+import UpdateLeadModal from "./UpdateLeadModal";
 
 const ManageLeads = () => {
   const { moodsList, singleMoodMaster } = useSelector(
@@ -22,15 +24,30 @@ const ManageLeads = () => {
   const [leadData, setLeadData] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [opentaskModal,setOpenTaskModal]=useState(false)
+  const [openAddLeadModal, setOpenAddLeadModal] = useState(false);
+  const [openUpdateLeadModal, setOpenUpdateLeadModal] = useState(false);
+  const [selectedLeadData, setSelectedLeadData] = useState(null);
 
-  useEffect(() => {
+  const api2 = "https://n8nnode.bestworks.cloud/webhook/lead-status-update";
+  // Lead status options
+  const leadStatusOptions = [
+    "Sample Submitted",
+    "Sample Art Approved", 
+    "Sample Shipped",
+    "Sample Delivered",
+    "Nurture Sequence",
+    "Warm Lead",
+    "Cold Lead"
+  ];
+
+  const fetchLeads = () => {
+    console.log("fetchLeads called - refreshing leads data");
     setIsLoading(true);
     axios
       .get("https://n8nnode.bestworks.cloud/webhook/airtable-lead-fetch")
       .then((res) => {
-        console.log("res", res.data);
+        console.log("Leads data refreshed:", res.data);
         setLeadData(res.data);
-       
       })
       .catch((error) => {
         console.error("Error fetching leads:", error);
@@ -39,6 +56,10 @@ const ManageLeads = () => {
       .finally(() => {
         setIsLoading(false);
       });
+  };
+
+  useEffect(() => {
+    fetchLeads();
   }, []);
   console.log("leadData", leadData);
 
@@ -56,9 +77,11 @@ const ManageLeads = () => {
   //     );
   //   }, [moodsList?.data]);
 
-  // Custom cell renderer for Lead Status
+  // Custom cell renderer for Lead Status with dropdown
   const StatusRenderer = (params) => {
     const status = params.value;
+    const leadId = params.data.id;
+    
 
     // Define vibrant colors for each status with white text
     const getStatusStyle = (status) => {
@@ -103,26 +126,105 @@ const ManageLeads = () => {
 
     const style = getStatusStyle(status);
 
+    const handleDropdownChange = (event) => {
+      const newStatus = event.target.value;
+      handleStatusChange(leadId, newStatus);
+    };
+
     return (
-      <div
+      <select
+        value={status}
+        onChange={handleDropdownChange}
         style={{
-          display: "inline-flex",
-          alignItems: "center",
-          justifyContent: "center",
-          height: "32px", // Fixed height
-          padding: "0 16px",
-          borderRadius: "16px", // More rounded for better pill shape
+          padding: "8px 12px",
+          borderRadius: "16px",
+          border: "none",
           fontSize: "12px",
-          fontWeight: "700", // Bolder text
+          fontWeight: "700",
           textAlign: "center",
-          minWidth: "140px",
-          boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)", // Subtle shadow for depth
+          minWidth: "160px",
+          boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
+          cursor: "pointer",
           ...style,
         }}
       >
-        {status}
-      </div>
+        {leadStatusOptions.map((option) => (
+          <option key={option} value={option} style={{ backgroundColor: "white", color: "#374151" }}>
+            {option}
+          </option>
+        ))}
+      </select>
     );
+  };
+
+  const handleAddTask=(id)=>{
+    console.log("Task_id",id)
+    
+    setLeadsId(id)
+    setOpenTaskModal(true)
+  }
+
+  const handleStatusChange = (leadId, newStatus) => {
+    // Find the lead data to get the email
+    const lead = leadData.find(l => l.id === leadId);
+    if (!lead) {
+      console.error("Lead not found");
+      toast.error("Lead not found");
+      return;
+    }
+
+    const leadEmail = lead["Email"] || lead["email"];
+    if (!leadEmail) {
+      console.error("Lead email not found");
+      toast.error("Lead email not found");
+      return;
+    }
+
+    axios.post(api2, { 
+      id: leadId, 
+      email: leadEmail, 
+      status: newStatus 
+    })
+    .then(() => {
+      toast.success("Status updated successfully");
+      fetchLeads(); // Refresh the leads data
+      console.log("Status updated successfully");
+    })
+    .catch((error) => {
+      console.error("Error updating status", error);
+      toast.error("Failed to update status. Please try again.");
+    });
+  };
+
+  const handleUpdateLead = (leadId) => {
+    console.log("handleUpdateLead called with leadId:", leadId);
+    console.log("leadData:", leadData);
+    const lead = leadData.find(l => l.id === leadId);
+    console.log("Found lead:", lead);
+    if (lead) {
+      setSelectedLeadData(lead);
+      setOpenUpdateLeadModal(true);
+      console.log("Modal should be opening now");
+    } else {
+      console.log("Lead not found");
+    }
+  };
+
+  const handleDeleteLead = async (leadId) => {
+    if (window.confirm("Are you sure you want to delete this lead?")) {
+      try {
+        // You can implement API call here to delete the lead
+        console.log("Deleting lead:", leadId);
+        
+        // For now, just update the local state
+        setLeadData(prevData => prevData.filter(lead => lead.id !== leadId));
+        
+        toast.success("Lead deleted successfully!");
+      } catch (error) {
+        console.error("Error deleting lead:", error);
+        toast.error("Failed to delete lead. Please try again.");
+      }
+    }
   };
 
   const columnDefs = useMemo(
@@ -165,87 +267,10 @@ const ManageLeads = () => {
         sortable: true,
         filter: true,
       },
-      // {
-      //   field: "mood_master_description",
-      //   headerName: "Mood Master Description",
-      //   sortable: true,
-      //   filter: true,
-      // },
-      // {
-      //   field: "mood_master_color_code",
-      //   headerName: "Mood Master Color Code",
-      //   sortable: true,
-      //   filter: true,
-      // },
-
-      // {
-      //   field: "status",
-      //   headerName: "Status",
-      //   cellRenderer: (params) => {
-      //     const isChecked = params.value;
-
-      //     const handleStatusChange = () => {
-      //       const newStatus = isChecked ? 0 : 1;
-      //       dispatch(
-      //         changeStatus({ id: params.data.id, status: newStatus })
-      //       ).then(() => {
-      //         dispatch(getMoodMaster()); // refresh data after success
-      //       });
-      //     };
-
-      //     return (
-      //       <label className="inline-flex items-center cursor-pointer">
-      //         <input
-      //           type="checkbox"
-      //           checked={isChecked}
-      //           onChange={() => handleStatusChange(params.data.id, isChecked)}
-      //           className="sr-only peer"
-      //         />
-      //         <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-500 rounded-full peer dark:bg-gray-300 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-500 relative"></div>
-      //       </label>
-      //     );
-      //   },
-      // },
-      // {
-      //   field: "mood_master_icon",
-      //   headerName: "Emoji",
-      //   cellRenderer: (params) => {
-      //     return (
-      //       <img
-      //         src={params.value}
-      //         alt="avatar"
-      //         className="w-12 h-12 rounded-full object-cover"
-      //       />
-      //     );
-      //   },
-      // },
-      // {
-      //   width: 400,
-      //   headerName: "Actions",
-      //   field: "actions",
-      //   cellRenderer: (params) => {
-      //     return (
-      //       <div className="flex gap-2">
-      //         <button
-      //           onClick={() => handleUpdateMoodMaster(params?.data?.id)}
-      //           className="bg-[#10B981] hover:bg-black px-4 py-1 text-white text-base flex justify-center items-center rounded-full"
-      //         >
-      //           Update
-      //         </button>
-
-      //         {/* <button
-      //         // onClick={() => handleDeleteZone(params?.data?.id)}
-      //         >
-      //           <MdDelete size={20} color="red" />
-      //         </button> */}
-      //       </div>
-      //     );
-      //   },
-      // },
-        {
-        width: 400,
+      {
+        width: 200,
         headerName: "Task",
-        field: "actions",
+        field: "task",
         cellRenderer: (params) => {
           return (
             <div className="flex gap-2">
@@ -255,26 +280,38 @@ const ManageLeads = () => {
               >
                 Add Task
               </button>
-
-              {/* <button
-              // onClick={() => handleDeleteZone(params?.data?.id)}
+            </div>
+          );
+        },
+      },
+      {
+        width: 200,
+        headerName: "Actions",
+        field: "actions",
+        cellRenderer: (params) => {
+          return (
+            <div className="flex gap-2">
+              <button
+                onClick={() => handleUpdateLead(params?.data?.id)}
+                className="bg-[#3B82F6] hover:bg-[#2563EB] px-3 py-1 text-white text-sm flex justify-center items-center rounded-full"
+                style={{ fontSize: '12px' }}
               >
-                <MdDelete size={20} color="red" />
-              </button> */}
+                Update
+              </button>
+              <button
+                onClick={() => handleDeleteLead(params?.data?.id)}
+                className="bg-[#EF4444] hover:bg-[#DC2626] px-3 py-1 text-white text-sm flex justify-center items-center rounded-full"
+                style={{ fontSize: '12px' }}
+              >
+                Delete
+              </button>
             </div>
           );
         },
       },
     ],
-    []
+    [handleAddTask, handleUpdateLead, handleDeleteLead]
   );
-
-  const handleAddTask=(id)=>{
-    console.log("Task_id",id)
-    
-    setLeadsId(id)
-    setOpenTaskModal(true)
-  }
 
   //   const handleUpdateMoodMaster = (id) => {
   //     console.log(id, "id");
@@ -303,7 +340,7 @@ const ManageLeads = () => {
             <div className="flex justify-between items-center mb-4">
                <h2 className="text-2xl font-semibold">Leads</h2>
               <Button
-                onClick={() => setOpenMoodMasterModal(true)}
+                onClick={() => setOpenAddLeadModal(true)}
                 className="bg-[#f20c32] hover:bg-black px-4 py-1 text-white text-base font-semibold flex justify-center items-center rounded-md"
               >
                 Add New Lead
@@ -347,6 +384,21 @@ const ManageLeads = () => {
               />
             )
           }
+          {openAddLeadModal && (
+            <AddLeadModal
+              openAddLeadModal={openAddLeadModal}
+              setOpenAddLeadModal={setOpenAddLeadModal}
+              onLeadAdded={fetchLeads}
+            />
+          )}
+          {openUpdateLeadModal && selectedLeadData && (
+            <UpdateLeadModal
+              openUpdateLeadModal={openUpdateLeadModal}
+              setOpenUpdateLeadModal={setOpenUpdateLeadModal}
+              leadData={selectedLeadData}
+              onLeadUpdated={fetchLeads}
+            />
+          )}
         </div>
       </>
     </>
