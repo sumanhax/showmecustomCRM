@@ -9,7 +9,8 @@ const RepDashboard = () => {
   const dispatch = useDispatch();
 
   console.log("authData", authData);
-  const userId = authData?.data?.id;
+  // const userId = authData?.data?.id;
+  const userId = localStorage.getItem('user_id');
   console.log("userId", userId);
   console.log("repDashboardData", repDashboardData);
   // Custom cell renderer for Status

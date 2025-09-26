@@ -272,6 +272,7 @@ const AuthSlice = createSlice(
                     localStorage.setItem('user_id', payload?.data?.id)
                     localStorage.setItem('user_role', payload?.data?.role)
                     localStorage.setItem('fullname', payload?.data?.fullname)
+                    localStorage.setItem('user_email', payload?.data?.email)
                     // localStorage.setItem("user_short_name", payload?.role_short_name)
 
                 })
@@ -304,6 +305,7 @@ const AuthSlice = createSlice(
                     localStorage.setItem('user_id', payload?.data?.id)
                     localStorage.setItem('user_role', payload?.data?.role)
                     localStorage.setItem('fullname', payload?.data?.fullname)
+                    localStorage.setItem('user_email', payload?.data?.email)
                     // localStorage.setItem("user_short_name", payload?.role_short_name)
 
                 })
@@ -336,6 +338,7 @@ const AuthSlice = createSlice(
                     localStorage.setItem('user_id', payload?.data?.id)
                     localStorage.setItem('user_role', payload?.data?.role)
                     localStorage.setItem('fullname', payload?.data?.fullname)
+                    localStorage.setItem('user_email', payload?.data?.email)
                     // localStorage.setItem("user_short_name", payload?.role_short_name)
 
                 })

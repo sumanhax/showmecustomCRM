@@ -497,7 +497,7 @@ const CRMdashboard = () => {
                   </p>
                   {/* <p className="text-sm text-green-600">+12% from last month</p> */}
                 </div>
-                <div className="w-12 h-12 bg-gradient-to-r from-red-500 to-red-400 rounded-lg flex items-center justify-center">
+                <div className="w-12 h-12 bg-[#f20c32] rounded-lg flex items-center justify-center">
                   <FaUsers className="w-6 h-6 text-white" />
                 </div>
               </div>
@@ -515,7 +515,7 @@ const CRMdashboard = () => {
                   </p>
                   {/* <p className="text-sm text-green-600">+8% from last month</p> */}
                 </div>
-                <div className="w-12 h-12 bg-gradient-to-r from-red-500 to-red-400 rounded-lg flex items-center justify-center">
+                <div className="w-12 h-12 bg-[#f20c32] rounded-lg flex items-center justify-center">
                   <FaDollarSign className="w-6 h-6 text-white" />
                 </div>
               </div>
@@ -533,7 +533,7 @@ const CRMdashboard = () => {
                   </p>
                   {/* <p className="text-sm text-green-600">+15% from last month</p> */}
                 </div>
-                <div className="w-12 h-12 bg-gradient-to-r from-red-500 to-red-400 rounded-lg flex items-center justify-center">
+                <div className="w-12 h-12 bg-[#f20c32] rounded-lg flex items-center justify-center">
                   <FaChartLine className="w-6 h-6 text-white" />
                 </div>
               </div>
@@ -551,7 +551,7 @@ const CRMdashboard = () => {
                   </p>
                   {/* <p className="text-sm text-green-600">+2 from last month</p> */}
                 </div>
-                <div className="w-12 h-12 bg-gradient-to-r from-red-500 to-red-400 rounded-lg flex items-center justify-center">
+                <div className="w-12 h-12 bg-[#f20c32] rounded-lg flex items-center justify-center">
                   <FaUserTie className="w-6 h-6 text-white" />
                 </div>
               </div>
@@ -741,7 +741,7 @@ const CRMdashboard = () => {
                     className="flex items-center justify-between p-4 bg-gray-50 rounded-lg"
                   >
                     <div className="flex items-center space-x-4">
-                      <div className="w-10 h-10 bg-gradient-to-r from-red-500 to-red-400 rounded-full flex items-center justify-center">
+                      <div className="w-10 h-10 bg-[#f20c32] rounded-full flex items-center justify-center">
                         <span className="text-white font-semibold text-sm">
                           {rep.repName
                             .split(" ")
