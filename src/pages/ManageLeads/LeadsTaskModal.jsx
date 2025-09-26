@@ -4,6 +4,7 @@ import { Controller, useForm } from "react-hook-form";
 import { convertToSubmitFormat } from "../../utils/DateSubmitFormatter";
 import { useDispatch } from "react-redux";
 import { addTaskLeads } from "../../Reducer/TaskSlice";
+import { toast } from "react-toastify";
 
 const LeadsTaskModal = ({
   leadsId,
@@ -12,6 +13,7 @@ const LeadsTaskModal = ({
 }) => {
 
   const dispatch = useDispatch()
+  const today = new Date();
   const {
     register,
     control,
@@ -25,7 +27,9 @@ const LeadsTaskModal = ({
     const payload = {
       lead_id: leadsId,
       action_description: data?.action_description,
-      due_date: convertToSubmitFormat(data?.due_date),
+      due_date: data?.due_date
+      ? convertToSubmitFormat(data?.due_date)
+      : convertToSubmitFormat(today),
       action_type: data?.action_type,
       status: "Pending"
     }
@@ -34,6 +38,7 @@ const LeadsTaskModal = ({
       console.log("res", res);
       if (res?.payload?.status_code === 201) {
         setOpenTaskModal(false)
+        toast.success(res?.payload?.message)
       }
 
     })
