@@ -64,15 +64,15 @@ dispatch(addTaskLeads(payload)).then((res)=>{
                         <div className="mb-2 block">
                           <Label htmlFor="name" value="Due date" />
                         </div>
-                     <Controller
-                control={control}
-                name="due_date"
-                render={({ field }) => (
-                  <Datepicker
-                    {...field}
-                    onChange={(date) => field.onChange(date)}
-                  />
-                )}
+                      <Controller
+                        control={control}
+                        name="due_date"
+                        render={({ field }) => (
+                          <Datepicker
+                          {...field}
+                          onChange={(date) => field.onChange(date)}
+                        />
+                      )}
               />
                       </div>
                        <div>
