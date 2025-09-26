@@ -15,8 +15,9 @@ const OutsideLayout = () => {
 
   console.log("SubDomain: ", subdomain?.data?.[0]?.server_domain);
   // localStorage.setItem("subDomain", subdomain?.data?.[0]?.server_domain);
-  const subDomain = localStorage.getItem("serverDomainInside");
-  console.log("subDomain: ", subDomain);
+  // const subDomain = localStorage.getItem("serverDomainInside");
+
+  // console.log("subDomain: ", subDomain);
   const baseURL = window.location.origin;
 
   // const newBaseURL = baseURL.replace(/^https?:\/\//, "");
@@ -32,13 +33,17 @@ const OutsideLayout = () => {
   // if (baseURL !== subDomain && baseURL !== localUrl) {
   //   navigate("/pageNotFound");
   // }
-
+const userRole = localStorage.getItem('user_role');
   const token = sessionStorage.getItem("crm_login_token");
   const parseToken = token ? JSON.parse(token)?.token : null;
   const nevigate = useNavigate();
   useEffect(() => {
     if (parseToken !== null || parseToken !== null) {
-      nevigate("/crm-dashboard");
+      if(userRole === 'manager' || userRole === 'admin'){
+        nevigate("/crm-dashboard");
+      }else if(userRole === 'rep'){
+        nevigate("/rep-dashboard");
+      }
     }
   }, []);
 

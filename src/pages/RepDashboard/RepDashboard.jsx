@@ -4,6 +4,7 @@ import { AgGridReact } from "ag-grid-react";
 import { actionList, repDashboard } from "../../Reducer/AddSlice";
 import { toast } from "react-toastify";
 import axios from "axios";
+import { FaUsers, FaTasks } from "react-icons/fa";
 
 const RepDashboard = () => {
   const { loading, repDashboardData } = useSelector((state) => state.add);
@@ -293,6 +294,43 @@ const RepDashboard = () => {
           </h1>
         </div>
 
+        {/* Top Section - Cards Row */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+          {/* Total Assigned Leads Card */}
+          <div className="bg-white rounded-xl p-6 shadow-sm">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600">
+                  Your Assigned Leads
+                </p>
+                <p className="text-2xl font-bold text-gray-900">
+                  {leadData.length}
+                </p>
+              </div>
+              <div className="w-12 h-12 bg-[#f20c32] rounded-lg flex items-center justify-center">
+                <FaUsers className="w-6 h-6 text-white" />
+              </div>
+            </div>
+          </div>
+
+          {/* Total Actions Card */}
+          <div className="bg-white rounded-xl p-6 shadow-sm">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600">
+                  Your Actions List
+                </p>
+                <p className="text-2xl font-bold text-gray-900">
+                  {repDashboardData?.data?.length || 0}
+                </p>
+              </div>
+              <div className="w-12 h-12 bg-[#f20c32] rounded-lg flex items-center justify-center">
+                <FaTasks className="w-6 h-6 text-white" />
+              </div>
+            </div>
+          </div>
+        </div>
+
         {/* Leads Table */}
         <div className="bg-white rounded-xl p-6 shadow-sm mb-6">
           <h2 className="text-xl font-semibold text-gray-900 mb-6">
@@ -333,13 +371,13 @@ const RepDashboard = () => {
             <AgGridReact
               rowData={repDashboardData?.data || []}
               columnDefs={[
-                {
-                  headerName: "ID",
-                  field: "id",
-                  width: 150,
-                  sortable: true,
-                  filter: true
-                },
+                // {
+                //   headerName: "ID",
+                //   field: "id",
+                //   width: 150,
+                //   sortable: true,
+                //   filter: true
+                // },
                 {
                   headerName: "Action Description",
                   field: "action_description",
@@ -397,27 +435,34 @@ const RepDashboard = () => {
                   }
                 },
                 {
-                  headerName: "Lead ID",
+                  headerName: "Lead Name",
                   field: "lead",
-                  width: 150,
+                  width: 200,
                   sortable: true,
                   filter: true,
                   cellRenderer: (params) => {
                     if (!params.value || !Array.isArray(params.value)) return "N/A";
-                    return params.value.join(", ");
+                    
+                    // Find lead names for the given lead IDs
+                    const leadNames = params.value.map(leadId => {
+                      const lead = leadData.find(l => l.id === leadId);
+                      return lead ? lead["Lead Name"] || "Unknown Lead" : `ID: ${leadId}`;
+                    });
+                    
+                    return leadNames.join(", ");
                   }
                 },
-                {
-                  headerName: "Assigned To",
-                  field: "assigned_to",
-                  width: 150,
-                  sortable: true,
-                  filter: true,
-                  cellRenderer: (params) => {
-                    if (!params.value || !Array.isArray(params.value) || params.value.length === 0) return "Unassigned";
-                    return params.value.join(", ");
-                  }
-                }
+                // {
+                //   headerName: "Assigned To",
+                //   field: "assigned_to",
+                //   width: 150,
+                //   sortable: true,
+                //   filter: true,
+                //   cellRenderer: (params) => {
+                //     if (!params.value || !Array.isArray(params.value) || params.value.length === 0) return "Unassigned";
+                //     return params.value.join(", ");
+                //   }
+                // }
               ]}
               defaultColDef={{
                 resizable: true,
