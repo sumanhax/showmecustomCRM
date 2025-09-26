@@ -33,12 +33,12 @@ const OutsideLayout = () => {
   //   navigate("/pageNotFound");
   // }
 
-  const token = sessionStorage.getItem("good_mood_admin_token");
+  const token = sessionStorage.getItem("crm_login_token");
   const parseToken = token ? JSON.parse(token)?.token : null;
   const nevigate = useNavigate();
   useEffect(() => {
     if (parseToken !== null || parseToken !== null) {
-      nevigate("/manage-coaches");
+      nevigate("/crm-dashboard");
     }
   }, []);
 

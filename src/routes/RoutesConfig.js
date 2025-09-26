@@ -40,6 +40,7 @@ import CRMdashboard from '../pages/CRMdashboard/CRMdashboard.jsx';
 import TaskManager from '../pages/TaskManager/TaskManager.jsx';
 import RepDashboard from '../pages/RepDashboard/RepDashboard.jsx';
 import ManageRepEmailBox from '../pages/ManageRepEmailBox/ManageRepEmailBox.jsx';
+import MyProfile from '../pages/MyProfile/myProfile.jsx';
 
 
 const allRoutes = [
@@ -305,6 +306,16 @@ const allRoutes = [
       {
         index: true,
         element: <ManageRepEmailBox />,
+      },
+    ],
+  },
+   {
+    path: '/profile',
+    element: <InsideLayout />,
+    children: [
+      {
+        index: true,
+        element: <MyProfile />,
       },
     ],
   },
