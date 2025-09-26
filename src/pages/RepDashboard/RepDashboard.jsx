@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { AgGridReact } from "ag-grid-react";
 import { actionList, repDashboard } from "../../Reducer/AddSlice";
@@ -9,6 +9,8 @@ const RepDashboard = () => {
   const { loading, repDashboardData } = useSelector((state) => state.add);
   const {  authData } = useSelector((state) => state.auth);
   const dispatch = useDispatch();
+  const [leadData, setLeadData] = useState([]);
+  const [isLoadingLeads, setIsLoadingLeads] = useState(true);
 
   console.log("authData", authData);
   // const userId = authData?.data?.id;
@@ -60,7 +62,7 @@ const RepDashboard = () => {
       const newStatus = event.target.value;
       handleActionStatusChange(actionId, newStatus);
     };
-
+    
     return (
       <select
         value={status}
@@ -121,6 +123,30 @@ const RepDashboard = () => {
     });
   };
 
+  // Fetch lead data and filter by current rep
+  useEffect(() => {
+    setIsLoadingLeads(true);
+    axios
+      .get("https://n8nnode.bestworks.cloud/webhook/airtable-lead-fetch")
+      .then((res) => {
+        console.log("All leads fetched:", res.data);
+        // Filter leads by current rep ID
+        const filteredLeads = res.data.filter(lead => {
+          // Check if the lead's Rep field contains the current user ID
+          return lead.Rep && lead.Rep.includes(userId);
+        });
+        console.log("Filtered leads for rep:", filteredLeads);
+        setLeadData(filteredLeads);
+      })
+      .catch((error) => {
+        console.error("Error fetching leads:", error);
+        setLeadData([]);
+      })
+      .finally(() => {
+        setIsLoadingLeads(false);
+      });
+  }, [userId]);
+
   useEffect(() => {
     dispatch(repDashboard(userId)).then((res) => {
       console.log("actionlist", res);
@@ -128,6 +154,134 @@ const RepDashboard = () => {
       console.log("actionlist err", err);
     });
   }, []);
+
+  // Lead table column definitions
+  const leadColumnDefs = useMemo(
+    () => [
+      {
+        field: "Lead Name",
+        headerName: "Lead Name",
+        sortable: true,
+        filter: true,
+        width: 200,
+      },
+      {
+        field: "Email",
+        headerName: "Email",
+        sortable: true,
+        filter: true,
+        width: 250,
+      },
+      {
+        field: "Phone",
+        headerName: "Phone",
+        sortable: true,
+        filter: true,
+        width: 150,
+      },
+      {
+        field: "Company Name",
+        headerName: "Company Name",
+        sortable: true,
+        filter: true,
+        width: 200,
+      },
+      {
+        field: "Lead Status",
+        headerName: "Lead Status",
+        sortable: true,
+        filter: true,
+        width: 150,
+        cellRenderer: (params) => {
+          const status = params.value;
+          if (!status) return "N/A";
+          
+          // Define colors for each status
+          const getStatusStyle = (status) => {
+            const statusStyles = {
+              "Sample Submitted": {
+                backgroundColor: "#DBEAFE", // Light blue
+                color: "#1E40AF", // Dark blue
+                borderColor: "#93C5FD"
+              },
+              "Sample Art Approved": {
+                backgroundColor: "#D1FAE5", // Light green
+                color: "#059669", // Dark green
+                borderColor: "#6EE7B7"
+              },
+              "Sample Shipped": {
+                backgroundColor: "#FEF3C7", // Light orange
+                color: "#D97706", // Dark orange
+                borderColor: "#FCD34D"
+              },
+              "Sample Delivered": {
+                backgroundColor: "#E0E7FF", // Light indigo
+                color: "#3730A3", // Dark indigo
+                borderColor: "#A5B4FC"
+              },
+              "Nurture Sequence": {
+                backgroundColor: "#F3E8FF", // Light purple
+                color: "#7C3AED", // Dark purple
+                borderColor: "#C4B5FD"
+              },
+              "Warm Lead": {
+                backgroundColor: "#FEE2E2", // Light red
+                color: "#DC2626", // Dark red
+                borderColor: "#FCA5A5"
+              },
+              "Cold Lead": {
+                backgroundColor: "#FCE7F3", // Light pink
+                color: "#BE185D", // Dark pink
+                borderColor: "#F9A8D4"
+              },
+            };
+            return statusStyles[status] || {
+              backgroundColor: "#F3F4F6", // Default light gray
+              color: "#6B7280", // Default gray text
+              borderColor: "#D1D5DB"
+            };
+          };
+
+          const style = getStatusStyle(status);
+
+          return (
+            <span
+              style={{
+                display: "inline",
+                alignItems: "center",
+                justifyContent: "center",
+                padding: "3px 8px",
+                borderRadius: "8px",
+                fontSize: "11px",
+                fontWeight: "600",
+                textAlign: "center",
+                minWidth: "90px",
+                border: `1px solid ${style.borderColor}`,
+                backgroundColor: style.backgroundColor,
+                color: style.color,
+                boxShadow: "0 1px 2px rgba(0, 0, 0, 0.05)",
+                transition: "all 0.2s ease-in-out"
+              }}
+            >
+              {status}
+            </span>
+          );
+        }
+      },
+      {
+        field: "Typeform Date",
+        headerName: "Date",
+        sortable: true,
+        filter: true,
+        width: 120,
+        cellRenderer: (params) => {
+          if (!params.value) return "N/A";
+          return new Date(params.value).toLocaleDateString();
+        }
+      },
+    ],
+    []
+  );
 
   return (
     <div className="wrapper_area my-0 mx-auto p-6 rounded-xl bg-gray-50 min-h-screen">
@@ -137,6 +291,37 @@ const RepDashboard = () => {
           <h1 className="text-3xl font-bold text-gray-900 mb-2">
             Rep Dashboard
           </h1>
+        </div>
+
+        {/* Leads Table */}
+        <div className="bg-white rounded-xl p-6 shadow-sm mb-6">
+          <h2 className="text-xl font-semibold text-gray-900 mb-6">
+            Your Assigned Leads
+          </h2>
+          {isLoadingLeads ? (
+            <div className="flex justify-center items-center h-32">
+              <div className="text-center">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#f20c32] mx-auto mb-2"></div>
+                <p className="text-gray-600">Loading leads...</p>
+              </div>
+            </div>
+          ) : (
+            <div className="ag-theme-alpine" style={{ height: 300, width: '100%' }}>
+              <AgGridReact
+                rowData={leadData}
+                columnDefs={leadColumnDefs}
+                pagination={true}
+                paginationPageSize={5}
+                defaultColDef={{
+                  resizable: true,
+                  sortable: true,
+                  filter: true
+                }}
+                suppressRowClickSelection={true}
+                animateRows={true}
+              />
+            </div>
+          )}
         </div>
 
         {/* Actions List Table */}
