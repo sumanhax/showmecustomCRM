@@ -213,13 +213,17 @@ const ManageLeads = () => {
   const handleDeleteLead = async (leadId) => {
     if (window.confirm("Are you sure you want to delete this lead?")) {
       try {
-        // You can implement API call here to delete the lead
         console.log("Deleting lead:", leadId);
         
-        // For now, just update the local state
-        setLeadData(prevData => prevData.filter(lead => lead.id !== leadId));
+        const response = await axios.post("https://n8nnode.bestworks.cloud/webhook/delete-lead", {
+          id: leadId
+        });
         
+        console.log("Delete response:", response.data);
         toast.success("Lead deleted successfully!");
+        
+        // Refresh the leads data
+        fetchLeads();
       } catch (error) {
         console.error("Error deleting lead:", error);
         toast.error("Failed to delete lead. Please try again.");

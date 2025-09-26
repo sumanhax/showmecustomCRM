@@ -12,6 +12,7 @@ import { Button } from "flowbite-react";
 import axios from "axios";
 import Loader from "../../components/Loader";
 import { useForm } from "react-hook-form";
+import UpdateRepModal from "./UpdateRepModal";
 
 
 const ManageReps = () => {
@@ -26,6 +27,8 @@ const ManageReps = () => {
 
     const [repData, setRepData] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
+    const [openUpdateRepModal, setOpenUpdateRepModal] = useState(false);
+    const [selectedRepData, setSelectedRepData] = useState(null);
 
   // React Hook Form setup
   const { register, handleSubmit, reset, formState: { errors } } = useForm();
@@ -69,6 +72,20 @@ const ManageReps = () => {
     fetchReps();
   }, []);
   console.log("repData", repData);
+
+  const handleUpdateRep = (repId) => {
+    console.log("handleUpdateRep called with repId:", repId);
+    console.log("repData:", repData);
+    const rep = repData.find(r => r.id === repId);
+    console.log("Found rep:", rep);
+    if (rep) {
+      setSelectedRepData(rep);
+      setOpenUpdateRepModal(true);
+      console.log("Modal should be opening now");
+    } else {
+      console.log("Rep not found");
+    }
+  };
 
 //   const rowData = useMemo(() => {
 //     return (
@@ -297,7 +314,7 @@ const ManageReps = () => {
           return (
             <div className="flex gap-2">
               <button
-                onClick={() => handleUpdateMoodMaster(params?.data?.id)}
+                onClick={() => handleUpdateRep(params?.data?.id)}
                 className="bg-[#10B981] hover:bg-black px-4 py-1 text-white text-base flex justify-center items-center rounded-full"
               >
                 Update
@@ -313,7 +330,7 @@ const ManageReps = () => {
         },
       },
     ],
-    []
+    [handleUpdateRep]
   );
 
 //   const handleUpdateMoodMaster = (id) => {
@@ -603,6 +620,16 @@ const ManageReps = () => {
                 </form>
               </div>
             </div>
+          )}
+          
+          {/* Update Rep Modal */}
+          {openUpdateRepModal && selectedRepData && (
+            <UpdateRepModal
+              openUpdateRepModal={openUpdateRepModal}
+              setOpenUpdateRepModal={setOpenUpdateRepModal}
+              repData={selectedRepData}
+              onRepUpdated={fetchReps}
+            />
           )}
         </div>
       </> 

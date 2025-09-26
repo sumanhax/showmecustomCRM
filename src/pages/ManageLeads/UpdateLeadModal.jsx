@@ -31,7 +31,7 @@ const UpdateLeadModal = ({ openUpdateLeadModal, setOpenUpdateLeadModal, leadData
         id: leadData.id
       };
 
-      const response = await axios.put(
+      const response = await axios.post(
         "https://n8nnode.bestworks.cloud/webhook/update-lead",
         updateData
       );
