@@ -44,31 +44,109 @@ const CRMdashboard = () => {
   } = useForm();
   const dispatch = useDispatch();
 
-  // Custom cell renderer for Status
+  // Action status options
+  const actionStatusOptions = [
+    "Pending",
+    "Completed", 
+    "Overdue"
+  ];
+
+  // Custom cell renderer for Status with dropdown
   const StatusRenderer = (params) => {
     const status = params.value;
-    if (!status) return "N/A";
+    const actionId = params.data.id;
     
-    let statusClass = "px-2 py-1 rounded-full text-xs font-medium ";
-    switch (status.toLowerCase()) {
-      case "overdue":
-        statusClass += "bg-red-100 text-red-800";
-        break;
-      case "completed":
-        statusClass += "bg-green-100 text-green-800";
-        break;
-      case "in progress":
-        statusClass += "bg-yellow-100 text-yellow-800";
-        break;
-      default:
-        statusClass += "bg-gray-100 text-gray-800";
-    }
-    
+    // Define colors for each status
+    const getStatusStyle = (status) => {
+      const statusStyles = {
+        "Pending": {
+          backgroundColor: "#FEF3C7", // Light orange background
+          color: "#D97706", // Dark orange text
+          borderColor: "#F59E0B"
+        },
+        "Completed": {
+          backgroundColor: "#D1FAE5", // Light green background
+          color: "#059669", // Dark green text
+          borderColor: "#10B981"
+        },
+        "Overdue": {
+          backgroundColor: "#FEE2E2", // Light red background
+          color: "#DC2626", // Dark red text
+          borderColor: "#EF4444"
+        },
+      };
+      return statusStyles[status] || {
+        backgroundColor: "#F3F4F6", // Default light gray
+        color: "#6B7280", // Default gray text
+        borderColor: "#D1D5DB"
+      };
+    };
+
+    const style = getStatusStyle(status);
+
+    const handleDropdownChange = (event) => {
+      const newStatus = event.target.value;
+      handleActionStatusChange(actionId, newStatus);
+    };
+
     return (
-      <span className={statusClass}>
-        {status}
-      </span>
+      <select
+        value={status}
+        onChange={handleDropdownChange}
+        style={{
+          padding: "4px 8px",
+          borderRadius: "4px",
+          border: `1px solid ${style.borderColor}`,
+          fontSize: "12px",
+          fontWeight: "500",
+          textAlign: "center",
+          minWidth: "100px",
+          cursor: "pointer",
+          backgroundColor: style.backgroundColor,
+          color: style.color
+        }}
+      >
+        {actionStatusOptions.map((option) => {
+          const optionStyle = getStatusStyle(option);
+          return (
+            <option 
+              key={option} 
+              value={option}
+              style={{ 
+                backgroundColor: optionStyle.backgroundColor, 
+                color: optionStyle.color,
+                fontWeight: "500"
+              }}
+            >
+              {option}
+            </option>
+          );
+        })}
+      </select>
     );
+  };
+
+  // Handler for action status change
+  const handleActionStatusChange = (actionId, newStatus) => {
+    console.log("Updating action status:", { actionId, newStatus });
+    
+    axios.post("https://n8nnode.bestworks.cloud/webhook/action-status-update", {
+      id: actionId,
+      status: newStatus
+    })
+    .then(() => {
+      toast.success("Action status updated successfully");
+      // Refresh the action list data
+      dispatch(actionList()).then((res) => {
+        console.log("Action list refreshed:", res);
+      }).catch((err) => {
+        console.log("Error refreshing action list:", err);
+      });
+    })
+    .catch((error) => {
+      console.error("Error updating action status", error);
+      toast.error("Failed to update action status. Please try again.");
+    });
   };
 
   // Form submission handler for manager

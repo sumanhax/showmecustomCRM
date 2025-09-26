@@ -61,18 +61,42 @@ export default function ManageRepEmailBox() {
     // const email = decodeURIComponent(params.email);
 
 const [email, setEmail] = useState();
+const [isLoading, setIsLoading] = useState(true);
 
 useEffect(()=>{
-    setEmail(localStorage.getItem('user_email'));
-},[email])
+    const userEmail = localStorage.getItem('user_email');
+    console.log("Setting email from localStorage:", userEmail);
+    setEmail(userEmail);
+}, [])
 
     const fetchEmails = useCallback(() => {
+        if (!email) {
+            console.log("No email found, skipping fetch");
+            setIsLoading(false);
+            return;
+        }
+        
+        console.log("Fetching emails for:", email);
+        setIsLoading(true);
         axios.post('https://n8nnode.bestworks.cloud/webhook/email-log-fetch', { email })
-            .then((res) => { setEmailData(res.data); })
-            .catch((err) => { console.error("Error fetching emails:", err); });
+            .then((res) => { 
+                console.log("Emails fetched successfully:", res.data);
+                setEmailData(res.data || []); 
+            })
+            .catch((err) => { 
+                console.error("Error fetching emails:", err); 
+                setEmailData([]);
+            })
+            .finally(() => {
+                setIsLoading(false);
+            });
     }, [email]);
 
-    useEffect(() => { fetchEmails(); }, [fetchEmails]);
+    useEffect(() => { 
+        if (email) {
+            fetchEmails(); 
+        }
+    }, [fetchEmails, email]);
 
     const emailThreads = useMemo(() => {
         const threads = {};
@@ -98,12 +122,31 @@ useEffect(()=>{
                     <EmailIndividual
                         onBack={() => {
                             setSelectedContact(null);
-                            fetchEmails(); // Refresh the dashboard list when coming back
+                            // Force refresh emails when coming back
+                            setTimeout(() => {
+                                fetchEmails();
+                            }, 100);
                         }}
                         currentUserEmail={email}
                         otherPartyEmail={selectedContact.email}
                         initialSubject={selectedContact.subject}
                     />
+                </div>
+            </div>
+        );
+    }
+
+    // Show loading state
+    if (isLoading) {
+        return (
+            <div className="min-h-screen bg-gray-50 py-8 px-4">
+                <div className="max-w-7xl mx-auto">
+                    <div className="flex justify-center items-center h-64">
+                        <div className="text-center">
+                            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#f20c32] mx-auto mb-4"></div>
+                            <p className="text-gray-600">Loading emails...</p>
+                        </div>
+                    </div>
                 </div>
             </div>
         );
@@ -117,7 +160,15 @@ useEffect(()=>{
                     <div className="flex justify-between items-center mb-6">
                         <h1 className="text-2xl font-bold text-gray-900">Inbox</h1>
                        <div className="flex gap-5">
-                         {/* <button onClick={() => setIsModalOpen(true)} className="px-4 py-2 bg-indigo-600 text-white font-semibold rounded-lg shadow-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors">Reload</button> */}
+                        <button 
+                            onClick={() => {
+                                console.log("Manual refresh triggered");
+                                fetchEmails();
+                            }} 
+                            className="px-4 py-2 bg-gray-600 text-white font-semibold rounded-lg shadow-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-colors"
+                        >
+                            Refresh
+                        </button>
                         <button onClick={() => setIsModalOpen(true)} className="px-4 py-2 bg-[#f20c32] text-white font-semibold rounded-lg shadow-md hover:bg-[#fb536f] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors">Send New Email</button>
                        </div>
                         </div>
@@ -153,7 +204,27 @@ useEffect(()=>{
                                         );
                                     })
                                 ) : (
-                                    <tr><td colSpan="4" className="text-center py-10 text-gray-500">No conversations found.</td></tr>
+                                    <tr>
+                                        <td colSpan="4" className="text-center py-10">
+                                            <div className="flex flex-col items-center">
+                                                <div className="text-gray-400 mb-2">
+                                                    <svg className="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                                                    </svg>
+                                                </div>
+                                                <p className="text-gray-500 text-lg font-medium">No conversations found</p>
+                                                <p className="text-gray-400 text-sm mt-1">
+                                                    {email ? `No emails found for ${email}` : "Please log in to view your emails"}
+                                                </p>
+                                                <button 
+                                                    onClick={() => fetchEmails()} 
+                                                    className="mt-3 px-4 py-2 bg-[#f20c32] text-white text-sm rounded-lg hover:bg-[#fb536f] transition-colors"
+                                                >
+                                                    Try Again
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
                                 )}
                             </tbody>
                         </table>
