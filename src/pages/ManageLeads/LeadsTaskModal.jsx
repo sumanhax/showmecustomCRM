@@ -5,36 +5,38 @@ import { convertToSubmitFormat } from "../../utils/DateSubmitFormatter";
 import { useDispatch } from "react-redux";
 import { addTaskLeads } from "../../Reducer/TaskSlice";
 
-const LeadsTaskModal=({
-     leadsId,
-    opentaskModal,
-    setOpenTaskModal
-})=>{
-const dispatch=useDispatch()
-      const {
+const LeadsTaskModal = ({
+  leadsId,
+  opentaskModal,
+  setOpenTaskModal
+}) => {
+
+  const dispatch = useDispatch()
+  const {
     register,
     control,
     handleSubmit,
     formState: { errors },
   } = useForm();
-  const onSubmit=(data)=>{
-    console.log("Data",data);
-    
-    const payload={
-        
-        lead_id:leadsId,
-        action_description:data?.action_description,
-        due_date:convertToSubmitFormat(data?.due_date),
-        action_type:data?.action_type,
-        status:"Pending"
+
+  const onSubmit = (data) => {
+    console.log("Data", data);
+
+    const payload = {
+      lead_id: leadsId,
+      action_description: data?.action_description,
+      due_date: convertToSubmitFormat(data?.due_date),
+      action_type: data?.action_type,
+      status: "Pending"
     }
-dispatch(addTaskLeads(payload)).then((res)=>{
-    console.log("res",res);
-    if(res?.payload?.status_code===201){
+    
+    dispatch(addTaskLeads(payload)).then((res) => {
+      console.log("res", res);
+      if (res?.payload?.status_code === 201) {
         setOpenTaskModal(false)
-    }
-    
-})
+      }
+
+    })
   }
     return(
         <>

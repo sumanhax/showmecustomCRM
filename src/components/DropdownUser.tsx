@@ -118,7 +118,7 @@ const DropdownUser = () => {
               My Profile
             </Link>
           </li>
-          <li>
+          {/* <li>
             <Link
               to="/settings"
               className="flex items-center gap-2 text-sm font-normal duration-300 ease-in-out text-[#2E2E2E] hover:text-[#f20c32]"
@@ -126,7 +126,7 @@ const DropdownUser = () => {
               <AiFillSetting className='text-lg' />
               Account Settings
             </Link>
-          </li>
+          </li> */}
         </ul>
         <button onClick={handleLogout} className="flex items-center gap-2 py-3 px-4 text-sm font-normal duration-300 ease-in-out text-[#2E2E2E] hover:text-[#f20c32]">
           <AiOutlineLogout className='text-lg' />

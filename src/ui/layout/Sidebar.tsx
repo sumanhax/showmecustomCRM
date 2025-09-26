@@ -7,7 +7,7 @@ import { logo, showme, smallLogo } from '../../assets/images/images';
 
 import { AiFillSetting, AiFillTag, AiFillTags, AiOutlineDashboard, AiOutlineLogout, AiOutlineNotification, AiOutlineUser, BiLineChart, BiLineChartDown, BsPersonWorkspace, BsViewStacked, FiHome, MdManageAccounts, MdOutlineShoppingCartCheckout, MdSpaceDashboard, MdViewStream, PiClipboardTextBold, RiCoupon2Fill, RiCouponLine, RxDashboard, TfiMenuAlt } from "../../assets/icons/index";
 import { FaCircle, FaFirstOrderAlt } from 'react-icons/fa';
-import { MdSportsKabaddi, MdFamilyRestroom, MdSchool, MdAdminPanelSettings, MdOutlineSubscriptions, MdSubscriptions, MdTopic, MdPayment, MdClass, MdCategory } from 'react-icons/md';
+import { MdSportsKabaddi, MdFamilyRestroom, MdSchool,MdOutlineMail , MdAdminPanelSettings, MdOutlineSubscriptions, MdSubscriptions, MdTopic, MdPayment, MdClass, MdCategory } from 'react-icons/md';
 import userRoles from '../../pages/utils/userRoles';
 import { SiLevelsdotfyi } from "react-icons/si";
 import { RiSoundModuleFill } from 'react-icons/ri';
@@ -21,6 +21,7 @@ import { IoMagnet } from "react-icons/io5";
 import { PiKanbanFill } from "react-icons/pi";
 
 import { MdOutlineRepeat } from "react-icons/md";
+import { useSelector } from 'react-redux';
 
 interface SidebarProps {
   sidebarOpen: boolean;
@@ -39,6 +40,9 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
     storedSidebarExpanded === null ? false : storedSidebarExpanded === 'true'
   );
 
+  const {authData} = useSelector((state:any)=>state.auth);
+  const userRole = localStorage.getItem('user_role');
+  console.log("userRole",userRole);
   // close on click outside
   useEffect(() => {
     const clickHandler = ({ target }: MouseEvent) => {
@@ -190,85 +194,141 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                 </NavLink>
               </li> */}
 
-              <li>
-                <NavLink
-                  to="/crm-dashboard"
-                  className={`group relative flex items-center gap-2 rounded-sm px-4 py-2 ${sidebarOpen ? 'justify-center' : 'justify-start'} font-normal text-sm text-gray-600 duration-300 ease-in-out hover:bg-graydark mb-2 ${pathname.includes('manage-category') &&
-                    'bg-graydark dark:bg-meta-4'
-                    }`}
-                >
-                  {sidebarOpen ?
-                    <>
-                      <MdCategory className='text-xl' />
-                    </>
-                    :
-                    <>
-                      <MdCategory className='text-xl' />
-                      Dashboard
-                    </>
-                  }
-                </NavLink>
-              </li>
+              {/* CRM Dashboard - Only visible to manager and admin */}
+              {(userRole === 'manager' || userRole === 'admin') && (
+                <li>
+                  <NavLink
+                    to="/crm-dashboard"
+                    className={`group relative flex items-center gap-2 rounded-sm px-4 py-2 ${sidebarOpen ? 'justify-center' : 'justify-start'} font-normal text-sm text-gray-600 duration-300 ease-in-out hover:bg-graydark mb-2 ${pathname.includes('crm-dashboard') &&
+                      'bg-graydark dark:bg-meta-4'
+                      }`}
+                  >
+                    {sidebarOpen ?
+                      <>
+                        <MdCategory className='text-xl' />
+                      </>
+                      :
+                      <>
+                        <MdCategory className='text-xl' />
+                        CRM Dashboard
+                      </>
+                    }
+                  </NavLink>
+                </li>
+              )}
+
+              {/* Rep Dashboard - Only visible to rep */}
+              {userRole === 'rep' && (
+                <li>
+                  <NavLink
+                    to="/rep-dashboard"
+                    className={`group relative flex items-center gap-2 rounded-sm px-4 py-2 ${sidebarOpen ? 'justify-center' : 'justify-start'} font-normal text-sm text-gray-600 duration-300 ease-in-out hover:bg-graydark mb-2 ${pathname.includes('rep-dashboard') &&
+                      'bg-graydark dark:bg-meta-4'
+                      }`}
+                  >
+                    {sidebarOpen ?
+                      <>
+                        <MdCategory className='text-xl' />
+                      </>
+                      :
+                      <>
+                        <MdCategory className='text-xl' />
+                        Rep Dashboard
+                      </>
+                    }
+                  </NavLink>
+                </li>
+              )}
+              {userRole === 'rep' && (
+                <li>
+                  <NavLink
+                    to="/rep-mailbox"
+                    className={`group relative flex items-center gap-2 rounded-sm px-4 py-2 ${sidebarOpen ? 'justify-center' : 'justify-start'} font-normal text-sm text-gray-600 duration-300 ease-in-out hover:bg-graydark mb-2 ${pathname.includes('rep-dashboard') &&
+                      'bg-graydark dark:bg-meta-4'
+                      }`}
+                  >
+                    {sidebarOpen ?
+                      <>
+                        <MdOutlineMail  className='text-xl' />
+                      </>
+                      :
+                      <>
+                        <MdOutlineMail  className='text-xl' />
+                       MailBox
+                      </>
+                    }
+                  </NavLink>
+                </li>
+              )}
              
-              <li>
-                <NavLink
-                  to="/leads"
-                  className={`group relative flex items-center gap-2 rounded-sm px-4 py-2 ${sidebarOpen ? 'justify-center' : 'justify-start'} font-normal text-sm text-gray-600 duration-300 ease-in-out hover:bg-graydark mb-2 ${pathname.includes('manage-mood-meter') &&
-                    'bg-graydark dark:bg-meta-4'
-                    }`}
-                >
-                  {sidebarOpen ?
-                    <>
-                      <IoMagnet className='text-xl' />
-                    </>
-                    :
-                    <>
-                      <IoMagnet className='text-xl' />
-                      Leads
-                    </>
-                  }
-                </NavLink>
-              </li>
-              <li>
-                <NavLink
-                  to="/reps"
-                  className={`group relative flex items-center gap-2 rounded-sm px-4 py-2 ${sidebarOpen ? 'justify-center' : 'justify-start'} font-normal text-sm text-gray-600 duration-300 ease-in-out hover:bg-graydark mb-2 ${pathname.includes('manage-mood-meter') &&
-                    'bg-graydark dark:bg-meta-4'
-                    }`}
-                >
-                  {sidebarOpen ?
-                    <>
-                      <MdOutlineRepeat className='text-xl' />
-                    </>
-                    :
-                    <>
-                      <MdOutlineRepeat className='text-xl' />
-                      Reps
-                    </>
-                  }
-                </NavLink>
-              </li>
+              {/* Leads - Only visible to manager and admin */}
+              {(userRole === 'manager' || userRole === 'admin') && (
+                <li>
+                  <NavLink
+                    to="/leads"
+                    className={`group relative flex items-center gap-2 rounded-sm px-4 py-2 ${sidebarOpen ? 'justify-center' : 'justify-start'} font-normal text-sm text-gray-600 duration-300 ease-in-out hover:bg-graydark mb-2 ${pathname.includes('leads') &&
+                      'bg-graydark dark:bg-meta-4'
+                      }`}
+                  >
+                    {sidebarOpen ?
+                      <>
+                        <IoMagnet className='text-xl' />
+                      </>
+                      :
+                      <>
+                        <IoMagnet className='text-xl' />
+                        Leads
+                      </>
+                    }
+                  </NavLink>
+                </li>
+              )}
 
+              {/* Reps - Only visible to manager and admin */}
+              {(userRole === 'manager' || userRole === 'admin') && (
+                <li>
+                  <NavLink
+                    to="/reps"
+                    className={`group relative flex items-center gap-2 rounded-sm px-4 py-2 ${sidebarOpen ? 'justify-center' : 'justify-start'} font-normal text-sm text-gray-600 duration-300 ease-in-out hover:bg-graydark mb-2 ${pathname.includes('reps') &&
+                      'bg-graydark dark:bg-meta-4'
+                      }`}
+                  >
+                    {sidebarOpen ?
+                      <>
+                        <MdOutlineRepeat className='text-xl' />
+                      </>
+                      :
+                      <>
+                        <MdOutlineRepeat className='text-xl' />
+                        Reps
+                      </>
+                    }
+                  </NavLink>
+                </li>
+              )}
 
-              <li>
-                <NavLink
-                  to="/kanban"
-                  className={`group relative flex items-center gap-2 rounded-sm px-4 py-2 ${sidebarOpen ? 'justify-center' : 'justify-start'} font-normal text-sm text-gray-600 duration-300 ease-in-out hover:bg-graydark mb-2 ${pathname.includes('manage-mood-masters') &&
-                    'bg-graydark dark:bg-meta-4'
-                    }`}
-                >
-                  {sidebarOpen ?
-                    <>
-                      <PiKanbanFill className='text-xl' />
-                    </>
-                    :
-                    <>
-                      <PiKanbanFill className='text-xl' />
-                      Kanban
-                    </>
-                  }
-                </NavLink>
-              </li>
+              {/* Kanban - Only visible to manager and admin */}
+              {(userRole === 'manager' || userRole === 'admin') && (
+                <li>
+                  <NavLink
+                    to="/kanban"
+                    className={`group relative flex items-center gap-2 rounded-sm px-4 py-2 ${sidebarOpen ? 'justify-center' : 'justify-start'} font-normal text-sm text-gray-600 duration-300 ease-in-out hover:bg-graydark mb-2 ${pathname.includes('kanban') &&
+                      'bg-graydark dark:bg-meta-4'
+                      }`}
+                  >
+                    {sidebarOpen ?
+                      <>
+                        <PiKanbanFill className='text-xl' />
+                      </>
+                      :
+                      <>
+                        <PiKanbanFill className='text-xl' />
+                        Kanban
+                      </>
+                    }
+                  </NavLink>
+                </li>
+              )}
 
                  {/* <li>
                 <NavLink

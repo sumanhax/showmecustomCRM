@@ -38,6 +38,8 @@ import ManageLeads from '../pages/ManageLeads/ManageLeads.jsx';
 import ManageReps from '../pages/ManageReps/ManageReps.jsx';
 import CRMdashboard from '../pages/CRMdashboard/CRMdashboard.jsx';
 import TaskManager from '../pages/TaskManager/TaskManager.jsx';
+import RepDashboard from '../pages/RepDashboard/RepDashboard.jsx';
+import ManageRepEmailBox from '../pages/ManageRepEmailBox/ManageRepEmailBox.jsx';
 
 
 const allRoutes = [
@@ -283,6 +285,26 @@ const allRoutes = [
       {
         index: true,
         element: <TaskManager />,
+      },
+    ],
+  },
+    {
+    path: '/rep-dashboard',
+    element: <InsideLayout />,
+    children: [
+      {
+        index: true,
+        element: <RepDashboard />,
+      },
+    ],
+  },
+    {
+    path: '/rep-mailbox',
+    element: <InsideLayout />,
+    children: [
+      {
+        index: true,
+        element: <ManageRepEmailBox />,
       },
     ],
   },

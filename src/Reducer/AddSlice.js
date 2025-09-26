@@ -41,12 +41,56 @@ export const addManager = createAsyncThunk(
         }
     }
 )
+export const actionList = createAsyncThunk(
+    'add/actionList',
+    async (userInput, { rejectWithValue }) => {
+        try {
+            const response = await api.get('/api/admin/dashboard/actions/list');
+            console.log("response",response)
+            if (response?.data?.status_code === 200) {
+                return response.data;
+            } else {
+                if (response?.data?.errors) {
+                    return rejectWithValue(response.data.errors);
+                } else {
+                    return rejectWithValue('Something went wrong.');
+                }
+            }
+        } catch (err) {
+            return rejectWithValue(err);
+        }
+    }
+)
+export const repDashboard = createAsyncThunk(
+    'add/repDashboard',
+    async (userInput, { rejectWithValue }) => {
+        console.log("userInput",userInput);
+        try {
+            const response = await api.get(`/api/rep/dashboard/${userInput}/task-list`);
+            console.log("action response",response)
+            if (response?.data?.status_code === 200) {
+                return response.data;
+            } else {
+                if (response?.data?.errors) {
+                    return rejectWithValue(response.data.errors);
+                } else {
+                    return rejectWithValue('Something went wrong.');
+                }
+            }
+        } catch (err) {
+            return rejectWithValue(err);
+        }
+    }
+)
+
 
 const initialState = {
     error: null,
     loading: false, 
     repDataResponse:{},
-    ManagerDataResponse:{}
+    ManagerDataResponse:{},
+    actionListData:{},
+    repDashboardData:{}
 }
 
 //slice part
@@ -81,6 +125,34 @@ const AddSlice = createSlice(
                     state.ManagerDataResponse=payload
                 })
                 .addCase(addManager.rejected, (state, { payload }) => {
+                    state.loading = false;
+                    state.error = payload;
+                })
+                .addCase(actionList.pending, (state) => {
+                    state.message = null
+                    state.loading = true;
+                    state.error = null
+                })
+                .addCase(actionList.fulfilled, (state, { payload }) => {
+                    state.loading = false;
+                    state.message = payload;
+                    state.actionListData=payload
+                })
+                .addCase(actionList.rejected, (state, { payload }) => {
+                    state.loading = false;
+                    state.error = payload;
+                })
+                .addCase(repDashboard.pending, (state) => {
+                    state.message = null
+                    state.loading = true;
+                    state.error = null
+                })
+                .addCase(repDashboard.fulfilled, (state, { payload }) => {
+                    state.loading = false;
+                    state.message = payload;
+                    state.repDashboardData=payload
+                })
+                .addCase(repDashboard.rejected, (state, { payload }) => {
                     state.loading = false;
                     state.error = payload;
                 })

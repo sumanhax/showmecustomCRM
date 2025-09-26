@@ -17,6 +17,7 @@ import { IoDocumentTextOutline } from "react-icons/io5";
 import React from "react";
 import axios from "axios";
 import { useEffect, useState } from "react";
+import { toast } from "react-toastify";
 
 export function KanbanBoard() {
   const api = "https://n8nnode.bestworks.cloud/webhook/react-dashboard";
@@ -44,6 +45,8 @@ export function KanbanBoard() {
     phone: '',
     message: ''
   });
+  const [isEmailSending, setIsEmailSending] = useState(false);
+  const [isCallSending, setIsCallSending] = useState(false);
 
   // Fetch lead data
   useEffect(() => {
@@ -88,12 +91,13 @@ const handleStatusUpdate = (leadInfo: { id: string; email: string; status: strin
   console.log("trigger",leadInfo)
   axios.post(api2, { id: leadInfo.id, email: leadInfo.email, status: leadInfo.status })
     .then(() => {
-      alert("Status updated successfully")
+      toast.success("Status updated successfully");
       setReload([1])
       console.log("Status updated successfully");
     })
     .catch((error) => {
       console.error("Error updating status", error);
+      toast.error("Failed to update status. Please try again.");
     });
 };
 
@@ -112,11 +116,36 @@ const handleEmailClick = (leadEmail: string, leadName: string) => {
 };
 
 const handleEmailSend = () => {
-  // Sample handler function
-  console.log("Sending email:", emailForm);
-  alert("Email sent successfully!");
-  setEmailModal({ isOpen: false, leadEmail: '', leadName: '' });
-  setEmailForm({ to: '', subject: '', message: '' });
+  if (!emailForm.to.trim() || !emailForm.subject.trim() || !emailForm.message.trim()) {
+    toast.error('Please fill in all fields.');
+    return;
+  }
+
+  setIsEmailSending(true);
+  const payload = {
+    reciepent: emailForm.to,
+    sender: 'noreply@company.com', // You can replace this with actual sender email
+    subject: emailForm.subject,
+    replyBody: emailForm.message,
+  };
+
+  axios.post('https://n8nnode.bestworks.cloud/webhook/email-sender', payload)
+    .then(res => {
+      if (res.status === 200) {
+        toast.success('Email Sent Successfully!');
+        setEmailModal({ isOpen: false, leadEmail: '', leadName: '' });
+        setEmailForm({ to: '', subject: '', message: '' });
+      } else {
+        toast.error('Failed to send email. Please try again.');
+      }
+    })
+    .catch(err => {
+      console.error("Error sending email:", err);
+      toast.error('An error occurred while sending the email.');
+    })
+    .finally(() => {
+      setIsEmailSending(false);
+    });
 };
 
 const handleEmailModalClose = () => {
@@ -138,11 +167,22 @@ const handleCallClick = (phoneNumber: string, leadName: string) => {
 };
 
 const handleCallSend = () => {
-  // Sample handler function
+  if (!callForm.phone.trim() || !callForm.message.trim()) {
+    toast.error('Please fill in all fields.');
+    return;
+  }
+
+  setIsCallSending(true);
+  // Sample handler function - you can replace this with actual API call
   console.log("Sending call message:", callForm);
-  alert("Call message sent successfully!");
-  setCallModal({ isOpen: false, phoneNumber: '', leadName: '' });
-  setCallForm({ phone: '', message: '' });
+  
+  // Simulate API call
+  setTimeout(() => {
+    toast.success("Call message sent successfully!");
+    setCallModal({ isOpen: false, phoneNumber: '', leadName: '' });
+    setCallForm({ phone: '', message: '' });
+    setIsCallSending(false);
+  }, 2000);
 };
 
 const handleCallModalClose = () => {
@@ -604,6 +644,7 @@ console.log('args',args)
                 </button>
                 <button
                   onClick={handleEmailSend}
+                  disabled={isEmailSending}
                   style={{
                     padding: '10px 20px',
                     border: 'none',
@@ -611,20 +652,25 @@ console.log('args',args)
                     fontSize: '14px',
                     fontWeight: '600',
                     color: 'white',
-                    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                    cursor: 'pointer',
-                    transition: 'all 0.2s'
+                    background: isEmailSending 
+                      ? 'linear-gradient(135deg, #9ca3af 0%, #6b7280 100%)'
+                      : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                    cursor: isEmailSending ? 'not-allowed' : 'pointer',
+                    transition: 'all 0.2s',
+                    opacity: isEmailSending ? 0.7 : 1
                   }}
                   onMouseOver={(e) => {
-                    (e.target as HTMLButtonElement).style.transform = 'translateY(-1px)';
-                    (e.target as HTMLButtonElement).style.boxShadow = '0 4px 8px rgba(102, 126, 234, 0.3)';
+                    if (!isEmailSending) {
+                      (e.target as HTMLButtonElement).style.transform = 'translateY(-1px)';
+                      (e.target as HTMLButtonElement).style.boxShadow = '0 4px 8px rgba(102, 126, 234, 0.3)';
+                    }
                   }}
                   onMouseOut={(e) => {
                     (e.target as HTMLButtonElement).style.transform = 'translateY(0)';
                     (e.target as HTMLButtonElement).style.boxShadow = 'none';
                   }}
                 >
-                  Send Email
+                  {isEmailSending ? 'Sending...' : 'Send Email'}
                 </button>
               </div>
             </div>
@@ -785,6 +831,7 @@ console.log('args',args)
                 </button>
                 <button
                   onClick={handleCallSend}
+                  disabled={isCallSending}
                   style={{
                     padding: '10px 20px',
                     border: 'none',
@@ -792,20 +839,25 @@ console.log('args',args)
                     fontSize: '14px',
                     fontWeight: '600',
                     color: 'white',
-                    background: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
-                    cursor: 'pointer',
-                    transition: 'all 0.2s'
+                    background: isCallSending 
+                      ? 'linear-gradient(135deg, #9ca3af 0%, #6b7280 100%)'
+                      : 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+                    cursor: isCallSending ? 'not-allowed' : 'pointer',
+                    transition: 'all 0.2s',
+                    opacity: isCallSending ? 0.7 : 1
                   }}
                   onMouseOver={(e) => {
-                    (e.target as HTMLButtonElement).style.transform = 'translateY(-1px)';
-                    (e.target as HTMLButtonElement).style.boxShadow = '0 4px 8px rgba(240, 147, 251, 0.3)';
+                    if (!isCallSending) {
+                      (e.target as HTMLButtonElement).style.transform = 'translateY(-1px)';
+                      (e.target as HTMLButtonElement).style.boxShadow = '0 4px 8px rgba(240, 147, 251, 0.3)';
+                    }
                   }}
                   onMouseOut={(e) => {
                     (e.target as HTMLButtonElement).style.transform = 'translateY(0)';
                     (e.target as HTMLButtonElement).style.boxShadow = 'none';
                   }}
                 >
-                  Send Message
+                  {isCallSending ? 'Sending...' : 'Send Message'}
                 </button>
               </div>
             </div>
