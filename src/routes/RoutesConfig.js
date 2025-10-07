@@ -41,6 +41,7 @@ import TaskManager from '../pages/TaskManager/TaskManager.jsx';
 import RepDashboard from '../pages/RepDashboard/RepDashboard.jsx';
 import ManageRepEmailBox from '../pages/ManageRepEmailBox/ManageRepEmailBox.jsx';
 import MyProfile from '../pages/MyProfile/myProfile.jsx';
+import SingleLead from '../pages/ManageLeads/SingleLead.jsx';
 
 
 const allRoutes = [
@@ -392,6 +393,16 @@ const allRoutes = [
       {
         index: true,
         element: <CRMdashboard />,
+      },
+    ],  
+  },
+  {
+    path: '/lead-details/:id',
+    element: <InsideLayout />,
+    children: [
+      {
+        index: true,
+        element: <SingleLead />,
       },
     ],  
   },

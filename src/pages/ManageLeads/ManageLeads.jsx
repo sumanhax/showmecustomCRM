@@ -1,7 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
-import { useDispatch } from "react-redux";
-import { useSelector } from "react-redux";
-import { changeStatus, getMoodMaster } from "../../Reducer/MoodMasterSlice";
+import { useEffect, useState } from "react";
 import { AgGridReact } from "ag-grid-react";
 import { ToastContainer, toast } from "react-toastify";
 import { Button } from "flowbite-react";
@@ -10,16 +7,18 @@ import Loader from "../../components/Loader";
 import LeadsTaskModal from "./LeadsTaskModal";
 import AddLeadModal from "./AddLeadModal";
 import UpdateLeadModal from "./UpdateLeadModal";
+import { useNavigate } from "react-router-dom";
 
 const ManageLeads = () => {
-  const { moodsList, singleMoodMaster } = useSelector(
-    (state) => state?.moodMastersData
-  );
-  const dispatch = useDispatch();
-  const [openMoodMasterModal, setOpenMoodMasterModal] = useState(false);
-  const [mood_masterId, setMoodMasterId] = useState();
-  const [openUpdateMoodMasterModal, setOpenUpdateMoodMasterModal] =
+  // const { moodsList, singleMoodMaster } = useSelector(
+  //   (state) => state?.moodMastersData
+  // );
+  // const dispatch = useDispatch();
+  // const [openMoodMasterModal, setOpenMoodMasterModal] = useState(false);
+  // const [mood_masterId, setMoodMasterId] = useState();
+  // const [openUpdateMoodMasterModal, setOpenUpdateMoodMasterModal] =
     useState(false);
+  const navigate = useNavigate();
   const [leadsId,setLeadsId]=useState()
   const [leadData, setLeadData] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -231,91 +230,100 @@ const ManageLeads = () => {
     }
   };
 
-  const columnDefs = useMemo(
-    () => [
-      {
-        field: "Lead Name",
-        headerName: "Lead Name",
-        sortable: true,
-        filter: true,
+  const handleViewLead = (leadId) => {
+    console.log("Viewing lead:", leadId);
+    navigate(`/lead-details/${leadId}`);
+  };
+
+  const columnDefs = [
+    {
+      field: "Lead Name",
+      headerName: "Lead Name",
+      sortable: true,
+      filter: true,
+    },
+    {
+      field: "Email",
+      headerName: "Email",
+      sortable: true,
+      filter: true,
+    },
+    // {
+    //   field: "Phone",
+    //   headerName: "Phone",
+    //   sortable: true,
+    //   filter: true,
+    // },
+    // {
+    //   field: "Company Name",
+    //   headerName: "Company Name",
+    //   sortable: true,
+    //   filter: true,
+    // },
+    {
+      field: "Lead Status",
+      headerName: "Lead Status",
+      sortable: true,
+      filter: true,
+      cellRenderer: StatusRenderer,
+      width: 200,
+    },
+    {
+      field: "Typeform Date",
+      headerName: "Date",
+      sortable: true,
+      filter: true,
+    },
+    {
+      width: 200,
+      headerName: "Task",
+      field: "task",
+      cellRenderer: (params) => {
+        return (
+          <div className="flex gap-2">
+            <button
+              onClick={() => handleAddTask(params?.data?.id)}
+              className="bg-[#10B981] hover:bg-black px-4 py-1 text-white text-base flex justify-center items-center rounded-full"
+            >
+              Add Task
+            </button>
+          </div>
+        );
       },
-      {
-        field: "Email",
-        headerName: "Email",
-        sortable: true,
-        filter: true,
+    },
+    {
+      width: 250,
+      headerName: "Actions",
+      field: "actions",
+      cellRenderer: (params) => {
+        return (
+          <div className="flex gap-2">
+            <button
+              onClick={() => handleViewLead(params?.data?.id)}
+              className="bg-[#10B981] hover:bg-[#059669] px-3 py-1 text-white text-sm flex justify-center items-center rounded-full"
+              style={{ fontSize: '12px' }}
+            >
+              View
+            </button>
+            <button
+              onClick={() => handleUpdateLead(params?.data?.id)}
+              className="bg-[#3B82F6] hover:bg-[#2563EB] px-3 py-1 text-white text-sm flex justify-center items-center rounded-full"
+              style={{ fontSize: '12px' }}
+            >
+              Update
+            </button>
+            <button
+              onClick={() => handleDeleteLead(params?.data?.id)}
+              className="bg-[#EF4444] hover:bg-[#DC2626] px-3 py-1 text-white text-sm flex justify-center items-center rounded-full"
+              style={{ fontSize: '12px' }}
+            >
+              Delete
+            </button>
+          </div>
+        );
       },
-      {
-        field: "Phone",
-        headerName: "Phone",
-        sortable: true,
-        filter: true,
-      },
-      {
-        field: "Company Name",
-        headerName: "Company Name",
-        sortable: true,
-        filter: true,
-      },
-      {
-        field: "Lead Status",
-        headerName: "Lead Status",
-        sortable: true,
-        filter: true,
-        cellRenderer: StatusRenderer,
-        width: 200,
-      },
-      {
-        field: "Typeform Date",
-        headerName: "Date",
-        sortable: true,
-        filter: true,
-      },
-      {
-        width: 200,
-        headerName: "Task",
-        field: "task",
-        cellRenderer: (params) => {
-          return (
-            <div className="flex gap-2">
-              <button
-                onClick={() => handleAddTask(params?.data?.id)}
-                className="bg-[#10B981] hover:bg-black px-4 py-1 text-white text-base flex justify-center items-center rounded-full"
-              >
-                Add Task
-              </button>
-            </div>
-          );
-        },
-      },
-      {
-        width: 200,
-        headerName: "Actions",
-        field: "actions",
-        cellRenderer: (params) => {
-          return (
-            <div className="flex gap-2">
-              <button
-                onClick={() => handleUpdateLead(params?.data?.id)}
-                className="bg-[#3B82F6] hover:bg-[#2563EB] px-3 py-1 text-white text-sm flex justify-center items-center rounded-full"
-                style={{ fontSize: '12px' }}
-              >
-                Update
-              </button>
-              <button
-                onClick={() => handleDeleteLead(params?.data?.id)}
-                className="bg-[#EF4444] hover:bg-[#DC2626] px-3 py-1 text-white text-sm flex justify-center items-center rounded-full"
-                style={{ fontSize: '12px' }}
-              >
-                Delete
-              </button>
-            </div>
-          );
-        },
-      },
-    ],
-    [handleAddTask, handleUpdateLead, handleDeleteLead]
-  );
+    },
+  ];
 
   //   const handleUpdateMoodMaster = (id) => {
   //     console.log(id, "id");
