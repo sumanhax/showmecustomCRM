@@ -261,6 +261,12 @@ const ManageLeads = () => {
     //   filter: true,
     // },
     {
+      field: "Typeform Date",
+      headerName: "Date",
+      sortable: true,
+      filter: true,
+    },
+    {
       field: "Lead Status",
       headerName: "Lead Status",
       sortable: true,
@@ -268,12 +274,7 @@ const ManageLeads = () => {
       cellRenderer: StatusRenderer,
       width: 200,
     },
-    {
-      field: "Typeform Date",
-      headerName: "Date",
-      sortable: true,
-      filter: true,
-    },
+   
     {
       width: 200,
       headerName: "Task",
@@ -283,7 +284,8 @@ const ManageLeads = () => {
           <div className="flex gap-2">
             <button
               onClick={() => handleAddTask(params?.data?.id)}
-              className="bg-[#10B981] hover:bg-black px-4 py-1 text-white text-base flex justify-center items-center rounded-full"
+              className="bg-[#8B5CF6] hover:bg-[#7C3AED] px-3 py-1 text-white text-sm flex justify-center items-center rounded-full"
+              style={{ fontSize: '12px' }}
             >
               Add Task
             </button>
