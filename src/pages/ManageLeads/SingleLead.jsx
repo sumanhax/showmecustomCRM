@@ -20,6 +20,7 @@ import {
   FaExclamationTriangle,
   FaStar
 } from "react-icons/fa";
+import { IoDocumentTextOutline } from "react-icons/io5";
 
 const SingleLead = () => {
   const { id } = useParams();
@@ -27,6 +28,19 @@ const SingleLead = () => {
   const [leadData, setLeadData] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [emailModal, setEmailModal] = useState({isOpen: false, leadEmail: '', leadName: ''});
+  const [emailForm, setEmailForm] = useState({
+    to: '',
+    subject: '',
+    message: ''
+  });
+  const [callModal, setCallModal] = useState({isOpen: false, phoneNumber: '', leadName: ''});
+  const [callForm, setCallForm] = useState({
+    phone: '',
+    message: ''
+  });
+  const [isEmailSending, setIsEmailSending] = useState(false);
+  const [isCallSending, setIsCallSending] = useState(false);
 
   const api = "https://n8nnode.bestworks.cloud/webhook/fetch-single-lead";
 
@@ -81,6 +95,95 @@ const SingleLead = () => {
       "Cold Lead": "bg-pink-100 text-pink-800 border-pink-200",
     };
     return statusColors[status] || "bg-gray-100 text-gray-800 border-gray-200";
+  };
+
+  // Email handler functions
+  const handleEmailClick = (leadEmail, leadName) => {
+    setEmailModal({
+      isOpen: true,
+      leadEmail,
+      leadName
+    });
+    setEmailForm({
+      to: leadEmail,
+      subject: `Follow up - ${leadName}`,
+      message: `Hi ${leadName},\n\nI hope this email finds you well. I wanted to follow up on our previous conversation...\n\nBest regards,`
+    });
+  };
+
+  const handleEmailSend = () => {
+    if (!emailForm.to.trim() || !emailForm.subject.trim() || !emailForm.message.trim()) {
+      toast.error('Please fill in all fields.');
+      return;
+    }
+
+    setIsEmailSending(true);
+    const payload = {
+      reciepent: emailForm.to,
+      sender: 'noreply@company.com', // You can replace this with actual sender email
+      subject: emailForm.subject,
+      replyBody: emailForm.message,
+    };
+
+    axios.post('https://n8nnode.bestworks.cloud/webhook/email-sender', payload)
+      .then(res => {
+        if (res.status === 200) {
+          toast.success('Email Sent Successfully!');
+          setEmailModal({ isOpen: false, leadEmail: '', leadName: '' });
+          setEmailForm({ to: '', subject: '', message: '' });
+        } else {
+          toast.error('Failed to send email. Please try again.');
+        }
+      })
+      .catch(err => {
+        console.error("Error sending email:", err);
+        toast.error('An error occurred while sending the email.');
+      })
+      .finally(() => {
+        setIsEmailSending(false);
+      });
+  };
+
+  const handleEmailModalClose = () => {
+    setEmailModal({ isOpen: false, leadEmail: '', leadName: '' });
+    setEmailForm({ to: '', subject: '', message: '' });
+  };
+
+  // Call modal handler functions
+  const handleCallClick = (phoneNumber, leadName) => {
+    setCallModal({
+      isOpen: true,
+      phoneNumber,
+      leadName
+    });
+    setCallForm({
+      phone: phoneNumber,
+      message: `Hi ${leadName},\n\nI hope this call finds you well. I wanted to follow up on our previous conversation...\n\nBest regards,`
+    });
+  };
+
+  const handleCallSend = () => {
+    if (!callForm.phone.trim() || !callForm.message.trim()) {
+      toast.error('Please fill in all fields.');
+      return;
+    }
+
+    setIsCallSending(true);
+    // Sample handler function - you can replace this with actual API call
+    console.log("Sending call message:", callForm);
+    
+    // Simulate API call
+    setTimeout(() => {
+      toast.success("Call message sent successfully!");
+      setCallModal({ isOpen: false, phoneNumber: '', leadName: '' });
+      setCallForm({ phone: '', message: '' });
+      setIsCallSending(false);
+    }, 2000);
+  };
+
+  const handleCallModalClose = () => {
+    setCallModal({ isOpen: false, phoneNumber: '', leadName: '' });
+    setCallForm({ phone: '', message: '' });
   };
 
   if (isLoading) {
@@ -368,6 +471,77 @@ return (
 
             {/* Right Column - Timeline and Stats */}
             <div className="space-y-6">
+              {/* Communication Card */}
+              <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
+                <h2 className="text-xl font-semibold text-gray-900 mb-4 flex items-center">
+                  <FaEnvelope className="w-5 h-5 mr-2 text-[#f20c32]" />
+                  Communication
+                </h2>
+                <div className="flex gap-3">
+                  <button
+                    onClick={() => handleEmailClick(leadData["Email"], leadData["Lead Name"])}
+                    style={{
+                      background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '8px',
+                      padding: '12px 20px',
+                      fontSize: '14px',
+                      fontWeight: '600',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '8px',
+                      flex: 1,
+                      justifyContent: 'center',
+                      transition: 'all 0.2s ease-in-out'
+                    }}
+                    onMouseOver={(e) => {
+                      e.target.style.transform = 'translateY(-1px)';
+                      e.target.style.boxShadow = '0 4px 8px rgba(102, 126, 234, 0.3)';
+                    }}
+                    onMouseOut={(e) => {
+                      e.target.style.transform = 'translateY(0)';
+                      e.target.style.boxShadow = 'none';
+                    }}
+                  >
+                    <FaEnvelope className="w-4 h-4" />
+                    Email
+                  </button>
+                  
+                  <button
+                    onClick={() => handleCallClick(leadData["Phone"] || leadData["Phone Number"], leadData["Lead Name"])}
+                    style={{
+                      background: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '8px',
+                      padding: '12px 20px',
+                      fontSize: '14px',
+                      fontWeight: '600',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '8px',
+                      flex: 1,
+                      justifyContent: 'center',
+                      transition: 'all 0.2s ease-in-out'
+                    }}
+                    onMouseOver={(e) => {
+                      e.target.style.transform = 'translateY(-1px)';
+                      e.target.style.boxShadow = '0 4px 8px rgba(240, 147, 251, 0.3)';
+                    }}
+                    onMouseOut={(e) => {
+                      e.target.style.transform = 'translateY(0)';
+                      e.target.style.boxShadow = 'none';
+                    }}
+                  >
+                    <IoDocumentTextOutline className="w-4 h-4" />
+                    Text
+                  </button>
+                </div>
+              </div>
+
               {/* Timeline */}
               <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
                 <h2 className="text-xl font-semibold text-gray-900 mb-4 flex items-center">
@@ -478,6 +652,401 @@ return (
           </div>
         </div>
       </div>
+
+      {/* Email Modal */}
+      {emailModal.isOpen && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'rgba(0, 0, 0, 0.5)',
+          backdropFilter: 'blur(4px)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 1000
+        }}>
+          <div style={{
+            backgroundColor: 'white',
+            borderRadius: '12px',
+            padding: '24px',
+            width: '90%',
+            maxWidth: '500px',
+            boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
+            position: 'relative'
+          }}>
+            {/* Close Button */}
+            <button
+              onClick={handleEmailModalClose}
+              style={{
+                position: 'absolute',
+                top: '16px',
+                right: '16px',
+                background: 'none',
+                border: 'none',
+                fontSize: '24px',
+                cursor: 'pointer',
+                color: '#6b7280',
+                padding: '4px'
+              }}
+            >
+              ×
+            </button>
+
+            {/* Modal Header */}
+            <div style={{ marginBottom: '20px' }}>
+              <h2 style={{
+                fontSize: '20px',
+                fontWeight: '700',
+                color: '#1f2937',
+                margin: 0
+              }}>
+                Send Email
+              </h2>
+              <p style={{
+                fontSize: '14px',
+                color: '#6b7280',
+                margin: '4px 0 0 0'
+              }}>
+                Send an email to {emailModal.leadName}
+              </p>
+            </div>
+
+            {/* Email Form */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              {/* To Field */}
+              <div>
+                <label style={{
+                  display: 'block',
+                  fontSize: '14px',
+                  fontWeight: '600',
+                  color: '#374151',
+                  marginBottom: '6px'
+                }}>
+                  To
+                </label>
+                <input
+                  type="email"
+                  value={emailForm.to}
+                  onChange={(e) => setEmailForm({...emailForm, to: e.target.value})}
+                  style={{
+                    width: '100%',
+                    padding: '10px 12px',
+                    border: '1px solid #d1d5db',
+                    borderRadius: '6px',
+                    fontSize: '14px',
+                    outline: 'none',
+                    transition: 'border-color 0.2s'
+                  }}
+                  onFocus={(e) => e.target.style.borderColor = '#3b82f6'}
+                  onBlur={(e) => e.target.style.borderColor = '#d1d5db'}
+                />
+              </div>
+
+              {/* Subject Field */}
+              <div>
+                <label style={{
+                  display: 'block',
+                  fontSize: '14px',
+                  fontWeight: '600',
+                  color: '#374151',
+                  marginBottom: '6px'
+                }}>
+                  Subject
+                </label>
+                <input
+                  type="text"
+                  value={emailForm.subject}
+                  onChange={(e) => setEmailForm({...emailForm, subject: e.target.value})}
+                  style={{
+                    width: '100%',
+                    padding: '10px 12px',
+                    border: '1px solid #d1d5db',
+                    borderRadius: '6px',
+                    fontSize: '14px',
+                    outline: 'none',
+                    transition: 'border-color 0.2s'
+                  }}
+                  onFocus={(e) => e.target.style.borderColor = '#3b82f6'}
+                  onBlur={(e) => e.target.style.borderColor = '#d1d5db'}
+                />
+              </div>
+
+              {/* Message Field */}
+              <div>
+                <label style={{
+                  display: 'block',
+                  fontSize: '14px',
+                  fontWeight: '600',
+                  color: '#374151',
+                  marginBottom: '6px'
+                }}>
+                  Message
+                </label>
+                <textarea
+                  value={emailForm.message}
+                  onChange={(e) => setEmailForm({...emailForm, message: e.target.value})}
+                  rows={6}
+                  style={{
+                    width: '100%',
+                    padding: '10px 12px',
+                    border: '1px solid #d1d5db',
+                    borderRadius: '6px',
+                    fontSize: '14px',
+                    outline: 'none',
+                    resize: 'vertical',
+                    transition: 'border-color 0.2s'
+                  }}
+                  onFocus={(e) => e.target.style.borderColor = '#3b82f6'}
+                  onBlur={(e) => e.target.style.borderColor = '#d1d5db'}
+                />
+              </div>
+
+              {/* Action Buttons */}
+              <div style={{
+                display: 'flex',
+                gap: '12px',
+                justifyContent: 'flex-end',
+                marginTop: '8px'
+              }}>
+                <button
+                  onClick={handleEmailModalClose}
+                  style={{
+                    padding: '10px 20px',
+                    border: '1px solid #d1d5db',
+                    borderRadius: '6px',
+                    fontSize: '14px',
+                    fontWeight: '600',
+                    color: '#374151',
+                    background: 'white',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s'
+                  }}
+                  onMouseOver={(e) => e.target.style.backgroundColor = '#f9fafb'}
+                  onMouseOut={(e) => e.target.style.backgroundColor = 'white'}
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleEmailSend}
+                  disabled={isEmailSending}
+                  style={{
+                    padding: '10px 20px',
+                    border: 'none',
+                    borderRadius: '6px',
+                    fontSize: '14px',
+                    fontWeight: '600',
+                    color: 'white',
+                    background: isEmailSending 
+                      ? 'linear-gradient(135deg, #9ca3af 0%, #6b7280 100%)'
+                      : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                    cursor: isEmailSending ? 'not-allowed' : 'pointer',
+                    transition: 'all 0.2s',
+                    opacity: isEmailSending ? 0.7 : 1
+                  }}
+                  onMouseOver={(e) => {
+                    if (!isEmailSending) {
+                      e.target.style.transform = 'translateY(-1px)';
+                      e.target.style.boxShadow = '0 4px 8px rgba(102, 126, 234, 0.3)';
+                    }
+                  }}
+                  onMouseOut={(e) => {
+                    e.target.style.transform = 'translateY(0)';
+                    e.target.style.boxShadow = 'none';
+                  }}
+                >
+                  {isEmailSending ? 'Sending...' : 'Send Email'}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Call Modal */}
+      {callModal.isOpen && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'rgba(0, 0, 0, 0.5)',
+          backdropFilter: 'blur(4px)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 1000
+        }}>
+          <div style={{
+            backgroundColor: 'white',
+            borderRadius: '12px',
+            padding: '24px',
+            width: '90%',
+            maxWidth: '500px',
+            boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
+            position: 'relative'
+          }}>
+            {/* Close Button */}
+            <button
+              onClick={handleCallModalClose}
+              style={{
+                position: 'absolute',
+                top: '16px',
+                right: '16px',
+                background: 'none',
+                border: 'none',
+                fontSize: '24px',
+                cursor: 'pointer',
+                color: '#6b7280',
+                padding: '4px'
+              }}
+            >
+              ×
+            </button>
+
+            {/* Modal Header */}
+            <div style={{ marginBottom: '20px' }}>
+              <h2 style={{
+                fontSize: '20px',
+                fontWeight: '700',
+                color: '#1f2937',
+                margin: 0
+              }}>
+                Text Message
+              </h2>
+              <p style={{
+                fontSize: '14px',
+                color: '#6b7280',
+                margin: '4px 0 0 0'
+              }}>
+                Send a text message to {callModal.leadName}
+              </p>
+            </div>
+
+            {/* Call Form */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              {/* Phone Field */}
+              <div>
+                <label style={{
+                  display: 'block',
+                  fontSize: '14px',
+                  fontWeight: '600',
+                  color: '#374151',
+                  marginBottom: '6px'
+                }}>
+                  Phone Number
+                </label>
+                <input
+                  type="tel"
+                  value={callForm.phone}
+                  onChange={(e) => setCallForm({...callForm, phone: e.target.value})}
+                  style={{
+                    width: '100%',
+                    padding: '10px 12px',
+                    border: '1px solid #d1d5db',
+                    borderRadius: '6px',
+                    fontSize: '14px',
+                    outline: 'none',
+                    transition: 'border-color 0.2s'
+                  }}
+                  onFocus={(e) => e.target.style.borderColor = '#3b82f6'}
+                  onBlur={(e) => e.target.style.borderColor = '#d1d5db'}
+                />
+              </div>
+
+              {/* Message Field */}
+              <div>
+                <label style={{
+                  display: 'block',
+                  fontSize: '14px',
+                  fontWeight: '600',
+                  color: '#374151',
+                  marginBottom: '6px'
+                }}>
+                  Message
+                </label>
+                <textarea
+                  value={callForm.message}
+                  onChange={(e) => setCallForm({...callForm, message: e.target.value})}
+                  rows={6}
+                  style={{
+                    width: '100%',
+                    padding: '10px 12px',
+                    border: '1px solid #d1d5db',
+                    borderRadius: '6px',
+                    fontSize: '14px',
+                    outline: 'none',
+                    resize: 'vertical',
+                    transition: 'border-color 0.2s'
+                  }}
+                  onFocus={(e) => e.target.style.borderColor = '#3b82f6'}
+                  onBlur={(e) => e.target.style.borderColor = '#d1d5db'}
+                />
+              </div>
+
+              {/* Action Buttons */}
+              <div style={{
+                display: 'flex',
+                gap: '12px',
+                justifyContent: 'flex-end',
+                marginTop: '8px'
+              }}>
+                <button
+                  onClick={handleCallModalClose}
+                  style={{
+                    padding: '10px 20px',
+                    border: '1px solid #d1d5db',
+                    borderRadius: '6px',
+                    fontSize: '14px',
+                    fontWeight: '600',
+                    color: '#374151',
+                    background: 'white',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s'
+                  }}
+                  onMouseOver={(e) => e.target.style.backgroundColor = '#f9fafb'}
+                  onMouseOut={(e) => e.target.style.backgroundColor = 'white'}
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleCallSend}
+                  disabled={isCallSending}
+                  style={{
+                    padding: '10px 20px',
+                    border: 'none',
+                    borderRadius: '6px',
+                    fontSize: '14px',
+                    fontWeight: '600',
+                    color: 'white',
+                    background: isCallSending 
+                      ? 'linear-gradient(135deg, #9ca3af 0%, #6b7280 100%)'
+                      : 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+                    cursor: isCallSending ? 'not-allowed' : 'pointer',
+                    transition: 'all 0.2s',
+                    opacity: isCallSending ? 0.7 : 1
+                  }}
+                  onMouseOver={(e) => {
+                    if (!isCallSending) {
+                      e.target.style.transform = 'translateY(-1px)';
+                      e.target.style.boxShadow = '0 4px 8px rgba(240, 147, 251, 0.3)';
+                    }
+                  }}
+                  onMouseOut={(e) => {
+                    e.target.style.transform = 'translateY(0)';
+                    e.target.style.boxShadow = 'none';
+                  }}
+                >
+                  {isCallSending ? 'Sending...' : 'Send Message'}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 };
