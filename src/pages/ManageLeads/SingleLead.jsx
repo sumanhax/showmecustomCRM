@@ -41,8 +41,11 @@ const SingleLead = () => {
   });
   const [isEmailSending, setIsEmailSending] = useState(false);
   const [isCallSending, setIsCallSending] = useState(false);
+  const [emailConversationLog, setEmailConversationLog] = useState([]);
+  const [isLoadingEmails, setIsLoadingEmails] = useState(false);
 
   const api = "https://n8nnode.bestworks.cloud/webhook/fetch-single-lead";
+  const emailApi = "https://n8nnode.bestworks.cloud/webhook/email-log-fetch-admin-singlepage";
 
 
 
@@ -62,11 +65,39 @@ const SingleLead = () => {
     }
   }, [id]);
 
+  const fetchEmailConversationLog = useCallback(async () => {
+    if (!leadData || !leadData["Email"]) return;
+    
+    try {
+      setIsLoadingEmails(true);
+      const email = 'team@showmecustomapparel.com';
+      const leadEmail = leadData["Email"];
+      
+      const response = await axios.post(emailApi, { 
+        email, 
+        leadEmail 
+      });
+      console.log("Email conversation log fetched:", response.data);
+      setEmailConversationLog(response.data || []);
+    } catch (error) {
+      console.error("Error fetching email conversation log:", error);
+      setEmailConversationLog([]);
+    } finally {
+      setIsLoadingEmails(false);
+    }
+  }, [leadData, emailApi]);
+
   useEffect(() => {
     if (id) {
       fetchLeadData();
     }
   }, [id, fetchLeadData]);
+
+  useEffect(() => {
+    if (leadData && leadData["Email"]) {
+      fetchEmailConversationLog();
+    }
+  }, [leadData, fetchEmailConversationLog]);
 
   const formatCurrency = (value) => {
     return new Intl.NumberFormat('en-US', {
@@ -539,6 +570,62 @@ return (
                     <IoDocumentTextOutline className="w-4 h-4" />
                     Text
                   </button>
+                </div>
+              </div>
+
+              {/* Email Conversation Log */}
+              <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
+                <h2 className="text-xl font-semibold text-gray-900 mb-4 flex items-center">
+                  <FaEnvelope className="w-5 h-5 mr-2 text-[#f20c32]" />
+                  Email Conversation Log
+                </h2>
+                <div className="max-h-80 overflow-y-auto space-y-3">
+                  {isLoadingEmails ? (
+                    <div className="flex justify-center items-center py-8">
+                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#f20c32]"></div>
+                      <span className="ml-2 text-gray-600">Loading emails...</span>
+                    </div>
+                  ) : emailConversationLog.length > 0 && emailConversationLog.some(email => 
+                    email && email["Email Subject"] && email["Sent Date"] && email["Sender Email"]
+                  ) ? (
+                    emailConversationLog
+                      .filter(email => email && email["Email Subject"] && email["Sent Date"] && email["Sender Email"])
+                      .map((email, index) => (
+                        <div key={email.id || index} className="border border-gray-200 rounded-lg p-3 hover:bg-gray-50 transition-colors">
+                          <div className="flex items-center justify-between mb-2">
+                            <div className="flex items-center space-x-2">
+                              <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+                                email["Status"] === 'SENT' 
+                                  ? 'bg-blue-100 text-blue-800' 
+                                  : 'bg-green-100 text-green-800'
+                              }`}>
+                                {email["Status"] || 'RECEIVED'}
+                              </span>
+                              {/* <span className="text-sm text-gray-600">
+                                {email["Sender Email"] === 'team@showmecustomapparel.com' ? 'Sent' : 'Received'}
+                              </span> */}
+                            </div>
+                            <span className="text-xs text-gray-500">
+                              {new Date(email["Sent Date"]).toLocaleDateString()}
+                            </span>
+                          </div>
+                          <div className="text-sm font-medium text-gray-900 mb-1">
+                            {email["Email Subject"]}
+                          </div>
+                          <div className="text-xs text-gray-500">
+                            {email["Sender Email"] === 'team@showmecustomapparel.com' 
+                              ? `To: ${email["Recipient Email"]}` 
+                              : `From: ${email["Sender Email"]}`
+                            }
+                          </div>
+                        </div>
+                      ))
+                  ) : (
+                    <div className="text-center py-8 text-gray-500">
+                      <FaEnvelope className="w-12 h-12 mx-auto mb-2 text-gray-300" />
+                      <p>No log found</p>
+                    </div>
+                  )}
                 </div>
               </div>
 

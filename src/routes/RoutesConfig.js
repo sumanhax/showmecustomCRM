@@ -40,6 +40,7 @@ import CRMdashboard from '../pages/CRMdashboard/CRMdashboard.jsx';
 import TaskManager from '../pages/TaskManager/TaskManager.jsx';
 import RepDashboard from '../pages/RepDashboard/RepDashboard.jsx';
 import ManageRepEmailBox from '../pages/ManageRepEmailBox/ManageRepEmailBox.jsx';
+import AdminMailbox from '../pages/AdminMailbox/AdminMailbox.jsx';
 import MyProfile from '../pages/MyProfile/myProfile.jsx';
 import SingleLead from '../pages/ManageLeads/SingleLead.jsx';
 
@@ -307,6 +308,16 @@ const allRoutes = [
       {
         index: true,
         element: <ManageRepEmailBox />,
+      },
+    ],
+  },
+  {
+    path: '/admin-mailbox',
+    element: <InsideLayout />,
+    children: [
+      {
+        index: true,
+        element: <AdminMailbox />,
       },
     ],
   },

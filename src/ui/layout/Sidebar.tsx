@@ -260,6 +260,8 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                   </NavLink>
                 </li>
               )}
+              
+             
              
               {/* Leads - Only visible to manager and admin */}
               {(userRole === 'manager' || userRole === 'admin') && (
@@ -301,6 +303,28 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                       <>
                         <MdOutlineRepeat className='text-xl' />
                         Reps
+                      </>
+                    }
+                  </NavLink>
+                </li>
+              )}
+               {/* Admin Mailbox - Only visible to admin */}
+               {userRole === 'admin' && (
+                <li>
+                  <NavLink
+                    to="/admin-mailbox"
+                    className={`group relative flex items-center gap-2 rounded-sm px-4 py-2 ${sidebarOpen ? 'justify-center' : 'justify-start'} font-normal text-sm text-gray-600 duration-300 ease-in-out hover:bg-graydark mb-2 ${pathname.includes('admin-mailbox') &&
+                      'bg-graydark dark:bg-meta-4'
+                      }`}
+                  >
+                    {sidebarOpen ?
+                      <>
+                        <MdOutlineMail className='text-xl' />
+                      </>
+                      :
+                      <>
+                        <MdOutlineMail className='text-xl' />
+                        Mailbox
                       </>
                     }
                   </NavLink>

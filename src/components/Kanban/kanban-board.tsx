@@ -14,12 +14,15 @@ import "@syncfusion/ej2-navigations/styles/material.css";
 import "@syncfusion/ej2-popups/styles/material.css";
 import "@syncfusion/ej2-react-kanban/styles/material.css";
 import { IoDocumentTextOutline } from "react-icons/io5";
+import { TbEyeShare  } from "react-icons/tb";
 import React from "react";
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
+import { useNavigate } from "react-router-dom";
 
 export function KanbanBoard() {
+  const navigate = useNavigate();
   const api = "https://n8nnode.bestworks.cloud/webhook/react-dashboard";
   const api2 = "https://n8nnode.bestworks.cloud/webhook/lead-status-update";
 
@@ -189,6 +192,11 @@ const handleCallModalClose = () => {
   setCallModal({ isOpen: false, phoneNumber: '', leadName: '' });
   setCallForm({ phone: '', message: '' });
 };
+
+// View lead handler function
+const handleViewLead = (leadId: string) => {
+  navigate(`/lead-details/${leadId}`);
+};
   // Prevent incorrect drags
   // function onDragStart(args: any) {
   //   if (args.data.Status === "Closed Won" || args.data.Status === "Closed Lost") {
@@ -237,7 +245,43 @@ console.log('args',args)
         minWidth: '280px',
         width: '280px'
       }}>
-        <div className="e-card-header" style={{ padding: '16px' }}>
+        <div className="e-card-header" style={{ padding: '16px', position: 'relative' }}>
+          {/* View Icon - Top Right Corner */}
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              handleViewLead(props.Id);
+            }}
+            style={{
+              position: 'absolute',
+              top: '12px',
+              right: '18px',
+              width: '32px',
+              height: '32px',
+              borderRadius: '50%',
+              background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+              color: 'white',
+              border: 'none',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+              transition: 'all 0.2s ease-in-out',
+              zIndex: 10
+            }}
+            onMouseOver={(e) => {
+              (e.target as HTMLButtonElement).style.transform = 'scale(1.1)';
+              // (e.target as HTMLButtonElement).style.boxShadow = '0 4px 8px rgba(16, 185, 129, 0.3)';
+            }}
+            onMouseOut={(e) => {
+              (e.target as HTMLButtonElement).style.transform = 'scale(1)';
+              // (e.target as HTMLButtonElement).style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.1)';
+            }}
+          >
+            <TbEyeShare    size={16} />
+          </button>
+          
           <div className="e-card-header-caption">
             <div className="flex items-center mb-3">
               <div className="w-10 h-10 bg-red-500 rounded-full flex items-center justify-center text-white mr-3 flex-shrink-0">
