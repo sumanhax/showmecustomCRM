@@ -13,6 +13,7 @@ import axios from "axios";
 import Loader from "../../components/Loader";
 import { useForm } from "react-hook-form";
 import UpdateRepModal from "./UpdateRepModal";
+import { FaSearch, FaTimes } from "react-icons/fa";
 
 
 const ManageReps = () => {
@@ -29,6 +30,7 @@ const ManageReps = () => {
     const [isLoading, setIsLoading] = useState(true);
     const [openUpdateRepModal, setOpenUpdateRepModal] = useState(false);
     const [selectedRepData, setSelectedRepData] = useState(null);
+    const [searchTerm, setSearchTerm] = useState("");
 
   // React Hook Form setup
   const { register, handleSubmit, reset, formState: { errors } } = useForm();
@@ -72,6 +74,19 @@ const ManageReps = () => {
     fetchReps();
   }, []);
   console.log("repData", repData);
+
+  // Filter reps based on search term
+  const filteredRepData = repData.filter((rep) => {
+    if (!searchTerm) return true;
+    
+    const searchLower = searchTerm.toLowerCase();
+    return (
+      (rep["Rep Name"] && rep["Rep Name"].toLowerCase().includes(searchLower)) ||
+      (rep["Email Address"] && rep["Email Address"].toLowerCase().includes(searchLower)) ||
+      (rep["Phone Number"] && rep["Phone Number"].toLowerCase().includes(searchLower)) ||
+      (rep["# of Assigned Leads"] && rep["# of Assigned Leads"].toString().includes(searchLower))
+    );
+  });
 
   const handleUpdateRep = (repId) => {
     console.log("handleUpdateRep called with repId:", repId);
@@ -357,8 +372,33 @@ const ManageReps = () => {
         <ToastContainer />
         <div className="wrapper_area my-0 mx-auto p-6 rounded-xl bg-white">
           <div className="h-full lg:h-screen">
-            <div className="flex justify-between items-center mb-4">
+            <div className="flex justify-between items-center mb-4 gap-4">
               <h2 className="text-2xl font-semibold">Reps</h2>
+              
+              {/* Search Bar in the middle */}
+              <div className="flex-1 max-w-md">
+                <div className="relative">
+                  <input
+                    type="text"
+                    placeholder="Search reps by name, email, phone, or assigned leads..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="w-full px-4 py-2 pl-10 pr-10 text-gray-700 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                  <div className="absolute inset-y-0 left-0 flex items-center pl-3">
+                    <FaSearch className="w-4 h-4 text-gray-400" />
+                  </div>
+                  {searchTerm && (
+                    <button
+                      onClick={() => setSearchTerm("")}
+                      className="absolute inset-y-0 right-0 flex items-center pr-3"
+                    >
+                      <FaTimes className="w-4 h-4 text-gray-400 hover:text-gray-600" />
+                    </button>
+                  )}
+                </div>
+              </div>
+              
               <Button
                 onClick={() => setOpenMoodMasterModal(true)}
                 className="bg-[#f20c32] hover:bg-black px-4 py-1 text-white text-base font-semibold flex justify-center items-center rounded-md"
@@ -366,12 +406,21 @@ const ManageReps = () => {
                 Add New Rep
               </Button>
             </div>
+            
+            {/* Search Results Counter */}
+            {searchTerm && (
+              <div className="mb-4">
+                <p className="text-sm text-gray-600">
+                  Showing {filteredRepData.length} of {repData.length} reps
+                </p>
+              </div>
+            )}
             <div
               className="ag-theme-alpine"
               style={{ height: 600, width: "100%" }}
             >
               <AgGridReact
-                rowData={repData}
+                rowData={filteredRepData}
                 columnDefs={columnDefs}
                 pagination={true}
                 paginationPageSize={10}

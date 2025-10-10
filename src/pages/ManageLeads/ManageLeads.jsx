@@ -8,6 +8,7 @@ import LeadsTaskModal from "./LeadsTaskModal";
 import AddLeadModal from "./AddLeadModal";
 import UpdateLeadModal from "./UpdateLeadModal";
 import { useNavigate } from "react-router-dom";
+import { FaSearch, FaTimes } from "react-icons/fa";
 
 const ManageLeads = () => {
   // const { moodsList, singleMoodMaster } = useSelector(
@@ -26,6 +27,7 @@ const ManageLeads = () => {
   const [openAddLeadModal, setOpenAddLeadModal] = useState(false);
   const [openUpdateLeadModal, setOpenUpdateLeadModal] = useState(false);
   const [selectedLeadData, setSelectedLeadData] = useState(null);
+  const [searchTerm, setSearchTerm] = useState("");
 
   const api2 = "https://n8nnode.bestworks.cloud/webhook/lead-status-update";
   // Lead status options
@@ -61,6 +63,19 @@ const ManageLeads = () => {
     fetchLeads();
   }, []);
   console.log("leadData", leadData);
+
+  // Filter leads based on search term
+  const filteredLeadData = leadData.filter((lead) => {
+    if (!searchTerm) return true;
+    
+    const searchLower = searchTerm.toLowerCase();
+    return (
+      (lead["Lead Name"] && lead["Lead Name"].toLowerCase().includes(searchLower)) ||
+      (lead["Email"] && lead["Email"].toLowerCase().includes(searchLower)) ||
+      (lead["Typeform Date"] && lead["Typeform Date"].toLowerCase().includes(searchLower)) ||
+      (lead["Lead Status"] && lead["Lead Status"].toLowerCase().includes(searchLower))
+    );
+  });
 
   //   const rowData = useMemo(() => {
   //     return (
@@ -351,8 +366,33 @@ const ManageLeads = () => {
         <ToastContainer />
         <div className="wrapper_area my-0 mx-auto p-6 rounded-xl bg-white">
           <div className="h-full lg:h-screen">
-            <div className="flex justify-between items-center mb-4">
-               <h2 className="text-2xl font-semibold">Leads</h2>
+            <div className="flex justify-between items-center mb-4 gap-4">
+              <h2 className="text-2xl font-semibold">Leads</h2>
+              
+              {/* Search Bar in the middle */}
+              <div className="flex-1 max-w-md">
+                <div className="relative">
+                  <input
+                    type="text"
+                    placeholder="Search leads by name, email, date, or status..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="w-full px-4 py-2 pl-10 pr-10 text-gray-700 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                  <div className="absolute inset-y-0 left-0 flex items-center pl-3">
+                    <FaSearch className="w-4 h-4 text-gray-400" />
+                  </div>
+                  {searchTerm && (
+                    <button
+                      onClick={() => setSearchTerm("")}
+                      className="absolute inset-y-0 right-0 flex items-center pr-3"
+                    >
+                      <FaTimes className="w-4 h-4 text-gray-400 hover:text-gray-600" />
+                    </button>
+                  )}
+                </div>
+              </div>
+              
               <Button
                 onClick={() => setOpenAddLeadModal(true)}
                 className="bg-[#f20c32] hover:bg-black px-4 py-1 text-white text-base font-semibold flex justify-center items-center rounded-md"
@@ -360,12 +400,21 @@ const ManageLeads = () => {
                 Add New Lead
               </Button> 
             </div>
+            
+            {/* Search Results Counter */}
+            {searchTerm && (
+              <div className="mb-4">
+                <p className="text-sm text-gray-600">
+                  Showing {filteredLeadData.length} of {leadData.length} leads
+                </p>
+              </div>
+            )}
             <div
               className="ag-theme-alpine"
               style={{ height: 600, width: "100%" }}
             >
               <AgGridReact
-                rowData={leadData}
+                rowData={filteredLeadData}
                 columnDefs={columnDefs}
                 pagination={true}
                 paginationPageSize={10}

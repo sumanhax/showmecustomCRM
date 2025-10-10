@@ -116,7 +116,7 @@ export default function EmailIndividual({ onBack, currentUserEmail, otherPartyEm
                             <button onClick={() => setOpenIndex(openIndex === index ? -1 : index)} className="w-full p-4 text-left bg-gray-50 hover:bg-gray-100 flex justify-between items-center">
                                 <div className="flex items-center gap-3">
                                     <img src="https://cdn-icons-png.flaticon.com/512/9187/9187604.png" alt="avatar" className="w-8 h-8 rounded-full" />
-                                    <div><p className="font-semibold">{email.from}</p><p className="text-xs text-gray-500">to {email.to}</p></div>
+                                    <div><p className="font-semibold">{email.subject}</p><p className="text-xs text-gray-500">to {email.to}</p></div>
                                 </div>
                                 <div className="flex items-center gap-3">
                                     <span className="text-sm text-gray-600">{new Date(email.date).toLocaleDateString()}</span>
