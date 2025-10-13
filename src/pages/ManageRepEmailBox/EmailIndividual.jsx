@@ -52,9 +52,13 @@ export default function EmailIndividual({ onBack, currentUserEmail, otherPartyEm
         fetchAndSetThread();
     }, [fetchAndSetThread]);
     
-    // Sort the fetched thread chronologically (oldest to newest)
+    // Sort the fetched thread chronologically (oldest to newest) by date AND time
     const chronologicalThread = useMemo(() => {
-        return [...thread].sort((a, b) => new Date(a.date) - new Date(b.date));
+        return [...thread].sort((a, b) => {
+            const dateA = new Date(a.date);
+            const dateB = new Date(b.date);
+            return dateA.getTime() - dateB.getTime();
+        });
     }, [thread]);
 
     // Auto-open the newest email once data is loaded/updated
@@ -119,7 +123,7 @@ export default function EmailIndividual({ onBack, currentUserEmail, otherPartyEm
                                     <div><p className="font-semibold">{email.subject}</p><p className="text-xs text-gray-500">to {email.to}</p></div>
                                 </div>
                                 <div className="flex items-center gap-3">
-                                    <span className="text-sm text-gray-600">{new Date(email.date).toLocaleDateString()}</span>
+                                    <span className="text-sm text-gray-600">{new Date(email.date).toLocaleString()}</span>
                                     <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${email.status === 'SENT' ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'}`}>{email.status}</span>
                                     <ChevronDownIcon className={`w-5 h-5 text-gray-500 transition-transform duration-200 ${openIndex === index ? 'rotate-180' : ''}`} />
                                 </div>

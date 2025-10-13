@@ -332,7 +332,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
               )}
 
               {/* Kanban - Only visible to manager and admin */}
-              {(userRole === 'manager' || userRole === 'admin') && (
+              {(userRole === 'manager' || userRole === 'admin' || userRole === 'rep') && (
                 <li>
                   <NavLink
                     to="/kanban"

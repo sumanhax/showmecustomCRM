@@ -49,9 +49,13 @@ const EmailConversation = ({ leadEmail, leadName }) => {
     fetchAndSetThread();
   }, [fetchAndSetThread]);
 
-  // Sort the fetched thread chronologically (oldest to newest)
+  // Sort the fetched thread chronologically (oldest to newest) by date AND time
   const chronologicalThread = useMemo(() => {
-    return [...thread].sort((a, b) => new Date(a.date) - new Date(b.date));
+    return [...thread].sort((a, b) => {
+      const dateA = new Date(a.date);
+      const dateB = new Date(b.date);
+      return dateA.getTime() - dateB.getTime();
+    });
   }, [thread]);
 
   // Auto-open the newest email once data is loaded/updated
@@ -141,7 +145,7 @@ const EmailConversation = ({ leadEmail, leadName }) => {
                 </div>
                 <div className="flex items-center gap-3">
                   <span className="text-sm text-gray-600">
-                    {new Date(email.date).toLocaleDateString()}
+                    {new Date(email.date).toLocaleString()}
                   </span>
                   <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
                     email.status === 'SENT' ? 'bg-blue-100 text-blue-800' : 'bg-green-100 text-green-800'
@@ -155,10 +159,6 @@ const EmailConversation = ({ leadEmail, leadName }) => {
               </button>
               {openIndex === index && (
                 <div className="p-4 border-t border-gray-200 text-gray-700 bg-white">
-                  {/* <div className="mb-2">
-                    <span className="text-sm font-medium text-gray-900">Subject: </span>
-                    <span className="text-sm text-gray-700">{email.subject}</span>
-                  </div> */}
                   <div className="text-sm" style={{ whiteSpace: 'pre-wrap' }}>
                     {email.body}
                   </div>

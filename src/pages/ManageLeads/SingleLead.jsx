@@ -123,7 +123,7 @@ const SingleLead = () => {
     setIsEmailSending(true);
     const payload = {
       reciepent: emailForm.to,
-      sender: 'noreply@company.com', // You can replace this with actual sender email
+      sender: 'team@showmecustomapparel.com', // You can replace this with actual sender email
       subject: emailForm.subject,
       replyBody: emailForm.message,
     };
