@@ -250,12 +250,37 @@ const ManageLeads = () => {
     navigate(`/lead-details/${leadId}`);
   };
 
+  // Custom cell renderer for Lead Name with click navigation
+  const LeadNameRenderer = (params) => {
+    const leadName = params.value;
+    const leadId = params.data.id;
+    
+    return (
+      <button
+        onClick={() => handleViewLead(leadId)}
+        className="cursor-pointer"
+        style={{ 
+          background: 'none', 
+          border: 'none', 
+          padding: 0, 
+          textAlign: 'left',
+          fontSize: 'inherit',
+          color: 'inherit',
+          textDecoration: 'none'
+        }}
+      >
+        {leadName}
+      </button>
+    );
+  };
+
   const columnDefs = [
     {
       field: "Lead Name",
       headerName: "Lead Name",
       sortable: true,
       filter: true,
+      cellRenderer: LeadNameRenderer,
     },
     {
       field: "Email",
@@ -315,13 +340,13 @@ const ManageLeads = () => {
       cellRenderer: (params) => {
         return (
           <div className="flex gap-2">
-            <button
+            {/* <button
               onClick={() => handleViewLead(params?.data?.id)}
               className="bg-[#10B981] hover:bg-[#059669] px-3 py-1 text-white text-sm flex justify-center items-center rounded-full"
               style={{ fontSize: '12px' }}
             >
               View
-            </button>
+            </button> */}
             <button
               onClick={() => handleUpdateLead(params?.data?.id)}
               className="bg-[#3B82F6] hover:bg-[#2563EB] px-3 py-1 text-white text-sm flex justify-center items-center rounded-full"
