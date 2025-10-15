@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
 import Loader from "../../components/Loader";
+import AddNoteModal from "./AddNoteModal";
 import { 
   FaDollarSign, 
   FaChartLine, 
@@ -42,6 +43,7 @@ const SingleLead = () => {
   });
   const [isEmailSending, setIsEmailSending] = useState(false);
   const [isCallSending, setIsCallSending] = useState(false);
+  const [openNoteModal, setOpenNoteModal] = useState(false);
 
   const api = "https://n8nnode.bestworks.cloud/webhook/fetch-single-lead";
 
@@ -189,6 +191,10 @@ const SingleLead = () => {
     setCallForm({ phone: '', message: '' });
   };
 
+  const handleAddNote = () => {
+    setOpenNoteModal(true);
+  };
+
   if (isLoading) {
     return (
       <div className="wrapper_area my-0 mx-auto p-6 rounded-xl bg-gray-50 min-h-screen">
@@ -240,8 +246,16 @@ return (
                 <p className="text-gray-600">Lead ID: {leadData.id}</p>
               </div>
             </div>
-            <div className={`px-4 py-2 rounded-full border ${getStatusColor(leadData["Lead Status"])}`}>
-              <span className="font-semibold">{leadData["Lead Status"] || "Unknown Status"}</span>
+            <div className="flex items-center gap-4">
+              <button
+                onClick={handleAddNote}
+                className="bg-[#10B981] hover:bg-[#059669] px-4 py-2 text-white text-sm font-semibold flex justify-center items-center rounded-md transition-colors"
+              >
+                Add Note
+              </button>
+              <div className={`px-4 py-2 rounded-full border ${getStatusColor(leadData["Lead Status"])}`}>
+                <span className="font-semibold">{leadData["Lead Status"] || "Unknown Status"}</span>
+              </div>
             </div>
           </div>
 
@@ -1056,6 +1070,15 @@ return (
             </div>
           </div>
         </div>
+      )}
+
+      {/* Add Note Modal */}
+      {openNoteModal && (
+        <AddNoteModal
+          leadsId={leadData.id}
+          openNoteModal={openNoteModal}
+          setOpenNoteModal={setOpenNoteModal}
+        />
       )}
     </>
   );

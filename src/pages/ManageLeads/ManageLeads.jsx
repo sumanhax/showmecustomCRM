@@ -7,6 +7,7 @@ import Loader from "../../components/Loader";
 import LeadsTaskModal from "./LeadsTaskModal";
 import AddLeadModal from "./AddLeadModal";
 import UpdateLeadModal from "./UpdateLeadModal";
+import AddNoteModal from "./AddNoteModal";
 import { useNavigate } from "react-router-dom";
 import { FaSearch, FaTimes } from "react-icons/fa";
 
@@ -24,6 +25,7 @@ const ManageLeads = () => {
   const [leadData, setLeadData] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [opentaskModal,setOpenTaskModal]=useState(false)
+  const [openNoteModal, setOpenNoteModal] = useState(false);
   const [openAddLeadModal, setOpenAddLeadModal] = useState(false);
   const [openUpdateLeadModal, setOpenUpdateLeadModal] = useState(false);
   const [selectedLeadData, setSelectedLeadData] = useState(null);
@@ -178,6 +180,13 @@ const ManageLeads = () => {
     setOpenTaskModal(true)
   }
 
+  const handleAddNote=(id)=>{
+    console.log("Note_id",id)
+    
+    setLeadsId(id)
+    setOpenNoteModal(true)
+  }
+
   const handleStatusChange = (leadId, newStatus) => {
     // Find the lead data to get the email
     const lead = leadData.find(l => l.id === leadId);
@@ -316,7 +325,7 @@ const ManageLeads = () => {
     },
    
     {
-      width: 200,
+      width: 300,
       headerName: "Task",
       field: "task",
       cellRenderer: (params) => {
@@ -328,6 +337,13 @@ const ManageLeads = () => {
               style={{ fontSize: '12px' }}
             >
               Add Task
+            </button>
+            <button
+              onClick={() => handleAddNote(params?.data?.id)}
+              className="bg-[#10B981] hover:bg-[#059669] px-3 py-1 text-white text-sm flex justify-center items-center rounded-full"
+              style={{ fontSize: '12px' }}
+            >
+              Add Note
             </button>
           </div>
         );
@@ -469,6 +485,15 @@ const ManageLeads = () => {
               leadsId={leadsId}
               opentaskModal={opentaskModal}
               setOpenTaskModal={setOpenTaskModal}
+              />
+            )
+          }
+          {
+            openNoteModal&&(
+              <AddNoteModal
+              leadsId={leadsId}
+              openNoteModal={openNoteModal}
+              setOpenNoteModal={setOpenNoteModal}
               />
             )
           }
