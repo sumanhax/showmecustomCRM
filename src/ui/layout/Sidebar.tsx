@@ -335,7 +335,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
               {(userRole === 'manager' || userRole === 'admin' || userRole === 'rep') && (
                 <li>
                   <NavLink
-                    to="/kanban"
+                    to="/kanban-sample"
                     className={`group relative flex items-center gap-2 rounded-sm px-4 py-2 ${sidebarOpen ? 'justify-center' : 'justify-start'} font-normal text-sm text-gray-600 duration-300 ease-in-out hover:bg-graydark mb-2 ${pathname.includes('kanban') &&
                       'bg-graydark dark:bg-meta-4'
                       }`}
@@ -347,7 +347,29 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                       :
                       <>
                         <PiKanbanFill className='text-xl' />
-                        Kanban
+                        Kanban Sample
+                      </>
+                    }
+                  </NavLink>
+                </li>
+              )}
+              {/* Kanban - Only visible to manager and admin */}
+              {(userRole === 'manager' || userRole === 'admin' || userRole === 'rep') && (
+                <li>
+                  <NavLink
+                    to="/kanban-bulk"
+                    className={`group relative flex items-center gap-2 rounded-sm px-4 py-2 ${sidebarOpen ? 'justify-center' : 'justify-start'} font-normal text-sm text-gray-600 duration-300 ease-in-out hover:bg-graydark mb-2 ${pathname.includes('kanban') &&
+                      'bg-graydark dark:bg-meta-4'
+                      }`}
+                  >
+                    {sidebarOpen ?
+                      <>
+                        <PiKanbanFill className='text-xl' />
+                      </>
+                      :
+                      <>
+                        <PiKanbanFill className='text-xl' />
+                        Kanban Bulk Order
                       </>
                     }
                   </NavLink>

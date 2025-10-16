@@ -43,6 +43,7 @@ import ManageRepEmailBox from '../pages/ManageRepEmailBox/ManageRepEmailBox.jsx'
 import AdminMailbox from '../pages/AdminMailbox/AdminMailbox.jsx';
 import MyProfile from '../pages/MyProfile/myProfile.jsx';
 import SingleLead from '../pages/ManageLeads/SingleLead.jsx';
+import ManageKanbanBulkOrder from '../pages/Kanban/ManageKanbanBulkOrder.jsx';
 
 
 const allRoutes = [
@@ -368,12 +369,22 @@ const allRoutes = [
     ],
   },
   {
-    path: '/kanban',
+    path: '/kanban-sample',
     element: <InsideLayout />,
     children: [
       {
         index: true,
         element: <ManageKanban />,
+      },
+    ],  
+  },
+  {
+    path: '/kanban-bulk',
+    element: <InsideLayout />,
+    children: [
+      {
+        index: true,
+        element: <ManageKanbanBulkOrder />,
       },
     ],  
   },

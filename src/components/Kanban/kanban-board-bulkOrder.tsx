@@ -21,10 +21,10 @@ import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 
-export function KanbanBoard() {
+export function KanbanBoardBulkOrder() {
   const navigate = useNavigate();
-  const api = "https://n8nnode.bestworks.cloud/webhook/react-dashboard";
-  const api2 = "https://n8nnode.bestworks.cloud/webhook/lead-status-update";
+  const api = "https://n8nnode.bestworks.cloud/webhook/get-kanbanbukorder";
+  const api2 = "https://n8nnode.bestworks.cloud/webhook/post-kanbanbukorder";
 
   const [leadData, setLeadData] = useState<any[]>([]);
   const [reload, setReload] = useState<any[]>([]);
@@ -57,19 +57,18 @@ export function KanbanBoard() {
       .get(api)
       .then((res: any) => {
         console.log("res", res.data);
-        // Transform Airtable-style schema → Kanban format
-        const transformed = res.data.map((lead: any) => ({
-          Id: lead.id,
-          Title: lead["Lead Name"],
-          Status: lead["Lead Status"] || "New Lead",
+        // Transform new Order schema → Kanban format
+        const transformed = res.data.map((order: any) => ({
+          Id: order.id,
+          Title: order["Order Name"],
+          Status: order["Order Stage"] || "Order received from customer",
           Summary:
-            lead.Notes ||
-            (lead["Lead Summary (AI)"]?.value ?? "No summary available"),
-          Company: lead["Company Name"],
-          Email: lead.Email,
-          Phone: lead.Phone,
-          Industry: lead.Industry,
-          Assignee: lead.Rep?.[0] || "Unassigned",
+            `Status: ${order.Status ?? "Open"} | Created: ${order["Created Date"] ?? order.createdTime}`,
+          Company: order.Rep?.[0] || "",
+          Email: order["Lead Email"] ?? "",
+          Phone: "",
+          Industry: "",
+          Assignee: order.Rep?.[0] || "Unassigned",
         }));
         setLeadData(transformed);
         // Set minimum width for proper column spacing
@@ -90,9 +89,9 @@ export function KanbanBoard() {
   }, []);
   
 
-const handleStatusUpdate = (leadInfo: { id: string; email: string; status: string }) => {
+const handleStatusUpdate = (leadInfo: { id: string; leadEmail: string; orderStage: string }) => {
   console.log("trigger",leadInfo)
-  axios.post(api2, { id: leadInfo.id, email: leadInfo.email, status: leadInfo.status })
+  axios.post(api2, { id: leadInfo.id, leadEmail: leadInfo.leadEmail, orderStage: leadInfo.orderStage })
     .then(() => {
       toast.success("Status updated successfully");
       setReload([1])
@@ -219,8 +218,8 @@ console.log('args',args)
   if(find.Status != args?.data[0]?.Status){
     handleStatusUpdate({
     id: cardData.Id,
-    email: cardData.Email,
-    status: cardData.Status, // This is the new column after drop
+    leadEmail: cardData.Email,
+    orderStage: cardData.Status, // This is the new column after drop
   });
   }
 
@@ -242,8 +241,8 @@ console.log('args',args)
         margin: '8px',
         transition: 'all 0.2s ease-in-out',
         cursor: 'pointer',
-        minWidth: '240px',
-        width: '240px'
+        minWidth: '230px',
+        width: '230px'
       }}>
         <div className="e-card-header" style={{ padding: '16px', position: 'relative' }}>
           {/* View Icon - Top Right Corner */}
@@ -395,16 +394,13 @@ console.log('args',args)
   };
 
   const columns = [
-  { headerText: "🆕 Sample Submitted", keyField: "Sample Submitted" },
-  { headerText: "🎨Sample Art Approved", keyField: "Sample Art Approved" },
-  // { headerText: "👌Artwork Submitted", keyField: "Artwork Submitted" },
-  // { headerText: "📦 Sample Submitted", keyField: "Sample Sent" },
-  { headerText: "🚚 Sample Shipped", keyField: "Sample Shipped" },
-  { headerText: "🎁 Sample Delivered", keyField: "Sample Delivered" },
-  { headerText: "🔥 Warm Lead", keyField: "Warm Lead" },
-  { headerText: "❄️ Cold Lead", keyField: "Cold Lead" },
-  { headerText: "📦 Bulk Order", keyField: "Bulk Order" },
-
+  { headerText: "📨 Order received from customer", keyField: "Order received from customer" },
+  { headerText: "📤 Order submitted", keyField: "Order submitted" },
+  { headerText: "🧾 Customer Invoice sent", keyField: "Customer Invoice sent" },
+  { headerText: "💰 Payment Received", keyField: "Payment Received" },
+  { headerText: "📄 Terms Given", keyField: "Terms Given" },
+  { headerText: "🚚 Order Shipped", keyField: "Order Shipped" },
+  { headerText: "🎁 Order delivered", keyField: "Order delivered" },
 ];
 
 
