@@ -332,6 +332,9 @@ console.log('args',args)
       onClick={(e) => {
         e.stopPropagation();
         handleViewLead(props.LeadId || props.Id);
+
+
+
       }}
       style={{
         position: 'absolute',
