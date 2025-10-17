@@ -13,15 +13,17 @@ const AddLeadModal = ({ openAddLeadModal, setOpenAddLeadModal, onLeadAdded }) =>
       );
       
       console.log("Lead added successfully:", response.data);
-      // toast.success("Lead added successfully!");
-      toast.success(response.data.message);
+      toast.success("Lead added successfully!");
+      // toast.success(response.data.message);
       reset();
       setOpenAddLeadModal(false);
       
       // Call the callback to refresh the leads list
       if (onLeadAdded) {
-        console.log("Calling onLeadAdded callback to refresh data");
-        onLeadAdded();
+        console.log("Calling onLeadAdded callback with lead data");
+        // Pass the lead data to the callback
+        const leadData = response.data[0]; // Get the first (and only) lead from response
+        onLeadAdded(leadData);
       } else {
         console.log("onLeadAdded callback not provided");
       }

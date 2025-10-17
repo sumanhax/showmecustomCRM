@@ -234,163 +234,169 @@ console.log('args',args)
   // Custom Card Template
   const cardTemplate = (props: any) => {
     return (
-      <div className="e-card-content" style={{
+      <div
+      className="e-card-content"
+      style={{
         background: '#ffffff',
         border: '1px solid #e2e8f0',
-        borderRadius: '8px',
-        boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
-        margin: '8px',
+        borderRadius: '10px',
+        boxShadow: '0 2px 4px rgba(0,0,0,0.06)',
+        margin: '6px',
         transition: 'all 0.2s ease-in-out',
         cursor: 'pointer',
-        minWidth: '240px',
-        width: '240px'
-      }}>
-        <div className="e-card-header" style={{ padding: '16px', position: 'relative' }}>
-          {/* View Icon - Top Right Corner */}
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              handleViewLead(props.Id);
-            }}
+        minWidth: '280px',
+        width: '280px',
+        overflow: 'hidden'
+      }}
+    >
+      {/* Header */}
+      <div className="e-card-header" style={{ padding: '12px 14px 8px 14px', position: 'relative' }}>
+        {/* View Icon */}
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            handleViewLead(props.Id);
+          }}
+          style={{
+            position: 'absolute',
+            top: '8px',
+            right: '10px',
+            width: '28px',
+            height: '28px',
+            borderRadius: '50%',
+            background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+            color: 'white',
+            border: 'none',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            boxShadow: '0 1px 3px rgba(0,0,0,0.12)',
+            transition: 'all 0.2s ease-in-out',
+            zIndex: 10
+          }}
+          onMouseOver={(e) => {
+            (e.target as HTMLButtonElement).style.transform = 'scale(1.06)';
+          }}
+          onMouseOut={(e) => {
+            (e.target as HTMLButtonElement).style.transform = 'scale(1)';
+          }}
+        >
+          <TbEyeShare size={14} />
+        </button>
+    
+        {/* Caption */}
+        <div style={{ display: 'flex', alignItems: 'center', marginBottom: '6px' }}>
+          <div
             style={{
-              position: 'absolute',
-              top: '12px',
-              right: '18px',
-              width: '32px',
-              height: '32px',
+              width: '38px',
+              height: '38px',
+              background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
               borderRadius: '50%',
-              background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
-              color: 'white',
-              border: 'none',
-              cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
-              transition: 'all 0.2s ease-in-out',
-              zIndex: 10
-            }}
-            onMouseOver={(e) => {
-              (e.target as HTMLButtonElement).style.transform = 'scale(1.1)';
-              // (e.target as HTMLButtonElement).style.boxShadow = '0 4px 8px rgba(16, 185, 129, 0.3)';
-            }}
-            onMouseOut={(e) => {
-              (e.target as HTMLButtonElement).style.transform = 'scale(1)';
-              // (e.target as HTMLButtonElement).style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.1)';
+              color: 'white',
+              marginRight: '10px',
+              boxShadow: '0 1px 2px rgba(0,0,0,0.08)'
             }}
           >
-            <TbEyeShare    size={16} />
-          </button>
-          
-          <div className="e-card-header-caption">
-            <div className="flex items-center mb-3">
-              <div className="w-10 h-10 bg-red-500 rounded-full flex items-center justify-center text-white mr-3 flex-shrink-0">
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                </svg>
-              </div>
-              <div className="flex-1">
-                <div className="e-card-header-title font-bold text-xl text-gray-900 mb-1">
-                  {props.Title}
-                </div>
-                <div className="text-sm text-gray-600">
-                  {props.Company}
-                </div>
-              </div>
+            <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+            </svg>
+          </div>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div
+              style={{
+                fontWeight: 700,
+                fontSize: '15px',
+                color: '#111827',
+                marginBottom: '2px',
+                lineHeight: 1.15,
+                whiteSpace: 'nowrap',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis'
+              }}
+            >
+              {props.Title || 'Untitled'}
+            </div>
+            <div style={{ fontSize: '12px', color: '#6b7280', lineHeight: 1.2 }}>
+              {props.Company || 'No Company'}
             </div>
           </div>
         </div>
-        <div className="e-card-content" style={{ padding: '0 16px 16px 16px' }}>
-          <div className="text-sm text-gray-600 mb-3 flex items-center">
-            <svg className="w-4 h-4 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-            </svg>
-            {props.Email}
-          </div>
-          <div className="text-sm text-gray-500 flex items-center mb-4">
-            <svg className="w-4 h-4 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
-            </svg>
-            {props.Phone}
-          </div>
-          
-          {/* HR Bar */}
-          <hr style={{ border: 'none', borderTop: '1px solid #e2e8f0', margin: '12px 0' }} />
-          
-          {/* Action Buttons */}
-          <div className="flex gap-2">
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                handleEmailClick(props.Email, props.Title);
-              }}
-              style={{
-                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                color: 'white',
-                border: 'none',
-                borderRadius: '6px',
-                padding: '8px 12px',
-                fontSize: '12px',
-                fontWeight: '600',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '4px',
-                flex: 1,
-                justifyContent: 'center',
-                transition: 'all 0.2s ease-in-out'
-              }}
-              onMouseOver={(e) => {
-                (e.target as HTMLButtonElement).style.transform = 'translateY(-1px)';
-                (e.target as HTMLButtonElement).style.boxShadow = '0 4px 8px rgba(102, 126, 234, 0.3)';
-              }}
-              onMouseOut={(e) => {
-                (e.target as HTMLButtonElement).style.transform = 'translateY(0)';
-                (e.target as HTMLButtonElement).style.boxShadow = 'none';
-              }}
-            >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-              </svg>
-              Email
-            </button>
-            
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                handleCallClick(props.Phone, props.Title);
-              }}
-              style={{
-                background: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
-                color: 'white',
-                border: 'none',
-                borderRadius: '6px',
-                padding: '8px 12px',
-                fontSize: '12px',
-                fontWeight: '600',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '4px',
-                flex: 1,
-                justifyContent: 'center',
-                transition: 'all 0.2s ease-in-out'
-              }}
-              onMouseOver={(e) => {
-                (e.target as HTMLButtonElement).style.transform = 'translateY(-1px)';
-                (e.target as HTMLButtonElement).style.boxShadow = '0 4px 8px rgba(240, 147, 251, 0.3)';
-              }}
-              onMouseOut={(e) => {
-                (e.target as HTMLButtonElement).style.transform = 'translateY(0)';
-                (e.target as HTMLButtonElement).style.boxShadow = 'none';
-              }}
-            >
-              <IoDocumentTextOutline />
-              Text
-            </button>
-          </div>
+      </div>
+    
+      {/* Body */}
+      <div style={{ padding: '8px 14px 12px 14px' }}>
+        {/* Email */}
+        <div style={{ display: 'flex', alignItems: 'center', marginBottom: '4px', padding: '2px 0' }}>
+          <svg style={{ width: '13px', height: '13px', marginRight: '5px', color: '#6b7280' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+          </svg>
+          <span style={{ fontSize: '12px', color: '#374151', fontWeight: 500, wordBreak: 'break-all' }}>
+            {props.Email || 'No email provided'}
+          </span>
+        </div>
+    
+        {/* Phone */}
+        <div style={{ display: 'flex', alignItems: 'center', marginBottom: '6px', padding: '2px 0' }}>
+          <svg style={{ width: '13px', height: '13px', marginRight: '5px', color: '#6b7280' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+          </svg>
+          <span style={{ fontSize: '12px', color: '#374151', fontWeight: 500 }}>{props.Phone || 'No phone provided'}</span>
+        </div>
+    
+        <hr style={{ border: 'none', borderTop: '1px solid #e5e7eb', margin: '8px 0' }} />
+    
+        {/* Actions */}
+        <div style={{ display: 'flex', gap: '8px' }}>
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              handleEmailClick(props.Email, props.Title);
+            }}
+            style={{
+              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+              color: 'white',
+              border: 'none',
+              borderRadius: '6px',
+              padding: '7px 10px',
+              fontSize: '12px',
+              fontWeight: 700,
+              cursor: 'pointer',
+              flex: 1,
+              transition: 'all 0.2s ease-in-out'
+            }}
+          >
+            Email
+          </button>
+    
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              handleCallClick(props.Phone, props.Title);
+            }}
+            style={{
+              background: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+              color: 'white',
+              border: 'none',
+              borderRadius: '6px',
+              padding: '7px 10px',
+              fontSize: '12px',
+              fontWeight: 700,
+              cursor: 'pointer',
+              flex: 1,
+              transition: 'all 0.2s ease-in-out'
+            }}
+          >
+            Text
+          </button>
         </div>
       </div>
+    </div>
+    
+    
     );
   };
 
@@ -402,8 +408,8 @@ console.log('args',args)
   { headerText: "🚚 Sample Shipped", keyField: "Sample Shipped" },
   { headerText: "🎁 Sample Delivered", keyField: "Sample Delivered" },
   { headerText: "🔥 Warm Lead", keyField: "Warm Lead" },
-  { headerText: "❄️ Cold Lead", keyField: "Cold Lead" },
-  { headerText: "📦 Bulk Order", keyField: "Bulk Order" },
+  { headerText: "❄️ Cold Lead", keyField: "Cold Lead" }
+  // { headerText: "📦 Bulk Order", keyField: "Bulk Order" },
 
 ];
 

@@ -15,17 +15,22 @@ import "@syncfusion/ej2-popups/styles/material.css";
 import "@syncfusion/ej2-react-kanban/styles/material.css";
 import { IoDocumentTextOutline } from "react-icons/io5";
 import { TbEyeShare  } from "react-icons/tb";
+import { FaPlus } from "react-icons/fa";
 import React from "react";
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
+import AddProjectModal from "../../pages/ManageLeads/AddProjectModal";
 
 export function KanbanBoardBulkOrder() {
   const navigate = useNavigate();
   const api = "https://n8nnode.bestworks.cloud/webhook/get-kanbanbukorder";
   const api2 = "https://n8nnode.bestworks.cloud/webhook/post-kanbanbukorder";
+  const api3="https://n8nnode.bestworks.cloud/webhook/react-dashboard";
+  const api4="https://n8nnode.bestworks.cloud/webhook/bulkorder-addproject"
 
+  const[allLeadData,setAllLeadData]=useState<any[]>([])
   const [leadData, setLeadData] = useState<any[]>([]);
   const [reload, setReload] = useState<any[]>([]);
   const [kanbanWidth, setkanbanWidth] = useState<number>(0);
@@ -50,6 +55,34 @@ export function KanbanBoardBulkOrder() {
   });
   const [isEmailSending, setIsEmailSending] = useState(false);
   const [isCallSending, setIsCallSending] = useState(false);
+  const [openAddProjectModal, setOpenAddProjectModal] = useState(false);
+
+  // Function to get color for order type tags
+  const getOrderTypeColor = (type: string) => {
+    const colors: { [key: string]: string } = {
+      'Screenprint': '#fce7f3', // Light blue
+      'Embroidery': '#fef3c7', // Light teal/mint green
+      'Promo': '#bbf7d0', // Light green
+      'Custom': '#fef3c7', // Light yellow
+      'Bulk': '#e0e7ff', // Light indigo
+      'Sample': '#fce7f3', // Light pink
+      'Headwear': '#e0e7ff', // Light gray
+    };
+    return colors[type] || '#f3f4f6'; // Default light gray
+  };
+
+// fetch lead data
+const fetchLeadData=()=>{
+  axios.get(api3).then((res:any)=>{
+    console.log("leadres",res.data)
+    setAllLeadData(res.data)
+  })
+}
+
+useEffect(()=>{
+  fetchLeadData()
+},[])
+
 
   // Fetch lead data
   useEffect(() => {
@@ -58,18 +91,28 @@ export function KanbanBoardBulkOrder() {
       .then((res: any) => {
         console.log("res", res.data);
         // Transform new Order schema → Kanban format
-        const transformed = res.data.map((order: any) => ({
-          Id: order.id,
-          Title: order["Order Name"],
-          Status: order["Order Stage"] || "Order received from customer",
-          Summary:
-            `Status: ${order.Status ?? "Open"} | Created: ${order["Created Date"] ?? order.createdTime}`,
-          Company: order.Rep?.[0] || "",
-          Email: order["Lead Email"] ?? "",
-          Phone: "",
-          Industry: "",
-          Assignee: order.Rep?.[0] || "Unassigned",
-        }));
+        const transformed = res.data.map((order: any) => {
+          // Find lead data from allLeadData using Lead array
+          const leadId = order.Lead?.[0];
+          const leadInfo = allLeadData.find(lead => lead.id === leadId);
+          
+          return {
+            Id: order.id,
+            Title: order["Order Name"],
+            LeadName: leadInfo?.["Lead Name"] || "",
+            Status: order["Order Stage"] || "Order received from customer",
+            Summary:
+              `Status: ${order["Order Status"] ?? "Open"} | Created: ${order["Order Date"] ?? order.createdTime}`,
+            Company: leadInfo?.["Company Name"] || order["Lead Company Name"]?.[0] || "",
+            Email: leadInfo?.Email || "",
+            Phone: leadInfo?.Phone || leadInfo?.["Phone Number"] || "",
+            Industry: leadInfo?.["Lead Industry"]?.[0] || "",
+            Assignee: order["Rep Name"]?.[0] || "Unassigned",
+            OrderType: order["Order Type"] || [],
+            OrderAmount: order["Order Amount"] || 0,
+            LeadId: leadId
+          };
+        });
         setLeadData(transformed);
         // Set minimum width for proper column spacing
         setkanbanWidth(columns.length * 350)
@@ -77,7 +120,7 @@ export function KanbanBoardBulkOrder() {
       .catch((err) => {
         console.error("err", err);
       });
-  }, [reload]);
+  }, [reload, allLeadData]);
 
   // Remove license error
   useEffect(() => {
@@ -126,7 +169,7 @@ const handleEmailSend = () => {
   setIsEmailSending(true);
   const payload = {
     reciepent: emailForm.to,
-    sender: 'noreply@company.com', // You can replace this with actual sender email
+    sender: 'teams@showmecustomapparel', // You can replace this with actual sender email
     subject: emailForm.subject,
     replyBody: emailForm.message,
   };
@@ -196,6 +239,33 @@ const handleCallModalClose = () => {
 const handleViewLead = (leadId: string) => {
   navigate(`/lead-details/${leadId}`);
 };
+
+// Add project handler function
+const handleAddProject = (leadId: string) => {
+  console.log("Adding project for lead:", leadId);
+  setOpenAddProjectModal(true);
+};
+
+const handleProjectAdded = (projectData: any) => {
+  console.log("Project added:", projectData);
+  
+  // Add project type to the payload
+  const payload = {
+    ...projectData,
+    projectType: projectData.projectType || 'existing' // Default to existing if not specified
+  };
+  
+  console.log("Sending payload with project type:", payload);
+  
+  axios.post(api4, payload).then((res:any)=>{
+    console.log("projectres",res.data)
+    toast.success("Project added successfully");
+    fetchLeadData()
+  }).catch((err:any)=>{
+    console.log("error",err)
+    toast.error("Failed to add project. Please try again.");
+  })
+};
   // Prevent incorrect drags
   // function onDragStart(args: any) {
   //   if (args.data.Status === "Closed Won" || args.data.Status === "Closed Lost") {
@@ -233,163 +303,258 @@ console.log('args',args)
   // Custom Card Template
   const cardTemplate = (props: any) => {
     return (
-      <div className="e-card-content" style={{
-        background: '#ffffff',
-        border: '1px solid #e2e8f0',
-        borderRadius: '8px',
-        boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
-        margin: '8px',
-        transition: 'all 0.2s ease-in-out',
+      <div
+  className="e-card-content"
+  style={{
+    background: '#ffffff',
+    border: '1px solid #e2e8f0',
+    borderRadius: '10px',
+    boxShadow: '0 2px 4px rgba(0,0,0,0.06)',
+    margin: '5px',
+    transition: 'all 0.2s ease-in-out',
+    cursor: 'pointer',
+    minWidth: '240px',
+    width: '240px',
+    overflow: 'hidden'
+  }}
+>
+  {/* Header */}
+  <div
+    style={{
+      padding: '10px 12px 8px 12px',
+      position: 'relative',
+      background: 'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)',
+      borderBottom: '1px solid #e2e8f0'
+    }}
+  >
+    {/* View Icon */}
+    <button
+      onClick={(e) => {
+        e.stopPropagation();
+        handleViewLead(props.LeadId || props.Id);
+      }}
+      style={{
+        position: 'absolute',
+        top: '8px',
+        right: '8px',
+        width: '28px',
+        height: '28px',
+        borderRadius: '50%',
+        background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+        color: 'white',
+        border: 'none',
         cursor: 'pointer',
-        minWidth: '230px',
-        width: '230px'
-      }}>
-        <div className="e-card-header" style={{ padding: '16px', position: 'relative' }}>
-          {/* View Icon - Top Right Corner */}
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              handleViewLead(props.Id);
-            }}
-            style={{
-              position: 'absolute',
-              top: '12px',
-              right: '18px',
-              width: '32px',
-              height: '32px',
-              borderRadius: '50%',
-              background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
-              color: 'white',
-              border: 'none',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
-              transition: 'all 0.2s ease-in-out',
-              zIndex: 10
-            }}
-            onMouseOver={(e) => {
-              (e.target as HTMLButtonElement).style.transform = 'scale(1.1)';
-              // (e.target as HTMLButtonElement).style.boxShadow = '0 4px 8px rgba(16, 185, 129, 0.3)';
-            }}
-            onMouseOut={(e) => {
-              (e.target as HTMLButtonElement).style.transform = 'scale(1)';
-              // (e.target as HTMLButtonElement).style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.1)';
-            }}
-          >
-            <TbEyeShare    size={16} />
-          </button>
-          
-          <div className="e-card-header-caption">
-            <div className="flex items-center mb-3">
-              <div className="w-10 h-10 bg-red-500 rounded-full flex items-center justify-center text-white mr-3 flex-shrink-0">
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                </svg>
-              </div>
-              <div className="flex-1">
-                <div className="e-card-header-title font-bold text-xl text-gray-900 mb-1">
-                  {props.Title}
-                </div>
-                <div className="text-sm text-gray-600">
-                  {props.Company}
-                </div>
-              </div>
-            </div>
-          </div>
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        boxShadow: '0 1px 3px rgba(0,0,0,0.12)',
+        transition: 'all 0.2s ease-in-out',
+        zIndex: 10
+      }}
+      onMouseOver={(e) => {
+        (e.target as HTMLButtonElement).style.transform = 'scale(1.06)';
+      }}
+      onMouseOut={(e) => {
+        (e.target as HTMLButtonElement).style.transform = 'scale(1)';
+      }}
+      aria-label="View"
+      title="View"
+    >
+      <TbEyeShare size={14} />
+    </button>
+
+    {/* Lead Info */}
+    <div style={{ display: 'flex', alignItems: 'center', marginBottom: '6px' }}>
+      <div
+        style={{
+          width: '36px',
+          height: '36px',
+          background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
+          borderRadius: '50%',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          color: 'white',
+          marginRight: '8px',
+          boxShadow: '0 1px 2px rgba(0,0,0,0.08)'
+        }}
+      >
+        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+        </svg>
+      </div>
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <div
+          style={{
+            fontSize: '15px',
+            fontWeight: '700',
+            color: '#1f2937',
+            marginBottom: '2px',
+            lineHeight: 1.15,
+            whiteSpace: 'nowrap',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis'
+          }}
+        >
+          {props.LeadName || 'Unknown Lead'}
         </div>
-        <div className="e-card-content" style={{ padding: '0 16px 16px 16px' }}>
-          <div className="text-sm text-gray-600 mb-3 flex items-center">
-            <svg className="w-4 h-4 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-            </svg>
-            {props.Email}
-          </div>
-          <div className="text-sm text-gray-500 flex items-center mb-4">
-            <svg className="w-4 h-4 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
-            </svg>
-            {props.Phone}
-          </div>
-          
-          {/* HR Bar */}
-          <hr style={{ border: 'none', borderTop: '1px solid #e2e8f0', margin: '12px 0' }} />
-          
-          {/* Action Buttons */}
-          <div className="flex gap-2">
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                handleEmailClick(props.Email, props.Title);
-              }}
-              style={{
-                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                color: 'white',
-                border: 'none',
-                borderRadius: '6px',
-                padding: '8px 12px',
-                fontSize: '12px',
-                fontWeight: '600',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '4px',
-                flex: 1,
-                justifyContent: 'center',
-                transition: 'all 0.2s ease-in-out'
-              }}
-              onMouseOver={(e) => {
-                (e.target as HTMLButtonElement).style.transform = 'translateY(-1px)';
-                (e.target as HTMLButtonElement).style.boxShadow = '0 4px 8px rgba(102, 126, 234, 0.3)';
-              }}
-              onMouseOut={(e) => {
-                (e.target as HTMLButtonElement).style.transform = 'translateY(0)';
-                (e.target as HTMLButtonElement).style.boxShadow = 'none';
-              }}
-            >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-              </svg>
-              Email
-            </button>
-            
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                handleCallClick(props.Phone, props.Title);
-              }}
-              style={{
-                background: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
-                color: 'white',
-                border: 'none',
-                borderRadius: '6px',
-                padding: '8px 12px',
-                fontSize: '12px',
-                fontWeight: '600',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '4px',
-                flex: 1,
-                justifyContent: 'center',
-                transition: 'all 0.2s ease-in-out'
-              }}
-              onMouseOver={(e) => {
-                (e.target as HTMLButtonElement).style.transform = 'translateY(-1px)';
-                (e.target as HTMLButtonElement).style.boxShadow = '0 4px 8px rgba(240, 147, 251, 0.3)';
-              }}
-              onMouseOut={(e) => {
-                (e.target as HTMLButtonElement).style.transform = 'translateY(0)';
-                (e.target as HTMLButtonElement).style.boxShadow = 'none';
-              }}
-            >
-              <IoDocumentTextOutline />
-              Text
-            </button>
-          </div>
+        <div style={{ fontSize: '12px', color: '#6b7280', fontWeight: 500, lineHeight: 1.2 }}>
+          {props.Company || 'No Company'}
         </div>
       </div>
+    </div>
+
+    {/* Order Info */}
+    <div
+      style={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        background: 'white',
+        padding: '6px 8px',
+        borderRadius: '6px',
+        border: '1px solid #e5e7eb'
+      }}
+    >
+      <div>
+        <div style={{ fontSize: '10px', color: '#6b7280', fontWeight: 600, marginBottom: '1px' }}>Order</div>
+        <div style={{ fontSize: '12px', color: '#1f2937', fontWeight: 600, lineHeight: 1.2 }}>
+          {props.Title || 'N/A'}
+        </div>
+      </div>
+      <div style={{ textAlign: 'right' }}>
+        <div style={{ fontSize: '10px', color: '#6b7280', fontWeight: 600, marginBottom: '1px' }}>Amount</div>
+        <div style={{ fontSize: '13px', color: '#059669', fontWeight: 700, lineHeight: 1.2 }}>
+          ${props.OrderAmount ? props.OrderAmount.toLocaleString() : '0'}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {/* Contact */}
+  <div style={{ padding: '8px 12px' }}>
+    <div
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        marginBottom: '4px',
+        padding: '2px 0'
+      }}
+    >
+      <svg
+        style={{ width: '13px', height: '13px', marginRight: '5px', color: '#6b7280' }}
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+      >
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+      </svg>
+      <span style={{ fontSize: '12px', color: '#374151', fontWeight: 500, lineHeight: 1.2 }}>
+        {props.Email || 'No email provided'}
+      </span>
+    </div>
+
+    <div
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        marginBottom: '6px',
+        padding: '2px 0'
+      }}
+    >
+      <svg
+        style={{ width: '13px', height: '13px', marginRight: '5px', color: '#6b7280' }}
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+      >
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+      </svg>
+      <span style={{ fontSize: '12px', color: '#374151', fontWeight: 500, lineHeight: 1.2 }}>
+        {props.Phone || 'No phone provided'}
+      </span>
+    </div>
+
+    {/* Actions */}
+    <div style={{ display: 'flex', gap: '6px', marginBottom: '8px' }}>
+      <button
+        onClick={(e) => {
+          e.stopPropagation();
+          handleEmailClick(props.Email, props.LeadName || props.Title);
+        }}
+        style={{
+          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+          color: 'white',
+          border: 'none',
+          borderRadius: '6px',
+          padding: '6px 8px',
+          fontSize: '11px',
+          fontWeight: 700,
+          cursor: 'pointer',
+          flex: 1,
+          transition: 'all 0.2s ease-in-out'
+        }}
+      >
+        Email
+      </button>
+
+      <button
+        onClick={(e) => {
+          e.stopPropagation();
+          handleCallClick(props.Phone, props.LeadName || props.Title);
+        }}
+        style={{
+          background: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+          color: 'white',
+          border: 'none',
+          borderRadius: '6px',
+          padding: '6px 8px',
+          fontSize: '11px',
+          fontWeight: 700,
+          cursor: 'pointer',
+          flex: 1,
+          transition: 'all 0.2s ease-in-out'
+        }}
+      >
+        Text
+      </button>
+    </div>
+
+    {/* Tags */}
+    {props.OrderType && props.OrderType.length > 0 && (
+      <div
+        style={{
+          display: 'flex',
+          flexWrap: 'wrap',
+          gap: '4px',
+          paddingTop: '4px',
+          borderTop: '1px solid #e5e7eb'
+        }}
+      >
+        {props.OrderType.map((type: string, index: number) => (
+          <span
+            key={index}
+            style={{
+              background: getOrderTypeColor(type),
+              color: '#374151',
+              padding: '3px 7px',
+              borderRadius: '12px',
+              fontSize: '10px',
+              fontWeight: 700,
+              display: 'inline-block',
+              border: '1px solid rgba(0,0,0,0.04)',
+              lineHeight: 1.1
+            }}
+          >
+            {type}
+          </span>
+        ))}
+      </div>
+    )}
+  </div>
+</div>
+
+
     );
   };
 
@@ -410,6 +575,56 @@ console.log('args',args)
       padding: '5px',
       backgroundColor: '#fff'
     }}>
+      {/* Header Section with Add Project Button */}
+      <div style={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        padding: '10px 15px',
+        backgroundColor: '#f8fafc',
+        borderBottom: '1px solid #e2e8f0',
+        marginBottom: '10px'
+      }}>
+        <h2 style={{
+          fontSize: '20px',
+          fontWeight: '700',
+          color: '#1f2937',
+          margin: 0
+        }}>
+          Bulk Orders Kanban Board
+        </h2>
+        
+        <button
+          onClick={() => setOpenAddProjectModal(true)}
+          style={{
+            backgroundColor: '#f20c32',
+            color: 'white',
+            border: 'none',
+            borderRadius: '8px',
+            padding: '10px 16px',
+            fontSize: '14px',
+            fontWeight: '600',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            transition: 'all 0.2s ease-in-out',
+            boxShadow: '0 2px 4px rgba(139, 92, 246, 0.2)'
+          }}
+          onMouseOver={(e) => {
+            (e.target as HTMLButtonElement).style.transform = 'translateY(-1px)';
+            (e.target as HTMLButtonElement).style.boxShadow = '0 4px 8px rgba(139, 92, 246, 0.3)';
+          }}
+          onMouseOut={(e) => {
+            (e.target as HTMLButtonElement).style.transform = 'translateY(0)';
+            (e.target as HTMLButtonElement).style.boxShadow = '0 2px 4px rgba(139, 92, 246, 0.2)';
+          }}
+        >
+          <FaPlus size={14} />
+          Add Project
+        </button>
+      </div>
+
       <div style={{ 
         overflowX: "auto", 
         width: "100%", 
@@ -904,6 +1119,16 @@ console.log('args',args)
             </div>
           </div>
         </div>
+      )}
+
+      {/* Add Project Modal */}
+      {openAddProjectModal && (
+        <AddProjectModal
+          isOpen={openAddProjectModal}
+          onClose={() => setOpenAddProjectModal(false)}
+          allLeadData={allLeadData}
+          onProjectAdded={handleProjectAdded}
+        />
       )}
     </div>
   );
