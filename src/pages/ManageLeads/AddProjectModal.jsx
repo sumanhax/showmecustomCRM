@@ -38,6 +38,18 @@ const AddProjectModal = ({
   // Watch for project type changes
   const watchedProjectType = watch('projectType');
 
+  // Handle project type changes
+  const handleProjectTypeChange = (type) => {
+    setProjectType(type);
+    setValue('projectType', type);
+    
+    // Clear selected lead and search when switching types
+    setSelectedLead(null);
+    setSearchTerm('');
+    setValue('leadId', '');
+    setShowDropdown(false);
+  };
+
   // Filter leads based on search term
   useEffect(() => {
     if (searchTerm && allLeadData) {
@@ -50,6 +62,14 @@ const AddProjectModal = ({
       setFilteredLeads([]);
     }
   }, [searchTerm, allLeadData]);
+
+  // Handle search term changes - clear selected lead if search is cleared
+  useEffect(() => {
+    if (!searchTerm) {
+      setSelectedLead(null);
+      setValue('leadId', '');
+    }
+  }, [searchTerm, setValue]);
 
   // Reset form when modal opens/closes
   useEffect(() => {
@@ -98,7 +118,7 @@ const AddProjectModal = ({
     setValue('leadId', leadData.id);
     setSearchTerm(leadData["Lead Name"]);
     setShowNewLeadModal(false);
-    toast.success('Lead created successfully!');
+    // toast.success('Lead created successfully!');
   };
 
   // Handle form submission
@@ -136,7 +156,7 @@ const AddProjectModal = ({
     
     // Here you would typically make an API call to save the project
     // For now, we'll just show a success message
-    toast.success('Project added successfully!');
+    // toast.success('Project added successfully!');
     
     // Call the callback to refresh data
     if (onProjectAdded) {
@@ -177,7 +197,7 @@ const AddProjectModal = ({
                     {...register('projectType')}
                     className="mr-2"
                     checked={projectType === 'existing'}
-                    onChange={(e) => setProjectType(e.target.value)}
+                    onChange={(e) => handleProjectTypeChange(e.target.value)}
                   />
                   <span className="text-sm text-gray-700">Existing Lead</span>
                 </label>
@@ -188,7 +208,7 @@ const AddProjectModal = ({
                     {...register('projectType')}
                     className="mr-2"
                     checked={projectType === 'new'}
-                    onChange={(e) => setProjectType(e.target.value)}
+                    onChange={(e) => handleProjectTypeChange(e.target.value)}
                   />
                   <span className="text-sm text-gray-700">New Lead</span>
                 </label>
