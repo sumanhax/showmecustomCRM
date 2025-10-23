@@ -1,11 +1,14 @@
 import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
 import axios from "axios";
+import { useState } from "react";
 
 const AddLeadModal = ({ openAddLeadModal, setOpenAddLeadModal, onLeadAdded }) => {
   const { register, handleSubmit, reset, formState: { errors } } = useForm();
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const onSubmit = async (data) => {
+    setIsSubmitting(true);
     try {
       const response = await axios.post(
         "https://n8nnode.bestworks.cloud/webhook/add-new-lead",
@@ -30,6 +33,8 @@ const AddLeadModal = ({ openAddLeadModal, setOpenAddLeadModal, onLeadAdded }) =>
     } catch (error) {
       console.error("Error adding lead:", error);
       toast.error("Failed to add lead. Please try again.");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -66,6 +71,7 @@ const AddLeadModal = ({ openAddLeadModal, setOpenAddLeadModal, onLeadAdded }) =>
             setOpenAddLeadModal(false);
             reset();
           }}
+          disabled={isSubmitting}
           style={{
             position: 'absolute',
             top: '16px',
@@ -73,9 +79,10 @@ const AddLeadModal = ({ openAddLeadModal, setOpenAddLeadModal, onLeadAdded }) =>
             background: 'none',
             border: 'none',
             fontSize: '24px',
-            cursor: 'pointer',
+            cursor: isSubmitting ? 'not-allowed' : 'pointer',
             color: '#6b7280',
-            padding: '4px'
+            padding: '4px',
+            opacity: isSubmitting ? 0.5 : 1
           }}
         >
           ×
@@ -266,7 +273,7 @@ const AddLeadModal = ({ openAddLeadModal, setOpenAddLeadModal, onLeadAdded }) =>
             </label>
             <input
               type="text"
-              {...register('Address', { required: 'Address name is required' })}
+              {...register('Address', { required: 'Address is required' })}
               style={{
                 width: '100%',
                 padding: '10px 12px',
@@ -298,7 +305,7 @@ const AddLeadModal = ({ openAddLeadModal, setOpenAddLeadModal, onLeadAdded }) =>
             </label>
             <input
               type="text"
-              {...register('City', { required: 'City name is required' })}
+              {...register('City', { required: 'City is required' })}
               style={{
                 width: '100%',
                 padding: '10px 12px',
@@ -324,7 +331,7 @@ const AddLeadModal = ({ openAddLeadModal, setOpenAddLeadModal, onLeadAdded }) =>
             </label>
             <input
               type="text"
-              {...register('State', { required: 'State name is required' })}
+              {...register('State', { required: 'State is required' })}
               style={{
                 width: '100%',
                 padding: '10px 12px',
@@ -350,7 +357,7 @@ const AddLeadModal = ({ openAddLeadModal, setOpenAddLeadModal, onLeadAdded }) =>
             </label>
             <input
               type="text"
-              {...register('Zip Code', { required: 'Zip Code name is required' })}
+              {...register('Zip Code', { required: 'Zip Code is required' })}
               style={{
                 width: '100%',
                 padding: '10px 12px',
@@ -375,7 +382,7 @@ const AddLeadModal = ({ openAddLeadModal, setOpenAddLeadModal, onLeadAdded }) =>
             </label>
             <input
               type="text"
-              {...register('Country', { required: 'Lead name is required' })}
+              {...register('Country', { required: 'Country is required' })}
               style={{
                 width: '100%',
                 padding: '10px 12px',
@@ -405,6 +412,7 @@ const AddLeadModal = ({ openAddLeadModal, setOpenAddLeadModal, onLeadAdded }) =>
                 setOpenAddLeadModal(false);
                 reset();
               }}
+              disabled={isSubmitting}
               style={{
                 padding: '10px 20px',
                 border: '1px solid #d1d5db',
@@ -413,14 +421,16 @@ const AddLeadModal = ({ openAddLeadModal, setOpenAddLeadModal, onLeadAdded }) =>
                 fontWeight: '600',
                 color: '#374151',
                 background: 'white',
-                cursor: 'pointer',
-                transition: 'all 0.2s'
+                cursor: isSubmitting ? 'not-allowed' : 'pointer',
+                transition: 'all 0.2s',
+                opacity: isSubmitting ? 0.5 : 1
               }}
             >
               Cancel
             </button>
             <button
               type="submit"
+              disabled={isSubmitting}
               style={{
                 padding: '10px 20px',
                 border: 'none',
@@ -428,12 +438,15 @@ const AddLeadModal = ({ openAddLeadModal, setOpenAddLeadModal, onLeadAdded }) =>
                 fontSize: '14px',
                 fontWeight: '600',
                 color: 'white',
-                background: 'linear-gradient(135deg, #f20c32 0%, #dc2626 100%)',
-                cursor: 'pointer',
-                transition: 'all 0.2s'
+                background: isSubmitting 
+                  ? '#9ca3af' 
+                  : 'linear-gradient(135deg, #f20c32 0%, #dc2626 100%)',
+                cursor: isSubmitting ? 'not-allowed' : 'pointer',
+                transition: 'all 0.2s',
+                opacity: isSubmitting ? 0.7 : 1
               }}
             >
-              Add Lead
+              {isSubmitting ? 'Processing...' : 'Add Lead'}
             </button>
           </div>
         </form>

@@ -172,7 +172,7 @@ const RepDashboard = () => {
   }, [])
 
   // Fetch lead notes for rep
-  useEffect(() => {
+  const fetchLeadNotes = () => {
     if (userId) {
       dispatch(getLeadNote({ rep_id: userId })).then((res) => {
         console.log("getLeadNote for rep", res);
@@ -180,7 +180,35 @@ const RepDashboard = () => {
         console.log("getLeadNote err", err);
       });
     }
+  };
+
+  useEffect(() => {
+    fetchLeadNotes();
   }, [userId]);
+
+  // Handle marking notification as read
+  const handleMarkAsRead = (noteId) => {
+    console.log("Marking note as read:", noteId);
+    axios.post('https://n8nnode.bestworks.cloud/webhook/notes-isread', {
+      id: noteId,
+      isRead: true
+    })
+    .then(res => {
+      console.log("Note marked as read successfully:", res.data);
+      toast.success("Notification marked as read");
+      // Refresh notes to update the count and UI
+      fetchLeadNotes();
+    })
+    .catch(err => {
+      console.error("Error marking note as read:", err);
+      toast.error("Failed to mark notification as read");
+    });
+  };
+
+  // Calculate unread count
+  const unreadCount = useMemo(() => {
+    return getLeadNoteData?.data?.today?.items?.filter(item => !item.isRead)?.length || 0;
+  }, [getLeadNoteData]);
 
   // Lead table column definitions
   const leadColumnDefs = useMemo(
@@ -326,9 +354,9 @@ const RepDashboard = () => {
                 className="relative p-2 text-gray-600 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-full"
               >
                 <FaBell className="w-6 h-6" />
-                {getLeadNoteData?.data?.today?.count > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                    {getLeadNoteData.data.today.count}
+                {unreadCount > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-bold">
+                    {unreadCount}
                   </span>
                 )}
               </button>
@@ -337,32 +365,87 @@ const RepDashboard = () => {
               {showNotificationDropdown && (
                 <div className="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-lg border border-gray-200 z-50">
                   <div className="p-4 border-b border-gray-200">
-                    <h3 className="text-lg font-semibold text-gray-900">Notifications</h3>
+                    <h3 className="text-lg font-semibold text-gray-900 flex items-center justify-between">
+                      Notifications
+                      {unreadCount > 0 && (
+                        <span className="bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full">
+                          {unreadCount} Unread
+                        </span>
+                      )}
+                    </h3>
                     <p className="text-sm text-gray-600">Today's reminders</p>
                   </div>
                   <div className="max-h-96 overflow-y-auto">
                     {getLeadNoteData?.data?.today?.items?.length > 0 ? (
-                      getLeadNoteData.data.today.items.map((item, index) => (
-                        <div key={index} className="p-4 border-b border-gray-100 hover:bg-gray-50">
-                          <div className="flex items-start space-x-3">
-                            <div className="flex-shrink-0">
-                              <div className="w-2 h-2 bg-red-500 rounded-full mt-2"></div>
-                            </div>
-                            <div className="flex-1 min-w-0">
-                              <div className="font-semibold text-gray-900 text-sm">
-                                {item.lead_name}
+                      getLeadNoteData.data.today.items.map((item, index) => {
+                        const isUnread = !item.isRead;
+                        return (
+                          <div 
+                            key={index} 
+                            className={`p-4 border-b border-gray-100 transition-all ${
+                              isUnread 
+                                ? 'bg-blue-50 hover:bg-blue-100' 
+                                : 'bg-white hover:bg-gray-50'
+                            }`}
+                          >
+                            <div className="flex items-start space-x-3">
+                              <div className="flex-shrink-0">
+                                <div className={`w-2 h-2 rounded-full mt-2 ${
+                                  isUnread ? 'bg-blue-500' : 'bg-gray-300'
+                                }`}></div>
                               </div>
-                              <div className="text-sm text-red-600 font-medium mt-1">
-                                {item.note_description}
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center justify-between mb-1">
+                                  <div className={`text-sm ${isUnread ? 'font-bold' : 'font-semibold'} text-gray-900`}>
+                                    {item.lead_name}
+                                  </div>
+                                  {isUnread && (
+                                    <span className="bg-blue-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">
+                                      NEW
+                                    </span>
+                                  )}
+                                </div>
+                                <div className={`text-sm mt-1 ${
+                                  isUnread ? 'text-red-700 font-semibold' : 'text-red-600 font-medium'
+                                }`}>
+                                  {item.note_description}
+                                </div>
+                                <div className="flex items-center space-x-4 mt-2 text-xs text-gray-500">
+                                  <span>Status: {item.status}</span>
+                                  <span>Date: {new Date(item.reminder_date).toLocaleDateString()}</span>
+                                </div>
                               </div>
-                              <div className="flex items-center space-x-4 mt-2 text-xs text-gray-500">
-                                <span>Status: {item.status}</span>
-                                <span>Date: {new Date(item.reminder_date).toLocaleDateString()}</span>
-                              </div>
+                              {/* Mark as Read Button */}
+                              {isUnread && (
+                                <div className="flex-shrink-0">
+                                  <button
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      handleMarkAsRead(item.id);
+                                    }}
+                                    className="p-2 text-blue-600 hover:text-blue-800 hover:bg-blue-100 rounded-full transition-colors"
+                                    title="Mark as read"
+                                  >
+                                    <svg 
+                                      className="w-5 h-5" 
+                                      fill="none" 
+                                      stroke="currentColor" 
+                                      viewBox="0 0 24 24"
+                                    >
+                                      <path 
+                                        strokeLinecap="round" 
+                                        strokeLinejoin="round" 
+                                        strokeWidth={2} 
+                                        d="M5 13l4 4L19 7" 
+                                      />
+                                    </svg>
+                                  </button>
+                                </div>
+                              )}
                             </div>
                           </div>
-                        </div>
-                      )).reverse()
+                        );
+                      }).reverse()
                     ) : (
                       <div className="p-4 text-center text-gray-500">
                         No notifications for today

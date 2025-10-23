@@ -41,7 +41,7 @@ export default function EmailIndividual({ onBack, currentUserEmail, otherPartyEm
             setThread(conversationEmails);
         } catch (error) {
             console.error("Failed to fetch conversation thread:", error);
-            alert("Could not load the email conversation. Please try again.");
+            // alert("Could not load the email conversation. Please try again.");
         } finally {
             setIsLoading(false);
         }
@@ -89,12 +89,12 @@ export default function EmailIndividual({ onBack, currentUserEmail, otherPartyEm
                     // Simply re-fetch its own data to get the latest update
                     fetchAndSetThread();
                 } else {
-                    alert('Failed to send reply. Please try again.');
+                    // alert('Failed to send reply. Please try again.');
                 }
             })
             .catch(err => {
                 console.error("Reply error:", err);
-                alert('An error occurred while sending your reply.');
+                // alert('An error occurred while sending your reply.');
             })
             .finally(() => {
                 setIsSending(false);

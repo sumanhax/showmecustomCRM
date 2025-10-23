@@ -138,11 +138,31 @@ export default function AdminMailbox() {
         }
     }, [fetchEmails, emailAdmin]);
 
+    const handleIsRead = (emailId) => {
+        console.log("Marking email as read:", emailId);
+        axios.post('https://n8nnode.bestworks.cloud/webhook/email-isread', {id: emailId, isRead: true} )
+            .then(res => {
+                console.log("Email marked as read successfully:", res.data);
+                // Optionally refresh emails to get updated status
+                fetchEmails();
+            })
+            .catch(err => {
+                console.error("Error marking email as read:", err);
+            });
+    }
+
     // Process email threads for admin view
     const emailThreads = useMemo(() => {
         const threads = {};
         emailData?.forEach(item => {
             if (!item || !item["Sender Email"] || !item["Recipient Email"]) return;
+            
+            // Parse isRead - handle different possible formats
+            let isRead = false;
+            if (item["isRead"] === true || item["isRead"] === "true" || item["isRead"] === 1) {
+                isRead = true;
+            }
+            
             const formattedEmail = {
                 id: item.id, 
                 subject: item["Email Subject"], 
@@ -150,8 +170,12 @@ export default function AdminMailbox() {
                 date: item["Sent Date"],
                 from: item["Sender Email"], 
                 to: item["Recipient Email"], 
-                status: item["Status"]?.toUpperCase() || "RECEIVED"
+                status: item["Status"]?.toUpperCase() || "RECEIVED",
+                isRead: isRead  // Add isRead status with proper boolean conversion
             };
+            
+            console.log(`Processing email ${item.id}: isRead = ${isRead} (original: ${item["isRead"]})`);
+            
              const otherParty = formattedEmail.from === emailAdmin ? formattedEmail.to : formattedEmail.from;
             if (!threads[otherParty]) { 
                 threads[otherParty] = []; 
@@ -247,14 +271,35 @@ export default function AdminMailbox() {
                                     emailThreads.map((thread, idx) => {
                                         const latestEmail = thread[0];
                                          const otherPartyEmail = latestEmail.from === emailAdmin ? latestEmail.to : latestEmail.from;
+                                         // Check if any email in the thread is unread
+                                         const hasUnread = thread.some(email => !email.isRead);
                                         return (
                                             <tr 
                                                 key={idx} 
-                                                className="hover:bg-blue-50 cursor-pointer transition-all"
-                                                onClick={() => setSelectedContact({ 
-                                                    email: otherPartyEmail, 
-                                                    subject: latestEmail.subject 
-                                                })}
+                                                className={`cursor-pointer transition-all ${
+                                                    hasUnread 
+                                                        ? 'bg-blue-50 hover:bg-blue-100' 
+                                                        : 'bg-white hover:bg-gray-50'
+                                                }`}
+                                                onClick={() => {
+                                                    console.log("Email thread clicked:", thread);
+                                                    console.log("Has unread:", hasUnread);
+                                                    
+                                                    // Mark unread emails as read
+                                                    thread.forEach(email => {
+                                                        console.log(`Email ID: ${email.id}, isRead: ${email.isRead}`);
+                                                        if (!email.isRead) {
+                                                            console.log(`Calling handleIsRead for email ID: ${email.id}`);
+                                                            handleIsRead(email.id);
+                                                        }
+                                                    });
+                                                    
+                                                    // Open the conversation
+                                                    setSelectedContact({ 
+                                                        email: otherPartyEmail, 
+                                                        subject: latestEmail.subject 
+                                                    });
+                                                }}
                                             >
                                                 <td className="px-4 py-3 flex items-center gap-3">
                                                     <img 
@@ -266,14 +311,23 @@ export default function AdminMailbox() {
                                                 </td>
                                                 <td className="px-4 py-3 text-gray-600">
                                                     <div className="flex items-center gap-2">
-                                                        <span className="font-semibold text-gray-800">{latestEmail.subject}</span>
+                                                        <span className={`text-gray-800 ${hasUnread ? 'font-bold' : 'font-semibold'}`}>
+                                                            {latestEmail.subject}
+                                                        </span>
+                                                        {hasUnread && (
+                                                            <span className="bg-blue-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">
+                                                                NEW
+                                                            </span>
+                                                        )}
                                                         {thread.length > 1 && (
-                                                            <span className="bg-[#f20c32] text-white text-xs font-bold px-2 py-0.5 rounded-full">
+                                                            <span className={`${hasUnread ? 'bg-gray-400' : 'bg-gray-400'} text-white text-xs font-bold px-2 py-0.5 rounded-full`}>
                                                                 {thread.length}
                                                             </span>
                                                         )}
                                                     </div>
-                                                    <p className="truncate max-w-xs text-sm">{latestEmail.body}</p>
+                                                    <p className={`truncate max-w-xs text-sm ${hasUnread ? 'font-medium' : ''}`}>
+                                                        {latestEmail.body}
+                                                    </p>
                                                 </td>
                                                 <td className="px-4 py-3 text-gray-500">
                                                     {new Date(latestEmail.date).toLocaleDateString()}
