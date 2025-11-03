@@ -22,6 +22,7 @@ import { PiKanbanFill } from "react-icons/pi";
 
 import { MdOutlineRepeat } from "react-icons/md";
 import { useSelector } from 'react-redux';
+import { BiSolidShoppingBags } from 'react-icons/bi';
 
 interface SidebarProps {
   sidebarOpen: boolean;
@@ -211,6 +212,28 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                       <>
                         <MdCategory className='text-xl' />
                         CRM Dashboard
+                      </>
+                    }
+                  </NavLink>
+                </li>
+              )}
+              {/* Ecommerce Dashboard - Only visible to manager and admin */}
+              {(userRole === 'manager' || userRole === 'admin') && (
+                <li>
+                  <NavLink
+                    to="/ecommerce-dashboard"
+                    className={`group relative flex items-center gap-2 rounded-sm px-4 py-2 ${sidebarOpen ? 'justify-center' : 'justify-start'} font-normal text-sm text-gray-600 duration-300 ease-in-out hover:bg-graydark mb-2 ${pathname.includes('crm-dashboard') &&
+                      'bg-graydark dark:bg-meta-4'
+                      }`}
+                  >
+                    {sidebarOpen ?
+                      <>
+                        <BiSolidShoppingBags  className='text-xl' />
+                      </>
+                      :
+                      <>
+                        <BiSolidShoppingBags  className='text-xl' />
+                        Ecommerce Dashboard
                       </>
                     }
                   </NavLink>

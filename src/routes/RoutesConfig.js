@@ -45,6 +45,7 @@ import AdminMailbox from '../pages/AdminMailbox/AdminMailbox.jsx';
 import MyProfile from '../pages/MyProfile/myProfile.jsx';
 import SingleLead from '../pages/ManageLeads/SingleLead.jsx';
 import ManageKanbanBulkOrder from '../pages/Kanban/ManageKanbanBulkOrder.jsx';
+import { EcommerceDashboard } from '../pages/EcommerceDashboard/EcommerceDashboard.jsx';
 
 
 const allRoutes = [
@@ -436,6 +437,16 @@ const allRoutes = [
       {
         index: true,
         element: <SingleLead />,
+      },
+    ],  
+  },
+  {
+    path: '/ecommerce-dashboard',
+    element: <InsideLayout />,
+    children: [
+      {
+        index: true,
+        element: <EcommerceDashboard />,
       },
     ],  
   },
