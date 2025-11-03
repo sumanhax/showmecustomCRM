@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { AgGridReact } from "ag-grid-react";
 import { ToastContainer, toast } from "react-toastify";
 import { Button } from "flowbite-react";
@@ -9,13 +9,15 @@ import AddLeadModal from "./AddLeadModal";
 import UpdateLeadModal from "./UpdateLeadModal";
 import AddNoteModal from "./AddNoteModal";
 import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { updatePartnerClassification } from "../../Reducer/AddSlice";
 import { FaSearch, FaTimes } from "react-icons/fa";
 
 const ManageLeads = () => {
   // const { moodsList, singleMoodMaster } = useSelector(
   //   (state) => state?.moodMastersData
   // );
-  // const dispatch = useDispatch();
+  const dispatch = useDispatch();
   // const [openMoodMasterModal, setOpenMoodMasterModal] = useState(false);
   // const [mood_masterId, setMoodMasterId] = useState();
   // const [openUpdateMoodMasterModal, setOpenUpdateMoodMasterModal] =
@@ -30,8 +32,52 @@ const ManageLeads = () => {
   const [openUpdateLeadModal, setOpenUpdateLeadModal] = useState(false);
   const [selectedLeadData, setSelectedLeadData] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
+  const [showFilter, setShowFilter] = useState(false);
+  const [partnerFilter, setPartnerFilter] = useState("");
+  const [statusFilter, setStatusFilter] = useState("");
 
   const api2 = "https://n8nnode.bestworks.cloud/webhook/lead-status-update";
+  const partnerOptions = ["Whale", "Tuna", "Shrimp"];
+
+  const getPartnerStyle = (option) => {
+    const styles = {
+      Whale: {
+        backgroundColor: "#06B6D4", // Vibrant green
+        color: "#ffffff",
+        borderColor: "#D1D5DB",
+      },
+      Tuna: {
+        backgroundColor: "#3B82F6", // Vibrant blue
+        color: "#ffffff",
+        borderColor: "#D1D5DB",
+      },
+      Shrimp: {
+        backgroundColor: "#F59E0B", // Vibrant orange
+        color: "#ffffff",
+        borderColor: "#D1D5DB",
+      },
+    };
+    return (
+      styles[option] || {
+        backgroundColor: "#F3F4F6",
+        color: "#374151",
+        borderColor: "#D1D5DB",
+      }
+    );
+  };
+
+  const handlePartnerChange = (leadId, option) => {
+    const payload = { lead_id: leadId, partner_option: option };
+    dispatch(updatePartnerClassification(payload))
+      .unwrap()
+      .then(() => {
+        toast.success("Partner classification updated");
+        fetchLeads();
+      })
+      .catch(() => {
+        toast.error("Failed to update partner classification");
+      });
+  };
   // Lead status options
   const leadStatusOptions = [
     "Sample Submitted",
@@ -66,17 +112,25 @@ const ManageLeads = () => {
   }, []);
   console.log("leadData", leadData);
 
-  // Filter leads based on search term
+  // Filter leads based on search term + partner + lead status
   const filteredLeadData = leadData.filter((lead) => {
-    if (!searchTerm) return true;
-    
     const searchLower = searchTerm.toLowerCase();
-    return (
+    const matchesSearch = !searchTerm || (
       (lead["Lead Name"] && lead["Lead Name"].toLowerCase().includes(searchLower)) ||
       (lead["Email"] && lead["Email"].toLowerCase().includes(searchLower)) ||
       (lead["Typeform Date"] && lead["Typeform Date"].toLowerCase().includes(searchLower)) ||
       (lead["Lead Status"] && lead["Lead Status"].toLowerCase().includes(searchLower))
     );
+
+    // Apply partner filter when selected (only for leads that have orders)
+    const matchesPartner = partnerFilter
+      ? (Array.isArray(lead?.Orders) && lead.Orders.length > 0 && (lead?.["Partner Classification"] || "") === partnerFilter)
+      : true;
+
+    // Apply lead status filter when selected
+    const matchesStatus = statusFilter ? (lead?.["Lead Status"] || "") === statusFilter : true;
+
+    return matchesSearch && matchesPartner && matchesStatus;
   });
 
   //   const rowData = useMemo(() => {
@@ -317,6 +371,59 @@ const ManageLeads = () => {
       filter: true,
     },
     {
+      field: "Partner Classification",
+      headerName: "Partner",
+      width: 200,
+      cellRenderer: (params) => {
+        const lead = params.data;
+        const hasOrders = Array.isArray(lead?.Orders) && lead.Orders.length > 0;
+        if (!hasOrders) {
+          return (
+            <span style={{ fontSize: '12px', color: '#6B7280' }}>N/A</span>
+          );
+        }
+        const current = lead?.["Partner Classification"] || "";
+        const style = getPartnerStyle(current);
+        return (
+          <select
+            value={current}
+            onChange={(e) => handlePartnerChange(lead.id, e.target.value)}
+            style={{
+              padding: "6px 10px",
+              borderRadius: "16px",
+              border: `1px solid ${style.borderColor}`,
+              fontSize: "12px",
+              fontWeight: 700,
+              minWidth: "140px",
+              cursor: "pointer",
+              background: style.backgroundColor,
+              color: style.color,
+            }}
+          >
+            <option value="" disabled>
+              Select option
+            </option>
+            {partnerOptions.map((opt) => {
+              const optStyle = getPartnerStyle(opt);
+              return (
+                <option
+                  key={opt}
+                  value={opt}
+                  style={{
+                    backgroundColor: optStyle.backgroundColor,
+                    color: optStyle.color,
+                    fontWeight: 700,
+                  }}
+                >
+                  {opt}
+                </option>
+              );
+            })}
+          </select>
+        );
+      },
+    },
+    {
       field: "Lead Status",
       headerName: "Lead Status",
       sortable: true,
@@ -401,7 +508,7 @@ const ManageLeads = () => {
         <ToastContainer />
         <div className="wrapper_area my-0 mx-auto p-6 rounded-xl bg-white">
           <div className="h-full lg:h-screen">
-            <div className="flex justify-between items-center mb-4 gap-4">
+            <div className="flex justify-between items-center mb-4 gap-4 relative">
               <h2 className="text-2xl font-semibold">Leads</h2>
               
               {/* Search Bar in the middle */}
@@ -428,12 +535,70 @@ const ManageLeads = () => {
                 </div>
               </div>
               
-              <Button
-                onClick={() => setOpenAddLeadModal(true)}
-                className="bg-[#f20c32] hover:bg-black px-4 py-1 text-white text-base font-semibold flex justify-center items-center rounded-md"
-              >
-                Add New Lead
-              </Button> 
+              {/* Filter + Add */}
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setShowFilter(!showFilter)}
+                  className="bg-gray-500 hover:bg-black px-4 py-1 text-white text-base font-semibold flex justify-center items-center rounded-md"
+                >
+                  {partnerFilter || statusFilter
+                    ? `${partnerFilter || 'All Partners'} • ${statusFilter || 'All Statuses'}`
+                    : 'Filter'}
+                </button>
+                <Button
+                  onClick={() => setOpenAddLeadModal(true)}
+                  className="bg-[#f20c32] hover:bg-black px-4 py-1 text-white text-base font-semibold flex justify-center items-center rounded-md"
+                >
+                  Add New Lead
+                </Button>
+                {showFilter && (
+                  <div className="absolute right-0 top-12 bg-white border border-gray-200 rounded-lg shadow-lg p-4 w-80 z-50">
+                    <div className="mb-3">
+                      <label className="block text-xs font-semibold text-gray-700 mb-1">Partner</label>
+                      <select
+                        value={partnerFilter}
+                        onChange={(e) => setPartnerFilter(e.target.value)}
+                        className="w-full border border-gray-300 rounded-md px-2 py-2 text-sm"
+                      >
+                        <option value="">All</option>
+                        {partnerOptions.map((opt) => (
+                          <option key={opt} value={opt}>{opt}</option>
+                        ))}
+                      </select>
+                    </div>
+                    <div className="mb-3">
+                      <label className="block text-xs font-semibold text-gray-700 mb-1">Lead Status</label>
+                      <select
+                        value={statusFilter}
+                        onChange={(e) => setStatusFilter(e.target.value)}
+                        className="w-full border border-gray-300 rounded-md px-2 py-2 text-sm"
+                      >
+                        <option value="">All</option>
+                        {leadStatusOptions.map((s) => (
+                          <option key={s} value={s}>{s}</option>
+                        ))}
+                      </select>
+                    </div>
+                    <div className="flex justify-end gap-2">
+                      <button
+                        onClick={() => {
+                          setPartnerFilter("");
+                          setStatusFilter("");
+                        }}
+                        className="px-3 py-1 border border-gray-300 rounded-md text-sm"
+                      >
+                        Clear
+                      </button>
+                      <button
+                        onClick={() => setShowFilter(false)}
+                        className="px-3 py-1 bg-[#f20c32] text-white rounded-md text-sm"
+                      >
+                        Apply
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
             
             {/* Search Results Counter */}

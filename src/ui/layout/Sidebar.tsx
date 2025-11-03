@@ -10,7 +10,7 @@ import { FaCircle, FaFirstOrderAlt } from 'react-icons/fa';
 import { MdSportsKabaddi, MdFamilyRestroom, MdSchool,MdOutlineMail , MdAdminPanelSettings, MdOutlineSubscriptions, MdSubscriptions, MdTopic, MdPayment, MdClass, MdCategory, MdOutlineDashboard } from 'react-icons/md';
 import userRoles from '../../pages/utils/userRoles';
 import { SiLevelsdotfyi } from "react-icons/si";
-import { RiSoundModuleFill } from 'react-icons/ri';
+import { RiSoundModuleFill, RiUserFollowFill } from 'react-icons/ri';
 import { GiFireZone } from "react-icons/gi";
 import { CiShoppingTag } from 'react-icons/ci';
 import { toggleSidebar } from '../../Reducer/SidebarSlice';
@@ -280,6 +280,29 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                       <>
                         <IoMagnet className='text-xl' />
                         Leads
+                      </>
+                    }
+                  </NavLink>
+                </li>
+              )}
+
+              {/* Partner - Only visible to manager and admin */}
+              {(userRole === 'admin') && (
+                <li>
+                  <NavLink
+                    to="/partner"
+                    className={`group relative flex items-center gap-2 rounded-sm px-4 py-2 ${sidebarOpen ? 'justify-center' : 'justify-start'} font-normal text-sm text-gray-600 duration-300 ease-in-out hover:bg-graydark mb-2 ${pathname.includes('partner') &&
+                      'bg-graydark dark:bg-meta-4'
+                      }`}
+                  >
+                    {sidebarOpen ?
+                      <>
+                        <RiUserFollowFill className='text-xl' />
+                      </>
+                      :
+                      <>
+                        <RiUserFollowFill  className='text-xl' />
+                        Partner
                       </>
                     }
                   </NavLink>

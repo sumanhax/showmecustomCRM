@@ -66,6 +66,7 @@ const CRMdashboard = () => {
     "Overdue"
   ];
 
+  console.log("getLeadNoteAdminData",getLeadNoteAdminData);
   // Custom cell renderer for Status with dropdown
   const StatusRenderer = (params) => {
     const status = params.value;
@@ -223,7 +224,17 @@ const CRMdashboard = () => {
 
   // Calculate unread count
   const unreadCount = useMemo(() => {
-    return getLeadNoteAdminData?.data?.today?.items?.filter(item => !item.isRead)?.length || 0;
+    return (
+      getLeadNoteAdminData?.data?.today?.items?.filter((item) => {
+        const isRead =
+          item?.isRead === true ||
+          item?.isRead === 1 ||
+          item?.isRead === "true" ||
+          item?.isRead === "True" ||
+          item?.isRead === "TRUE";
+        return !isRead;
+      })?.length || 0
+    );
   }, [getLeadNoteAdminData]);
 
   // Fetch data
@@ -636,7 +647,13 @@ const CRMdashboard = () => {
                     <div className="max-h-96 overflow-y-auto">
                       {getLeadNoteAdminData?.data?.today?.items?.length > 0 ? (
                         getLeadNoteAdminData.data.today.items.map((item, index) => {
-                          const isUnread = !item.isRead;
+                          const isRead =
+                            item?.isRead === true ||
+                            item?.isRead === 1 ||
+                            item?.isRead === "true" ||
+                            item?.isRead === "True" ||
+                            item?.isRead === "TRUE";
+                          const isUnread = !isRead;
                           return (
                             <div 
                               key={index} 

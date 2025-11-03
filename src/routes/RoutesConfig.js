@@ -35,6 +35,7 @@ import AnswerManagement from '../pages/AnswerManagement/AnswerManagement.jsx';
 import ManageEquilizer from '../pages/Equilizer/ManageEquilizer.jsx';
 import ManageKanban from '../pages/Kanban/ManageKanban.jsx';
 import ManageLeads from '../pages/ManageLeads/ManageLeads.jsx';
+import ManagePartner from '../pages/Partner/ManagePartner.jsx';
 import ManageReps from '../pages/ManageReps/ManageReps.jsx';
 import CRMdashboard from '../pages/CRMdashboard/CRMdashboard.jsx';
 import TaskManager from '../pages/TaskManager/TaskManager.jsx';
@@ -395,6 +396,16 @@ const allRoutes = [
       {
         index: true,
         element: <ManageLeads />,
+      },
+    ],  
+  },
+  {
+    path: '/partner',
+    element: <InsideLayout />,
+    children: [
+      {
+        index: true,
+        element: <ManagePartner />,
       },
     ],  
   },

@@ -13,7 +13,8 @@ const NewEmailModal = ({ isOpen, onClose, currentUserEmail, onEmailSent }) => {
     if (!isOpen) return null;
     const handleSendEmail = () => {
         if (!recipient.trim() || !subject.trim() || !body.trim()) {
-            alert('Please fill in all fields.');
+            // alert('Please fill in all fields.');
+            toast.error('Please fill in all fields.');
             return;
         }
         setIsSending(true);
@@ -26,11 +27,14 @@ const NewEmailModal = ({ isOpen, onClose, currentUserEmail, onEmailSent }) => {
         axios.post('https://n8nnode.bestworks.cloud/webhook/email-sender', payload)
             .then(res => {
                 if (res.status === 200) {
-                    alert('Email Sent Successfully!');
+                    // alert('Email Sent Successfully!');
+                    toast.success('Email Sent Successfully!');
                     onEmailSent(); onClose(); setRecipient(''); setSubject(''); setBody('');
-                } else { alert('Failed to send email. Please try again.'); }
+                } else {
+                    // alert('Failed to send email. Please try again.'); 
+                    toast.error('Failed to send email. Please try again.');}
             })
-            .catch(err => { console.error("Error sending email:", err); alert('An error occurred while sending the email.'); })
+            .catch(err => { console.error("Error sending email:", err);  })
             .finally(() => { setIsSending(false); });
     };
     return (

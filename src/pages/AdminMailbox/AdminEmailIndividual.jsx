@@ -44,7 +44,8 @@ export default function AdminEmailIndividual({ onBack, currentUserEmail, otherPa
             setThread(conversationEmails);
         } catch (error) {
             console.error("Failed to fetch admin conversation thread:", error);
-            alert("Could not load the admin email conversation. Please try again.");
+            // alert("Could not load the admin email conversation. Please try again.");
+            toast.error('Could not load the admin email conversation. Please try again.');
         } finally {
             setIsLoading(false);
         }
@@ -88,12 +89,14 @@ export default function AdminEmailIndividual({ onBack, currentUserEmail, otherPa
                     // Simply re-fetch its own data to get the latest update
                     fetchAndSetThread();
                 } else {
-                    alert('Failed to send reply. Please try again.');
+                    // alert('Failed to send reply. Please try again.');
+                    toast.error('Failed to send reply. Please try again.');
                 }
             })
             .catch(err => {
                 console.error("Admin reply error:", err);
-                alert('An error occurred while sending your reply.');
+                // alert('An error occurred while sending your reply.');
+                toast.error('An error occurred while sending your reply.');
             })
             .finally(() => {
                 setIsSending(false);

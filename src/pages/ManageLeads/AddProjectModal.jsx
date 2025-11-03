@@ -31,6 +31,7 @@ const AddProjectModal = ({
       leadId: '',
       orderTypes: [],
       orderAmount: '',
+      expense: '',
       expectedCloseDate: ''
     }
   });
@@ -140,6 +141,10 @@ const AddProjectModal = ({
       toast.error('Please enter a valid order amount');
       return;
     }
+    if (data.expense !== '' && Number(data.expense) < 0) {
+      toast.error('Expense cannot be negative');
+      return;
+    }
 
     // Prepare project data
     const projectData = {
@@ -148,6 +153,7 @@ const AddProjectModal = ({
       leadEmail: selectedLead?.Email,
       orderTypes: data.orderTypes,
       orderAmount: parseFloat(data.orderAmount),
+      expense: data.expense === '' ? 0 : parseFloat(data.expense),
       expectedCloseDate: data.expectedCloseDate || null,
       projectType: data.projectType
     };
@@ -321,6 +327,21 @@ const AddProjectModal = ({
               {errors.orderAmount && (
                 <p className="text-red-500 text-xs mt-1">{errors.orderAmount.message}</p>
               )}
+            </div>
+
+            {/* Expense */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Expense
+              </label>
+              <input
+                type="number"
+                step="0.01"
+                min="0"
+                {...register('expense')}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="Enter expense"
+              />
             </div>
 
             {/* Expected Close Date */}

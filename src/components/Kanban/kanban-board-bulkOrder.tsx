@@ -23,7 +23,7 @@ import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import AddProjectModal from "../../pages/ManageLeads/AddProjectModal";
 
-export function KanbanBoardBulkOrder() {
+export function KanbanBoardBulkOrder({ onRefresh }: { onRefresh?: () => void }) {
   const navigate = useNavigate();
   const api = "https://n8nnode.bestworks.cloud/webhook/get-kanbanbukorder";
   const api2 = "https://n8nnode.bestworks.cloud/webhook/post-kanbanbukorder";
@@ -139,6 +139,9 @@ const handleStatusUpdate = (leadInfo: { id: string; leadEmail: string; orderStag
       toast.success("Status updated successfully");
       setReload([1])
       console.log("Status updated successfully");
+      if (onRefresh) {
+        try { onRefresh(); } catch(e) { console.log('onRefresh error', e); }
+      }
     })
     .catch((error) => {
       console.error("Error updating status", error);

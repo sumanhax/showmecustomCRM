@@ -146,6 +146,28 @@ export const getLeadNoteAdmin = createAsyncThunk(
     }
 )
 
+// Update Partner Classification for a lead
+export const updatePartnerClassification = createAsyncThunk(
+    'add/updatePartnerClassification',
+    async (userInput, { rejectWithValue }) => {
+        // userInput should be: { lead_id: string, partner_option: 'Whale' | 'Tuna' | 'Shrimp' }
+        try {
+            const response = await api.post('/api/admin/dashboard/lead/partner-classification', userInput);
+            if (response?.data?.status_code === 200 || response?.data?.status_code === 201) {
+                return response.data;
+            } else {
+                if (response?.data?.errors) {
+                    return rejectWithValue(response.data.errors);
+                } else {
+                    return rejectWithValue('Something went wrong.');
+                }
+            }
+        } catch (err) {
+            return rejectWithValue(err);
+        }
+    }
+)
+
 
 const initialState = {
     error: null,
@@ -157,6 +179,7 @@ const initialState = {
     addLeadNoteData:{},
     getLeadNoteData:{},
     getLeadNoteAdminData:{},
+    updatePartnerClassificationResponse:{},
 }
 
 //slice part
@@ -261,6 +284,20 @@ const AddSlice = createSlice(
                         state.getLeadNoteAdminData=payload
                     })
                     .addCase(getLeadNoteAdmin.rejected, (state, { payload }) => {
+                        state.loading = false;
+                        state.error = payload;
+                    })
+                    .addCase(updatePartnerClassification.pending, (state) => {
+                        state.message = null
+                        state.loading = true;
+                        state.error = null
+                    })
+                    .addCase(updatePartnerClassification.fulfilled, (state, { payload }) => {
+                        state.loading = false;
+                        state.message = payload;
+                        state.updatePartnerClassificationResponse = payload;
+                    })
+                    .addCase(updatePartnerClassification.rejected, (state, { payload }) => {
                         state.loading = false;
                         state.error = payload;
                     })
