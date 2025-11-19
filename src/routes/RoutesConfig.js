@@ -45,7 +45,13 @@ import AdminMailbox from '../pages/AdminMailbox/AdminMailbox.jsx';
 import MyProfile from '../pages/MyProfile/myProfile.jsx';
 import SingleLead from '../pages/ManageLeads/SingleLead.jsx';
 import ManageKanbanBulkOrder from '../pages/Kanban/ManageKanbanBulkOrder.jsx';
-import { EcommerceDashboard } from '../pages/EcommerceDashboard/EcommerceDashboard.jsx';
+import  ManageSupplier  from '../pages/EcommerceDashboard/ManageSupplier.jsx';
+import ManageHat from '../pages/EcommerceDashboard/ManageHat.jsx';
+import  ManageInventory  from '../pages/EcommerceDashboard/ManageInventory.jsx';
+import { HatDetails } from '../pages/EcommerceDashboard/HatDetails.jsx';
+import ManageDecoration from '../pages/EcommerceDashboard/ManageDecoration.jsx';
+import ManageLogo from '../pages/EcommerceDashboard/ManageLogo.jsx';
+import ManagePriceTier from '../pages/EcommerceDashboard/ManagePriceTier.jsx';
 
 
 const allRoutes = [
@@ -441,16 +447,76 @@ const allRoutes = [
     ],  
   },
   {
-    path: '/ecommerce-dashboard',
+    path: '/supplier',
     element: <InsideLayout />,
     children: [
       {
         index: true,
-        element: <EcommerceDashboard />,
+        element: <ManageSupplier />,
+      },
+    ],  
+  },
+  {
+    path: '/hat',
+    element: <InsideLayout />,
+    children: [
+      {
+        index: true,
+        element: <ManageHat />,
       },
     ],  
   },
 
+  {
+    path: '/hat-details/:id',
+    element: <InsideLayout />,
+    children: [
+      {
+        index: true,
+        element: <HatDetails />,
+      },
+    ],  
+  },
+  {
+    path: '/inventory',
+    element: <InsideLayout />,
+    children: [
+      {
+        index: true,
+        element: <ManageInventory />,
+      },
+    ],  
+  },
+  {
+    path: '/decoration',
+    element: <InsideLayout />,
+    children: [
+      {
+        index: true,
+        element: <ManageDecoration />,
+      },
+    ],  
+  },
+  {
+    path: '/logo',
+    element: <InsideLayout />,
+    children: [
+      {
+        index: true,
+        element: <ManageLogo />,
+      },
+    ],  
+  },
+  {
+    path: '/pricetier',
+    element: <InsideLayout />,
+    children: [
+      {
+        index: true,
+        element: <ManagePriceTier />,
+      },
+    ],  
+  },
 
   {
     path: '*',

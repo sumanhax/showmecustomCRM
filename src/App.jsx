@@ -16,6 +16,7 @@ function App() {
         closeOnClick
         rtl={false}
         theme='light'
+        style={{ zIndex: 9999 }}
       />
       <RouterProvider router={allRoutes} />
     </>

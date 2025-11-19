@@ -7,7 +7,7 @@ import { logo, showme, smallLogo } from '../../assets/images/images';
 
 import { AiFillSetting, AiFillTag, AiFillTags, AiOutlineDashboard, AiOutlineLogout, AiOutlineNotification, AiOutlineUser, BiLineChart, BiLineChartDown, BsPersonWorkspace, BsViewStacked, FiHome, MdManageAccounts, MdOutlineShoppingCartCheckout, MdSpaceDashboard, MdViewStream, PiClipboardTextBold, RiCoupon2Fill, RiCouponLine, RxDashboard, TfiMenuAlt } from "../../assets/icons/index";
 import { FaCircle, FaFirstOrderAlt } from 'react-icons/fa';
-import { MdSportsKabaddi, MdFamilyRestroom, MdSchool,MdOutlineMail , MdAdminPanelSettings, MdOutlineSubscriptions, MdSubscriptions, MdTopic, MdPayment, MdClass, MdCategory, MdOutlineDashboard } from 'react-icons/md';
+import { MdSportsKabaddi, MdFamilyRestroom, MdSchool,MdOutlineMail , MdAdminPanelSettings, MdOutlineSubscriptions, MdSubscriptions, MdTopic, MdPayment, MdClass, MdCategory, MdOutlineDashboard, MdStorefront, MdKeyboardArrowDown } from 'react-icons/md';
 import userRoles from '../../pages/utils/userRoles';
 import { SiLevelsdotfyi } from "react-icons/si";
 import { RiSoundModuleFill, RiUserFollowFill } from 'react-icons/ri';
@@ -197,47 +197,255 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
 
               {/* CRM Dashboard - Only visible to manager and admin */}
               {(userRole === 'manager' || userRole === 'admin') && (
-                <li>
-                  <NavLink
-                    to="/crm-dashboard"
-                    className={`group relative flex items-center gap-2 rounded-sm px-4 py-2 ${sidebarOpen ? 'justify-center' : 'justify-start'} font-normal text-sm text-gray-600 duration-300 ease-in-out hover:bg-graydark mb-2 ${pathname.includes('crm-dashboard') &&
-                      'bg-graydark dark:bg-meta-4'
-                      }`}
-                  >
-                    {sidebarOpen ?
+                <SidebarLinkGroup
+                  activeCondition={pathname.includes('crm-dashboard') || pathname.includes('leads') || pathname.includes('reps') || pathname.includes('partner') || pathname.includes('admin-mailbox') || pathname.includes('kanban-sample') || pathname.includes('kanban-bulk')}
+                >
+                  {(handleClick, open) => {
+                    return (
                       <>
-                        <MdCategory className='text-xl' />
+                        <NavLink
+                          to="/crm"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            handleClick();
+                          }}
+                          className={`group relative flex items-center gap-2 rounded-sm px-4 py-2 ${sidebarOpen ? 'justify-center' : 'justify-start'} font-normal text-sm text-gray-600 duration-300 ease-in-out hover:bg-graydark mb-2 ${(pathname.includes('crm-dashboard') || pathname.includes('leads') || pathname.includes('reps') || pathname.includes('partner') || pathname.includes('admin-mailbox') || pathname.includes('kanban-sample') || pathname.includes('kanban-bulk')) &&
+                          'bg-graydark dark:bg-meta-4'
+                          }`}
+                        >
+                          {sidebarOpen ?
+                            <>
+                              <MdCategory className='text-xl' />
+                            </>
+                            :
+                            <>
+                              <MdCategory className='text-xl' />
+                              CRM
+                              <MdKeyboardArrowDown className={`ml-auto transition-transform ${open ? 'rotate-180' : ''}`} />
+                            </>
+                          }
+                        </NavLink>
+                        {/* Dropdown menu */}
+                        {open && !sidebarOpen && (
+                          <ul className="mb-2 mt-1 flex flex-col gap-0.5 pl-4">
+                            {/* Leads - Only visible to manager and admin */}
+                            {(userRole === 'manager' || userRole === 'admin') && (
+                              <li>
+                                <NavLink
+                                  to="/crm-dashboard"
+                                  className={`group relative flex items-center gap-2 rounded-sm px-4 py-2 justify-start font-normal text-sm text-gray-600 duration-300 ease-in-out hover:bg-graydark mb-2 ${pathname.includes('leads') &&
+                                    'bg-graydark dark:bg-meta-4'
+                                    }`}
+                                >
+                                  <IoMagnet className='text-xl' />
+                                  Dashboard
+                                </NavLink>
+                              </li>
+                            )}
+                            {/* Leads - Only visible to manager and admin */}
+                            {(userRole === 'manager' || userRole === 'admin') && (
+                              <li>
+                                <NavLink
+                                  to="/leads"
+                                  className={`group relative flex items-center gap-2 rounded-sm px-4 py-2 justify-start font-normal text-sm text-gray-600 duration-300 ease-in-out hover:bg-graydark mb-2 ${pathname.includes('leads') &&
+                                    'bg-graydark dark:bg-meta-4'
+                                    }`}
+                                >
+                                  <IoMagnet className='text-xl' />
+                                  Leads
+                                </NavLink>
+                              </li>
+                            )}
+
+                            {/* Reps - Only visible to manager and admin */}
+                            {(userRole === 'manager' || userRole === 'admin') && (
+                              <li>
+                                <NavLink
+                                  to="/reps"
+                                  className={`group relative flex items-center gap-2 rounded-sm px-4 py-2 justify-start font-normal text-sm text-gray-600 duration-300 ease-in-out hover:bg-graydark mb-2 ${pathname.includes('reps') &&
+                                    'bg-graydark dark:bg-meta-4'
+                                    }`}
+                                >
+                                  <MdOutlineRepeat className='text-xl' />
+                                  Reps
+                                </NavLink>
+                              </li>
+                            )}
+
+                            {/* Partner - Only visible to admin */}
+                            {(userRole === 'admin') && (
+                              <li>
+                                <NavLink
+                                  to="/partner"
+                                  className={`group relative flex items-center gap-2 rounded-sm px-4 py-2 justify-start font-normal text-sm text-gray-600 duration-300 ease-in-out hover:bg-graydark mb-2 ${pathname.includes('partner') &&
+                                    'bg-graydark dark:bg-meta-4'
+                                    }`}
+                                >
+                                  <RiUserFollowFill className='text-xl' />
+                                  Partner
+                                </NavLink>
+                              </li>
+                            )}
+
+                            {/* Admin Mailbox - Only visible to admin */}
+                            {userRole === 'admin' && (
+                              <li>
+                                <NavLink
+                                  to="/admin-mailbox"
+                                  className={`group relative flex items-center gap-2 rounded-sm px-4 py-2 justify-start font-normal text-sm text-gray-600 duration-300 ease-in-out hover:bg-graydark mb-2 ${pathname.includes('admin-mailbox') &&
+                                    'bg-graydark dark:bg-meta-4'
+                                    }`}
+                                >
+                                  <MdOutlineMail className='text-xl' />
+                                  Mailbox
+                                </NavLink>
+                              </li>
+                            )}
+
+                            {/* Kanban Sample - Only visible to manager and admin */}
+                            {(userRole === 'manager' || userRole === 'admin') && (
+                              <li>
+                                <NavLink
+                                  to="/kanban-sample"
+                                  className={`group relative flex items-center gap-2 rounded-sm px-4 py-2 justify-start font-normal text-sm text-gray-600 duration-300 ease-in-out hover:bg-graydark mb-2 ${pathname.includes('kanban-sample') &&
+                                    'bg-graydark dark:bg-meta-4'
+                                    }`}
+                                >
+                                  <PiKanbanFill className='text-xl' />
+                                  Kanban Sample
+                                </NavLink>
+                              </li>
+                            )}
+
+                            {/* Kanban Bulk Order - Only visible to manager and admin */}
+                            {(userRole === 'manager' || userRole === 'admin') && (
+                              <li>
+                                <NavLink
+                                  to="/kanban-bulk"
+                                  className={`group relative flex items-center gap-2 rounded-sm px-4 py-2 justify-start font-normal text-sm text-gray-600 duration-300 ease-in-out hover:bg-graydark mb-2 ${pathname.includes('kanban-bulk') &&
+                                    'bg-graydark dark:bg-meta-4'
+                                    }`}
+                                >
+                                  <MdOutlineDashboard className='text-xl' />
+                                  Kanban Bulk Order
+                                </NavLink>
+                              </li>
+                            )}
+                          </ul>
+                        )}
                       </>
-                      :
-                      <>
-                        <MdCategory className='text-xl' />
-                        CRM Dashboard
-                      </>
-                    }
-                  </NavLink>
-                </li>
+                    );
+                  }}
+                </SidebarLinkGroup>
               )}
               {/* Ecommerce Dashboard - Only visible to manager and admin */}
               {(userRole === 'manager' || userRole === 'admin') && (
-                <li>
-                  <NavLink
-                    to="/ecommerce-dashboard"
-                    className={`group relative flex items-center gap-2 rounded-sm px-4 py-2 ${sidebarOpen ? 'justify-center' : 'justify-start'} font-normal text-sm text-gray-600 duration-300 ease-in-out hover:bg-graydark mb-2 ${pathname.includes('crm-dashboard') &&
-                      'bg-graydark dark:bg-meta-4'
-                      }`}
-                  >
-                    {sidebarOpen ?
+                <SidebarLinkGroup
+                  activeCondition={pathname.includes('ecommerce-dashboard') || pathname.includes('supplier')}
+                >
+                  {(handleClick, open) => {
+                    return (
                       <>
-                        <BiSolidShoppingBags  className='text-xl' />
+                        <NavLink
+                          to="/ecommerce-dashboard"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            handleClick();
+                          }}
+                          className={`group relative flex items-center gap-2 rounded-sm px-4 py-2 ${sidebarOpen ? 'justify-center' : 'justify-start'} font-normal text-sm text-gray-600 duration-300 ease-in-out hover:bg-graydark mb-2 ${(pathname.includes('ecommerce-dashboard') || pathname.includes('supplier')) &&
+                            'bg-graydark dark:bg-meta-4'
+                            }`}
+                        >
+                          {sidebarOpen ?
+                            <>
+                              <BiSolidShoppingBags className='text-xl' />
+                            </>
+                            :
+                            <>
+                              <BiSolidShoppingBags className='text-xl' />
+                              Ecommerce
+                              <MdKeyboardArrowDown className={`ml-auto transition-transform ${open ? 'rotate-180' : ''}`} />
+                            </>
+                          }
+                        </NavLink>
+                        {/* Dropdown menu */}
+                        {open && !sidebarOpen && (
+                          <ul className="mb-2 mt-1 flex flex-col gap-0.5 pl-4">
+                            {/* Supplier */}
+                            <li>
+                              <NavLink
+                                to="/supplier"
+                                className={`group relative flex items-center gap-2 rounded-sm px-4 py-2 justify-start font-normal text-sm text-gray-600 duration-300 ease-in-out hover:bg-graydark mb-2 ${pathname.includes('supplier') &&
+                                  'bg-graydark dark:bg-meta-4'
+                                  }`}
+                              >
+                                <MdStorefront className='text-xl' />
+                                Supplier
+                              </NavLink>
+                            </li>
+                            {/* Hat */}
+                            <li>
+                              <NavLink
+                                to="/hat"
+                                className={`group relative flex items-center gap-2 rounded-sm px-4 py-2 justify-start font-normal text-sm text-gray-600 duration-300 ease-in-out hover:bg-graydark mb-2 ${pathname.includes('supplier') &&
+                                  'bg-graydark dark:bg-meta-4'
+                                  }`}
+                              >
+                                <MdStorefront className='text-xl' />
+                                Hat
+                              </NavLink>
+                            </li>
+                            {/* inventory */}
+                            { <li>
+                              <NavLink
+                                to="/inventory"
+                                className={`group relative flex items-center gap-2 rounded-sm px-4 py-2 justify-start font-normal text-sm text-gray-600 duration-300 ease-in-out hover:bg-graydark mb-2 ${pathname.includes('supplier') &&
+                                  'bg-graydark dark:bg-meta-4'
+                                  }`}
+                              >
+                                <MdStorefront className='text-xl' />
+                                Inventory
+                              </NavLink>
+                            </li> }
+                            { <li>
+                              <NavLink
+                                to="/decoration"
+                                className={`group relative flex items-center gap-2 rounded-sm px-4 py-2 justify-start font-normal text-sm text-gray-600 duration-300 ease-in-out hover:bg-graydark mb-2 ${pathname.includes('supplier') &&
+                                  'bg-graydark dark:bg-meta-4'
+                                  }`}
+                              >
+                                <MdStorefront className='text-xl' />
+                                Decoration
+                              </NavLink>
+                            </li> }
+                            { <li>
+                              <NavLink
+                                to="/pricetier"
+                                className={`group relative flex items-center gap-2 rounded-sm px-4 py-2 justify-start font-normal text-sm text-gray-600 duration-300 ease-in-out hover:bg-graydark mb-2 ${pathname.includes('supplier') &&
+                                  'bg-graydark dark:bg-meta-4'
+                                  }`}
+                              >
+                                <MdStorefront className='text-xl' />
+                                Price Tier
+                              </NavLink>
+                            </li> }
+                            { <li>
+                              <NavLink
+                                to="/logo"
+                                className={`group relative flex items-center gap-2 rounded-sm px-4 py-2 justify-start font-normal text-sm text-gray-600 duration-300 ease-in-out hover:bg-graydark mb-2 ${pathname.includes('supplier') &&
+                                  'bg-graydark dark:bg-meta-4'
+                                  }`}
+                              >
+                                <MdStorefront className='text-xl' />
+                                Logo
+                              </NavLink>
+                            </li> }
+                          </ul>
+                        )}
                       </>
-                      :
-                      <>
-                        <BiSolidShoppingBags  className='text-xl' />
-                        Ecommerce Dashboard
-                      </>
-                    }
-                  </NavLink>
-                </li>
+                    );
+                  }}
+                </SidebarLinkGroup>
               )}
 
               {/* Rep Dashboard - Only visible to rep */}
@@ -284,105 +492,12 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                 </li>
               )}
               
-             
-             
-              {/* Leads - Only visible to manager and admin */}
-              {(userRole === 'manager' || userRole === 'admin') && (
-                <li>
-                  <NavLink
-                    to="/leads"
-                    className={`group relative flex items-center gap-2 rounded-sm px-4 py-2 ${sidebarOpen ? 'justify-center' : 'justify-start'} font-normal text-sm text-gray-600 duration-300 ease-in-out hover:bg-graydark mb-2 ${pathname.includes('leads') &&
-                      'bg-graydark dark:bg-meta-4'
-                      }`}
-                  >
-                    {sidebarOpen ?
-                      <>
-                        <IoMagnet className='text-xl' />
-                      </>
-                      :
-                      <>
-                        <IoMagnet className='text-xl' />
-                        Leads
-                      </>
-                    }
-                  </NavLink>
-                </li>
-              )}
-
-              {/* Partner - Only visible to manager and admin */}
-              {(userRole === 'admin') && (
-                <li>
-                  <NavLink
-                    to="/partner"
-                    className={`group relative flex items-center gap-2 rounded-sm px-4 py-2 ${sidebarOpen ? 'justify-center' : 'justify-start'} font-normal text-sm text-gray-600 duration-300 ease-in-out hover:bg-graydark mb-2 ${pathname.includes('partner') &&
-                      'bg-graydark dark:bg-meta-4'
-                      }`}
-                  >
-                    {sidebarOpen ?
-                      <>
-                        <RiUserFollowFill className='text-xl' />
-                      </>
-                      :
-                      <>
-                        <RiUserFollowFill  className='text-xl' />
-                        Partner
-                      </>
-                    }
-                  </NavLink>
-                </li>
-              )}
-
-              {/* Reps - Only visible to manager and admin */}
-              {(userRole === 'manager' || userRole === 'admin') && (
-                <li>
-                  <NavLink
-                    to="/reps"
-                    className={`group relative flex items-center gap-2 rounded-sm px-4 py-2 ${sidebarOpen ? 'justify-center' : 'justify-start'} font-normal text-sm text-gray-600 duration-300 ease-in-out hover:bg-graydark mb-2 ${pathname.includes('reps') &&
-                      'bg-graydark dark:bg-meta-4'
-                      }`}
-                  >
-                    {sidebarOpen ?
-                      <>
-                        <MdOutlineRepeat className='text-xl' />
-                      </>
-                      :
-                      <>
-                        <MdOutlineRepeat className='text-xl' />
-                        Reps
-                      </>
-                    }
-                  </NavLink>
-                </li>
-              )}
-               {/* Admin Mailbox - Only visible to admin */}
-               {userRole === 'admin' && (
-                <li>
-                  <NavLink
-                    to="/admin-mailbox"
-                    className={`group relative flex items-center gap-2 rounded-sm px-4 py-2 ${sidebarOpen ? 'justify-center' : 'justify-start'} font-normal text-sm text-gray-600 duration-300 ease-in-out hover:bg-graydark mb-2 ${pathname.includes('admin-mailbox') &&
-                      'bg-graydark dark:bg-meta-4'
-                      }`}
-                  >
-                    {sidebarOpen ?
-                      <>
-                        <MdOutlineMail className='text-xl' />
-                      </>
-                      :
-                      <>
-                        <MdOutlineMail className='text-xl' />
-                        Mailbox
-                      </>
-                    }
-                  </NavLink>
-                </li>
-              )}
-
-              {/* Kanban - Only visible to manager and admin */}
-              {(userRole === 'manager' || userRole === 'admin' || userRole === 'rep') && (
+              {/* Kanban - Only visible to rep (outside of CRM dashboard) */}
+              {userRole === 'rep' && (
                 <li>
                   <NavLink
                     to="/kanban-sample"
-                    className={`group relative flex items-center gap-2 rounded-sm px-4 py-2 ${sidebarOpen ? 'justify-center' : 'justify-start'} font-normal text-sm text-gray-600 duration-300 ease-in-out hover:bg-graydark mb-2 ${pathname.includes('kanban') &&
+                    className={`group relative flex items-center gap-2 rounded-sm px-4 py-2 ${sidebarOpen ? 'justify-center' : 'justify-start'} font-normal text-sm text-gray-600 duration-300 ease-in-out hover:bg-graydark mb-2 ${pathname.includes('kanban-sample') &&
                       'bg-graydark dark:bg-meta-4'
                       }`}
                   >
@@ -399,12 +514,11 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                   </NavLink>
                 </li>
               )}
-              {/* Kanban - Only visible to manager and admin */}
-              {(userRole === 'manager' || userRole === 'admin' || userRole === 'rep') && (
+              {userRole === 'rep' && (
                 <li>
                   <NavLink
                     to="/kanban-bulk"
-                    className={`group relative flex items-center gap-2 rounded-sm px-4 py-2 ${sidebarOpen ? 'justify-center' : 'justify-start'} font-normal text-sm text-gray-600 duration-300 ease-in-out hover:bg-graydark mb-2 ${pathname.includes('kanban') &&
+                    className={`group relative flex items-center gap-2 rounded-sm px-4 py-2 ${sidebarOpen ? 'justify-center' : 'justify-start'} font-normal text-sm text-gray-600 duration-300 ease-in-out hover:bg-graydark mb-2 ${pathname.includes('kanban-bulk') &&
                       'bg-graydark dark:bg-meta-4'
                       }`}
                   >

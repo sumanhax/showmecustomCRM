@@ -235,84 +235,55 @@ console.log('args',args)
   const cardTemplate = (props: any) => {
     return (
       <div
-      className="e-card-content"
-      style={{
-        background: '#ffffff',
-        border: '1px solid #e2e8f0',
-        borderRadius: '10px',
-        boxShadow: '0 2px 4px rgba(0,0,0,0.06)',
-        margin: '6px',
-        transition: 'all 0.2s ease-in-out',
-        cursor: 'pointer',
-        minWidth: '280px',
-        width: '280px',
-        overflow: 'hidden'
-      }}
-    >
-      {/* Header */}
-      <div className="e-card-header" style={{ padding: '12px 14px 8px 14px', position: 'relative' }}>
-        {/* View Icon */}
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            handleViewLead(props.Id);
-          }}
+        className="e-card-content"
+        style={{
+          background: '#ffffff',
+          border: '1px solid #e2e8f0',
+          borderRadius: '10px',
+          boxShadow: '0 2px 4px rgba(0,0,0,0.06)',
+          marginTop: '6px',
+          marginBottom: '6px',
+          cursor: 'pointer',
+          width: '100%',
+          overflow: 'hidden'
+        }}
+      >
+        {/* HEADER */}
+        <div
           style={{
-            position: 'absolute',
-            top: '8px',
-            right: '10px',
-            width: '28px',
-            height: '28px',
-            borderRadius: '50%',
-            background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
-            color: 'white',
-            border: 'none',
-            cursor: 'pointer',
             display: 'flex',
             alignItems: 'center',
-            justifyContent: 'center',
-            boxShadow: '0 1px 3px rgba(0,0,0,0.12)',
-            transition: 'all 0.2s ease-in-out',
-            zIndex: 10
-          }}
-          onMouseOver={(e) => {
-            (e.target as HTMLButtonElement).style.transform = 'scale(1.06)';
-          }}
-          onMouseOut={(e) => {
-            (e.target as HTMLButtonElement).style.transform = 'scale(1)';
+            gap: '10px',
+            padding: '12px 12px 6px 12px',   // start at 12px from left
+            position: 'relative'
           }}
         >
-          <TbEyeShare size={14} />
-        </button>
-    
-        {/* Caption */}
-        <div style={{ display: 'flex', alignItems: 'center', marginBottom: '6px' }}>
+          {/* avatar */}
           <div
             style={{
-              width: '38px',
-              height: '38px',
+              width: '34px',
+              height: '34px',
+              borderRadius: '9999px',
               background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
-              borderRadius: '50%',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              color: 'white',
-              marginRight: '10px',
-              boxShadow: '0 1px 2px rgba(0,0,0,0.08)'
+              color: '#fff',
+              flex: '0 0 34px'
             }}
           >
-            <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg width="15" height="15" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
             </svg>
           </div>
+  
+          {/* name + subtitle */}
           <div style={{ flex: 1, minWidth: 0 }}>
             <div
               style={{
-                fontWeight: 700,
-                fontSize: '15px',
+                fontWeight: 600,
+                fontSize: '14px',
                 color: '#111827',
-                marginBottom: '2px',
-                lineHeight: 1.15,
                 whiteSpace: 'nowrap',
                 overflow: 'hidden',
                 textOverflow: 'ellipsis'
@@ -320,85 +291,105 @@ console.log('args',args)
             >
               {props.Title || 'Untitled'}
             </div>
-            <div style={{ fontSize: '12px', color: '#6b7280', lineHeight: 1.2 }}>
+            <div style={{ fontSize: '11px', color: '#6b7280', lineHeight: 1.1 }}>
               {props.Company || 'No Company'}
             </div>
           </div>
-        </div>
-      </div>
-    
-      {/* Body */}
-      <div style={{ padding: '8px 14px 12px 14px' }}>
-        {/* Email */}
-        <div style={{ display: 'flex', alignItems: 'center', marginBottom: '4px', padding: '2px 0' }}>
-          <svg style={{ width: '13px', height: '13px', marginRight: '5px', color: '#6b7280' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-          </svg>
-          <span style={{ fontSize: '12px', color: '#374151', fontWeight: 500, wordBreak: 'break-all' }}>
-            {props.Email || 'No email provided'}
-          </span>
-        </div>
-    
-        {/* Phone */}
-        <div style={{ display: 'flex', alignItems: 'center', marginBottom: '6px', padding: '2px 0' }}>
-          <svg style={{ width: '13px', height: '13px', marginRight: '5px', color: '#6b7280' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
-          </svg>
-          <span style={{ fontSize: '12px', color: '#374151', fontWeight: 500 }}>{props.Phone || 'No phone provided'}</span>
-        </div>
-    
-        <hr style={{ border: 'none', borderTop: '1px solid #e5e7eb', margin: '8px 0' }} />
-    
-        {/* Actions */}
-        <div style={{ display: 'flex', gap: '8px' }}>
+  
+          {/* view btn */}
           <button
             onClick={(e) => {
               e.stopPropagation();
-              handleEmailClick(props.Email, props.Title);
+              handleViewLead(props.Id);
             }}
             style={{
-              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-              color: 'white',
+              width: '26px',
+              height: '26px',
+              borderRadius: '9999px',
+              background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
               border: 'none',
-              borderRadius: '6px',
-              padding: '7px 10px',
-              fontSize: '12px',
-              fontWeight: 700,
-              cursor: 'pointer',
-              flex: 1,
-              transition: 'all 0.2s ease-in-out'
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: '#fff',
+              flex: '0 0 26px',
+              cursor: 'pointer'
             }}
           >
-            Email
-          </button>
-    
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              handleCallClick(props.Phone, props.Title);
-            }}
-            style={{
-              background: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
-              color: 'white',
-              border: 'none',
-              borderRadius: '6px',
-              padding: '7px 10px',
-              fontSize: '12px',
-              fontWeight: 700,
-              cursor: 'pointer',
-              flex: 1,
-              transition: 'all 0.2s ease-in-out'
-            }}
-          >
-            Text
+            <TbEyeShare size={13} />
           </button>
         </div>
+  
+        {/* BODY */}
+        <div style={{ padding: '6px 12px 12px 12px' }}>
+          {/* email */}
+          <div style={{ display: 'flex', alignItems: 'center', marginBottom: '4px' }}>
+            <svg style={{ width: '13px', height: '13px', marginRight: '5px', color: '#6b7280' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+            </svg>
+            <span style={{ fontSize: '12px', color: '#374151', fontWeight: 500, wordBreak: 'break-all' }}>
+              {props.Email || 'No email provided'}
+            </span>
+          </div>
+  
+          {/* phone */}
+          <div style={{ display: 'flex', alignItems: 'center', marginBottom: '6px' }}>
+            <svg style={{ width: '13px', height: '13px', marginRight: '5px', color: '#6b7280' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+            </svg>
+            <span style={{ fontSize: '12px', color: '#374151', fontWeight: 500 }}>
+              {props.Phone || 'No phone provided'}
+            </span>
+          </div>
+  
+          <hr style={{ border: 'none', borderTop: '1px solid #e5e7eb', margin: '8px 0' }} />
+  
+          <div style={{ display: 'flex', gap: '8px' }}>
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                handleEmailClick(props.Email, props.Title);
+              }}
+              style={{
+                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                color: 'white',
+                border: 'none',
+                borderRadius: '6px',
+                padding: '6px 8px',
+                fontSize: '12px',
+                fontWeight: 600,
+                flex: 1,
+                cursor: 'pointer'
+              }}
+            >
+              Email
+            </button>
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                handleCallClick(props.Phone, props.Title);
+              }}
+              style={{
+                background: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+                color: 'white',
+                border: 'none',
+                borderRadius: '6px',
+                padding: '6px 8px',
+                fontSize: '12px',
+                fontWeight: 600,
+                flex: 1,
+                cursor: 'pointer'
+              }}
+            >
+              Text
+            </button>
+          </div>
+        </div>
       </div>
-    </div>
-    
-    
     );
   };
+  
+  
 
   const columns = [
   { headerText: "🆕 Sample Submitted", keyField: "Sample Submitted" },
