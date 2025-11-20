@@ -396,7 +396,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                               </NavLink>
                             </li>
                             {/* inventory */}
-                            { <li>
+                            {/* { <li>
                               <NavLink
                                 to="/inventory"
                                 className={`group relative flex items-center gap-2 rounded-sm px-4 py-2 justify-start font-normal text-sm text-gray-600 duration-300 ease-in-out hover:bg-graydark mb-2 ${pathname.includes('supplier') &&
@@ -406,7 +406,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                                 <MdStorefront className='text-xl' />
                                 Inventory
                               </NavLink>
-                            </li> }
+                            </li> } */}
                             { <li>
                               <NavLink
                                 to="/decoration"
@@ -418,7 +418,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                                 Decoration
                               </NavLink>
                             </li> }
-                            { <li>
+                            {/* { <li>
                               <NavLink
                                 to="/pricetier"
                                 className={`group relative flex items-center gap-2 rounded-sm px-4 py-2 justify-start font-normal text-sm text-gray-600 duration-300 ease-in-out hover:bg-graydark mb-2 ${pathname.includes('supplier') &&
@@ -428,7 +428,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                                 <MdStorefront className='text-xl' />
                                 Price Tier
                               </NavLink>
-                            </li> }
+                            </li> } */}
                             { <li>
                               <NavLink
                                 to="/logo"

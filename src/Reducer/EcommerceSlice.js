@@ -329,6 +329,25 @@ export const inventoryList = createAsyncThunk(
         }
     }
 )
+export const inventorySingle = createAsyncThunk(
+    'supplier/inventorySingle',
+    async (id, { rejectWithValue }) => {
+        try {
+            const response = await apiUser.get(`/api/admin/inventory/listing/hat?id=${id}`);
+            if (response?.data?.status_code === 201 || response?.data?.status_code === 200) {
+                return response.data;
+            } else {
+                if (response?.data?.errors) {
+                    return rejectWithValue(response.data.errors);
+                } else {
+                    return rejectWithValue('Something went wrong.');
+                }
+            }
+        } catch (err) {
+            return rejectWithValue(err);
+        }
+    }
+)
 export const inventoryAdd = createAsyncThunk(
     'supplier/inventoryAdd',
     async (userInput, { rejectWithValue }) => {
@@ -598,10 +617,89 @@ export const logoStatusChange = createAsyncThunk(
         }
     }
 )
+// pricetier
+
+export const pricetierAdd = createAsyncThunk(
+    'supplier/pricetierAdd',
+    async (userInput, { rejectWithValue }) => {
+        try {
+            const response = await apiUser.post(`/api/admin/pricetiers/save`, userInput);
+            if (response?.data?.status_code === 201 || response?.data?.status_code === 200) {
+                return response.data;
+            } else {
+                if (response?.data?.errors) {
+                    return rejectWithValue(response.data.errors);
+                } else {
+                    return rejectWithValue('Something went wrong.');
+                }
+            }
+        } catch (err) {
+            return rejectWithValue(err);
+        }
+    }
+)
+export const pricetierList = createAsyncThunk(
+    'supplier/pricetierList',
+    async (userInput, { rejectWithValue }) => {
+        try {
+            const response = await apiUser.get(`/api/admin/pricetiers/list?id=${userInput}`);
+            if (response?.data?.status_code === 201 || response?.data?.status_code === 200) {
+                return response.data;
+            } else {
+                if (response?.data?.errors) {
+                    return rejectWithValue(response.data.errors);
+                } else {
+                    return rejectWithValue('Something went wrong.');
+                }
+            }
+        } catch (err) {
+            return rejectWithValue(err);
+        }
+    }
+)
+export const pricetierUpdate = createAsyncThunk(
+    'supplier/pricetierUpdate',
+    async ({ id, userInput }, { rejectWithValue }) => {
+        try {
+            const response = await apiUser.patch(`/api/admin/pricetiers/update/${id}`, userInput);
+            if (response?.data?.status_code === 201 || response?.data?.status_code === 200) {
+                return response.data;
+            } else {
+                if (response?.data?.errors) {
+                    return rejectWithValue(response.data.errors);
+                } else {
+                    return rejectWithValue('Something went wrong.');
+                }
+            }
+        } catch (err) {
+            return rejectWithValue(err);
+        }
+    }
+)
+export const pricetierStatusChange = createAsyncThunk(
+    'supplier/pricetierStatusChange',
+    async (userInput, { rejectWithValue }) => {
+        try {
+            const response = await apiUser.patch(`/api/admin/pricetiers/status/${userInput}`);
+            if (response?.data?.status_code === 201 || response?.data?.status_code === 200) {
+                return response.data;
+            } else {
+                if (response?.data?.errors) {
+                    return rejectWithValue(response.data.errors);
+                } else {
+                    return rejectWithValue('Something went wrong.');
+                }
+            }
+        } catch (err) {
+            return rejectWithValue(err);
+        }
+    }
+)
 
 const initialState = {
     error: null,
     loading: false, 
+    inventorySingleloading: false,
     message: null,
     addSupplierData:{},
     supplierListData:{},
@@ -615,10 +713,12 @@ const initialState = {
     hatDeleteData:{},
     varientListData:{},
     inventoryListData:{},
+    inventorySingleData:{},
     inventoryEditData:{},
     decorationListData:{},
     logoListData:{},
-  
+    pricetierListData:{},
+
 }
 
 //slice part
@@ -863,6 +963,20 @@ const AddSlice = createSlice(
                     state.loading = false;
                     state.error = payload;
                 })
+                .addCase(inventorySingle.pending, (state) => {
+                    state.message = null
+                    state.inventorySingleloading = true;
+                    state.error = null
+                })
+                .addCase(inventorySingle.fulfilled, (state, { payload }) => {
+                    state.inventorySingleloading = false;
+                    state.message = payload;
+                    state.inventorySingleData=payload
+                })
+                .addCase(inventorySingle.rejected, (state, { payload }) => {
+                    state.inventorySingleloading = false;
+                    state.error = payload;
+                })
                 .addCase(inventoryAdd.pending, (state) => {
                     state.message = null
                     state.loading = true;
@@ -1052,7 +1166,60 @@ const AddSlice = createSlice(
                     state.loading = false;
                     state.error = payload;
                 })
-        }
+                // pricetier
+                .addCase(pricetierList.pending, (state) => {
+                    state.message = null
+                    state.loading = true;
+                    state.error = null
+                })
+                .addCase(pricetierList.fulfilled, (state, { payload }) => {
+                    state.loading = false;
+                    state.message = payload;
+                    state.pricetierListData=payload
+                })
+                .addCase(pricetierList.rejected, (state, { payload }) => {
+                    state.loading = false;
+                    state.error = payload;
+                })
+                .addCase(pricetierAdd.pending, (state) => {
+                    state.message = null
+                    state.loading = true;
+                    state.error = null
+                })
+                .addCase(pricetierAdd.fulfilled, (state, { payload }) => {
+                    state.loading = false;
+                    state.message = payload;
+                })
+                .addCase(pricetierAdd.rejected, (state, { payload }) => {
+                    state.loading = false;
+                    state.error = payload;
+                })
+                .addCase(pricetierUpdate.pending, (state) => {
+                    state.message = null
+                    state.loading = true;
+                    state.error = null
+                })
+                .addCase(pricetierUpdate.fulfilled, (state, { payload }) => {
+                    state.loading = false;
+                    state.message = payload;
+                })
+                .addCase(pricetierUpdate.rejected, (state, { payload }) => {
+                    state.loading = false;
+                    state.error = payload;
+                })
+                .addCase(pricetierStatusChange.pending, (state) => {
+                    state.message = null
+                    state.loading = true;
+                })
+                .addCase(pricetierStatusChange.fulfilled, (state, { payload }) => {
+                    state.loading = false;
+                    state.message = payload;
+                })
+                .addCase(pricetierStatusChange.rejected, (state, { payload }) => {
+                    state.loading = false;
+                    state.error = payload;
+                })
+            }
     }
 )
 

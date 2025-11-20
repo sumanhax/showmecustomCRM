@@ -1,19 +1,26 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useMemo } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { hatDetails, supplierList } from "../../Reducer/EcommerceSlice";
+import { AgGridReact } from "ag-grid-react";
+import "ag-grid-community/styles/ag-grid.css";
+import "ag-grid-community/styles/ag-theme-alpine.css";
+import { hatDetails, supplierList, pricetierList, pricetierStatusChange, inventorySingle, inventoryDelete } from "../../Reducer/EcommerceSlice";
 import Loader from "../../components/Loader";
 import { toast } from "react-toastify";
-import { Button } from "flowbite-react";
-import { FaArrowLeft, FaImage, FaTag, FaCheckCircle, FaTimesCircle, FaPalette, FaRuler, FaBarcode, FaBox, FaPlus, FaEdit } from "react-icons/fa";
+import { Button, Tabs } from "flowbite-react";
+import { FaArrowLeft, FaImage, FaTag, FaCheckCircle, FaTimesCircle, FaPalette, FaRuler, FaBarcode, FaBox, FaPlus, FaEdit, FaDollarSign, FaEye, FaTrash } from "react-icons/fa";
 import AddVariantModal from "./AddVariantModal";
 import AddVariantSizeModal from "./AddVariantSizeModal";
+import AddPriceTierModal from "./AddPriceTierModal";
+import AddVariantSizeInventoryModal from "./AddVariantSizeInventoryModal";
+import ViewInventoryModal from "./ViewInventoryModal";
+import DeleteConfirmModal from "./DeleteConfirmModal";
 
 export const HatDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const { hatDetailsData, loading, supplierListData } = useSelector((state) => state.ecom);
+  const { hatDetailsData, loading, supplierListData, pricetierListData } = useSelector((state) => state.ecom);
   
   const [hatData, setHatData] = useState(null);
   const [supplierName, setSupplierName] = useState("");
@@ -22,6 +29,16 @@ export const HatDetails = () => {
   const [openAddSizeModal, setOpenAddSizeModal] = useState(false);
   const [selectedVariantId, setSelectedVariantId] = useState(null);
   const [selectedVariantData, setSelectedVariantData] = useState(null);
+  const [openAddPriceTierModal, setOpenAddPriceTierModal] = useState(false);
+  const [openEditPriceTierModal, setOpenEditPriceTierModal] = useState(false);
+  const [selectedPriceTierData, setSelectedPriceTierData] = useState(null);
+  const [activeTab, setActiveTab] = useState(0);
+  const [openViewInventoryModal, setOpenViewInventoryModal] = useState(false);
+  const [openAddInventoryModal, setOpenAddInventoryModal] = useState(false);
+  const [openEditInventoryModal, setOpenEditInventoryModal] = useState(false);
+  const [openDeleteInventoryModal, setOpenDeleteInventoryModal] = useState(false);
+  const [selectedVariantSizeId, setSelectedVariantSizeId] = useState(null);
+  const [selectedInventoryData, setSelectedInventoryData] = useState(null);
 
   // Function to fetch hat details
   const fetchHatDetails = useCallback(() => {
@@ -41,9 +58,25 @@ export const HatDetails = () => {
     }
   }, [id, dispatch]);
 
+  // Function to fetch price tiers
+  const fetchPriceTiers = useCallback(() => {
+    if (id) {
+      dispatch(pricetierList(id))
+        .unwrap()
+        .then((response) => {
+          console.log("Price tiers fetched:", response);
+        })
+        .catch((error) => {
+          console.error("Error fetching price tiers:", error);
+          toast.error("Failed to fetch price tiers.");
+        });
+    }
+  }, [id, dispatch]);
+
   useEffect(() => {
     fetchHatDetails();
-  }, [fetchHatDetails]);
+    fetchPriceTiers();
+  }, [fetchHatDetails, fetchPriceTiers]);
 
   // Fetch suppliers to get supplier name
   useEffect(() => {
@@ -66,6 +99,140 @@ export const HatDetails = () => {
       }
     }
   }, [hatData, supplierListData]);
+
+  // Extract and transform price tier list from response
+  const priceTierData = useMemo(() => {
+    if (pricetierListData?.data?.data && Array.isArray(pricetierListData.data.data)) {
+      return pricetierListData.data.data.map((item) => {
+        return {
+          id: item.id,
+          min_qty: item.fields?.["Min Qty"] || 0,
+          max_qty: item.fields?.["Max Qty"] || 0,
+          unit_price: item.fields?.["Unit Price"] || 0,
+          notes: item.fields?.["Notes"] || "",
+          active: item.fields?.["Active"] ?? false,
+        };
+      });
+    }
+    return [];
+  }, [pricetierListData]);
+
+  // Handle add price tier
+  const handleAddPriceTier = () => {
+    setSelectedPriceTierData(null);
+    setOpenAddPriceTierModal(true);
+  };
+
+  // Handle edit price tier
+  const handleEditPriceTier = (priceTierId) => {
+    const priceTier = priceTierData.find((pt) => pt.id === priceTierId);
+    if (priceTier) {
+      setSelectedPriceTierData(priceTier);
+      setOpenEditPriceTierModal(true);
+    } else {
+      toast.error("Price tier not found");
+    }
+  };
+
+  // Handle active/inactive toggle for price tier
+  const handleTogglePriceTierStatus = (priceTierId, currentStatus) => {
+    dispatch(pricetierStatusChange(priceTierId))
+      .unwrap()
+      .then((response) => {
+        console.log("Price tier status changed successfully:", response);
+        toast.success(`Price tier ${!currentStatus ? "activated" : "deactivated"} successfully!`);
+        fetchPriceTiers();
+      })
+      .catch((error) => {
+        console.error("Error changing price tier status:", error);
+        toast.error("Failed to change price tier status. Please try again.");
+      });
+  };
+
+  // Custom cell renderer for Actions in price tier table
+  const PriceTierActionsRenderer = (params) => {
+    const priceTierId = params.data.id;
+
+    return (
+      <div className="flex gap-2 justify-center items-center">
+        <button
+          onClick={() => handleEditPriceTier(priceTierId)}
+          className="bg-yellow-500 hover:bg-yellow-600 p-2 text-white rounded-full transition-colors"
+          title="Edit"
+        >
+          <FaEdit size={14} />
+        </button>
+      </div>
+    );
+  };
+
+  // Custom cell renderer for active toggle in price tier table
+  const PriceTierActiveToggleRenderer = (params) => {
+    const isActive = params.value;
+    const priceTierId = params.data.id;
+
+    return (
+      <button
+        onClick={() => handleTogglePriceTierStatus(priceTierId, isActive)}
+        className={`px-4 py-1 rounded-full text-white text-xs font-semibold transition-colors ${
+          isActive
+            ? "bg-green-500 hover:bg-green-600"
+            : "bg-gray-400 hover:bg-gray-500"
+        }`}
+        style={{ fontSize: '12px' }}
+      >
+        {isActive ? "Active" : "Inactive"}
+      </button>
+    );
+  };
+
+  const priceTierColumnDefs = [
+    {
+      field: "min_qty",
+      headerName: "Min Qty",
+      sortable: true,
+      filter: true,
+      width: 120,
+    },
+    {
+      field: "max_qty",
+      headerName: "Max Qty",
+      sortable: true,
+      filter: true,
+      width: 120,
+    },
+    {
+      field: "unit_price",
+      headerName: "Unit Price",
+      sortable: true,
+      filter: true,
+      width: 150,
+      cellRenderer: (params) => {
+        return `$${params.value?.toFixed(2) || "0.00"}`;
+      },
+    },
+    {
+      field: "notes",
+      headerName: "Notes",
+      sortable: true,
+      filter: true,
+      flex: 1,
+    },
+    {
+      field: "active",
+      headerName: "Status",
+      sortable: true,
+      filter: true,
+      width: 120,
+      cellRenderer: PriceTierActiveToggleRenderer,
+    },
+    {
+      headerName: "Actions",
+      cellRenderer: PriceTierActionsRenderer,
+      width: 100,
+      pinned: "right",
+    },
+  ];
 
   if (loading) {
     return (
@@ -154,189 +321,298 @@ export const HatDetails = () => {
               </div>
             </div>
 
-            {/* Product Variants Card */}
-            <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-xl font-semibold text-gray-800 flex items-center gap-2">
-                  <FaPalette className="w-5 h-5 text-[#f20c32]" />
-                  Product Variants ({hatData.productVariants?.length || 0})
-                </h2>
-                <Button
-                  onClick={() => setOpenAddVariantModal(true)}
-                  className="bg-[#f20c32] hover:bg-black px-4 py-1 text-white text-sm font-semibold flex justify-center items-center gap-2 rounded-md"
-                >
-                  <FaPlus className="w-4 h-4" />
-                  Add Variants
-                </Button>
-              </div>
-              
-              {hatData.productVariants && hatData.productVariants.length > 0 ? (
-                <div className="space-y-4">
-                  {hatData.productVariants.map((variant, index) => (
-                    <div
-                      key={variant.id}
-                      className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow"
-                    >
-                      {/* Variant Header */}
-                      <div className="flex items-start justify-between mb-3">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-3 mb-2">
-                            <h3 className="text-lg font-semibold text-gray-800">
-                              Variant #{index + 1}: {variant.variantName || "Unnamed Variant"}
-                            </h3>
-                            <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                              variant.active
-                                ? "bg-green-100 text-green-700"
-                                : "bg-gray-100 text-gray-700"
-                            }`}>
-                              {variant.active ? "Active" : "Inactive"}
-                            </span>
-                            <button
-                              onClick={() => {
-                                setSelectedVariantData(variant);
-                                setOpenEditVariantModal(true);
-                              }}
-                              className="p-1.5 bg-yellow-500 hover:bg-yellow-600 text-white rounded-full transition-colors"
-                              title="Edit Variant"
-                            >
-                              <FaEdit size={12} />
-                            </button>
-                          </div>
-                          <div className="flex items-center gap-4 text-sm text-gray-600">
-                            <div className="flex items-center gap-2">
-                              <FaPalette className="w-4 h-4" />
-                              <span>
-                                <strong>Color:</strong> {variant.color || "N/A"}
-                              </span>
-                            </div>
-                            {variant.colorCode && (
-                              <div className="flex items-center gap-2">
-                                <div
-                                  className="w-5 h-5 rounded border border-gray-300"
-                                  style={{ backgroundColor: variant.colorCode }}
-                                  title={variant.colorCode}
-                                />
-                                <span className="font-mono text-xs">{variant.colorCode}</span>
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Variant Sizes */}
-                      <div className="mt-4">
-                        <div className="flex items-center justify-between mb-3">
-                          <h4 className="text-sm font-semibold text-gray-700 flex items-center gap-2">
-                            <FaRuler className="w-4 h-4" />
-                            Variant Sizes ({variant.variantSizes?.length || 0})
-                          </h4>
-                          <button
-                            onClick={() => {
-                              setSelectedVariantId(variant.id);
-                              setOpenAddSizeModal(true);
-                            }}
-                            className="px-3 py-1 bg-[#f20c32] hover:bg-black text-white text-xs font-semibold flex justify-center items-center gap-1 rounded-md transition-colors"
-                          >
-                            <FaPlus className="w-3 h-3" />
-                            Add size
-                          </button>
-                        </div>
-                        
-                        {variant.variantSizes && variant.variantSizes.length > 0 ? (
-                          <div className="overflow-x-auto">
-                            <table className="w-full text-sm">
-                              <thead>
-                                <tr className="bg-gray-50 border-b border-gray-200">
-                                  <th className="px-4 py-2 text-left font-semibold text-gray-700">Size</th>
-                                  <th className="px-4 py-2 text-left font-semibold text-gray-700">Variant Size Name</th>
-                                  <th className="px-4 py-2 text-left font-semibold text-gray-700">Supplier SKU</th>
-                                  <th className="px-4 py-2 text-left font-semibold text-gray-700">UPC</th>
-                                </tr>
-                              </thead>
-                              <tbody>
-                                {variant.variantSizes.map((size) => (
-                                  <tr
-                                    key={size.id}
-                                    className="border-b border-gray-100 hover:bg-gray-50"
-                                  >
-                                    <td className="px-4 py-3">
-                                      <span className="inline-flex items-center gap-2">
-                                        <FaRuler className="w-3 h-3 text-gray-400" />
-                                        <span className="font-medium text-gray-800">{size.size || "N/A"}</span>
-                                      </span>
-                                    </td>
-                                    <td className="px-4 py-3 text-gray-700">{size.variantSize || "N/A"}</td>
-                                    <td className="px-4 py-3">
-                                      {size.supplierSku ? (
-                                        <span className="inline-flex items-center gap-1">
-                                          <FaBarcode className="w-3 h-3 text-gray-400" />
-                                          <span className="font-mono text-xs">{size.supplierSku}</span>
-                                        </span>
-                                      ) : (
-                                        "N/A"
-                                      )}
-                                    </td>
-                                    <td className="px-4 py-3">
-                                      {size.upc ? (
-                                        <span className="inline-flex items-center gap-1">
-                                          <FaBox className="w-3 h-3 text-gray-400" />
-                                          <span className="font-mono text-xs">{size.upc}</span>
-                                        </span>
-                                      ) : (
-                                        "N/A"
-                                      )}
-                                    </td>
-                                  </tr>
-                                ))}
-                              </tbody>
-                            </table>
-                          </div>
-                        ) : (
-                          <div className="text-center py-4 text-gray-500 text-sm bg-gray-50 rounded">
-                            <FaRuler className="w-5 h-5 mx-auto mb-2 text-gray-400" />
-                            No sizes available for this variant
-                          </div>
-                        )}
-                      </div>
-
-                      {/* Variant Metadata */}
-                      <div className="mt-3 pt-3 border-t border-gray-100 text-xs text-gray-500">
-                        <div className="flex items-center justify-between">
-                          <span>
-                            <strong>Created:</strong>{" "}
-                            {variant.createdAt
-                              ? new Date(variant.createdAt).toLocaleDateString("en-US", {
-                                  year: "numeric",
-                                  month: "short",
-                                  day: "numeric",
-                                  hour: "2-digit",
-                                  minute: "2-digit",
-                                })
-                              : "N/A"}
-                          </span>
-                          <span>
-                            <strong>Updated:</strong>{" "}
-                            {variant.updatedAt
-                              ? new Date(variant.updatedAt).toLocaleDateString("en-US", {
-                                  year: "numeric",
-                                  month: "short",
-                                  day: "numeric",
-                                  hour: "2-digit",
-                                  minute: "2-digit",
-                                })
-                              : "N/A"}
-                          </span>
-                        </div>
-                      </div>
+            {/* Tabs Section - Full Width */}
+            <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm w-full">
+              <Tabs aria-label="Tabs with icons" className="border-b border-gray-200">
+                <Tabs.Item
+                  active={activeTab === 0}
+                  title={
+                    <div className="flex items-center gap-2">
+                      <FaPalette className="w-4 h-4" />
+                      <span>Product Variants</span>
                     </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="text-center py-8 text-gray-500">
-                  <FaPalette className="w-12 h-12 mx-auto mb-3 text-gray-300" />
-                  <p>No variants available for this hat</p>
-                </div>
-              )}
+                  }
+                  onClick={() => setActiveTab(0)}
+                >
+                  {/* Product Variants Content */}
+                  <div>
+                    <div className="flex items-center justify-between mb-4">
+                      <h2 className="text-xl font-semibold text-gray-800 flex items-center gap-2">
+                        <FaPalette className="w-5 h-5 text-[#f20c32]" />
+                        Product Variants ({hatData.productVariants?.length || 0})
+                      </h2>
+                      <Button
+                        onClick={() => setOpenAddVariantModal(true)}
+                        className="bg-[#f20c32] hover:bg-black px-4 py-1 text-white text-sm font-semibold flex justify-center items-center gap-2 rounded-md"
+                      >
+                        <FaPlus className="w-4 h-4" />
+                        Add Variants
+                      </Button>
+                    </div>
+                    
+                    {hatData.productVariants && hatData.productVariants.length > 0 ? (
+                      <div className="space-y-4">
+                        {hatData.productVariants.map((variant, index) => (
+                          <div
+                            key={variant.id}
+                            className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow"
+                          >
+                            {/* Variant Header */}
+                            <div className="flex items-start justify-between mb-3">
+                              <div className="flex-1">
+                                <div className="flex items-center gap-3 mb-2">
+                                  <h3 className="text-lg font-semibold text-gray-800">
+                                    Variant #{index + 1}: {variant.variantName || "Unnamed Variant"}
+                                  </h3>
+                                  <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                                    variant.active
+                                      ? "bg-green-100 text-green-700"
+                                      : "bg-gray-100 text-gray-700"
+                                  }`}>
+                                    {variant.active ? "Active" : "Inactive"}
+                                  </span>
+                                  <button
+                                    onClick={() => {
+                                      setSelectedVariantData(variant);
+                                      setOpenEditVariantModal(true);
+                                    }}
+                                    className="px-3 py-1 bg-yellow-500 hover:bg-yellow-600 text-white text-xs font-semibold flex justify-center items-center gap-1 rounded-md transition-colors"
+                                    title="Edit Variant"
+                                  >
+                                    <FaEdit size={12} />
+                                    Edit
+                                  </button>
+                                </div>
+                                <div className="flex items-center gap-4 text-sm text-gray-600">
+                                  <div className="flex items-center gap-2">
+                                    <FaPalette className="w-4 h-4" />
+                                    <span>
+                                      <strong>Color:</strong> {variant.color || "N/A"}
+                                    </span>
+                                  </div>
+                                  {variant.colorCode && (
+                                    <div className="flex items-center gap-2">
+                                      <div
+                                        className="w-5 h-5 rounded border border-gray-300"
+                                        style={{ backgroundColor: variant.colorCode }}
+                                        title={variant.colorCode}
+                                      />
+                                      <span className="font-mono text-xs">{variant.colorCode}</span>
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+
+                            {/* Variant Sizes */}
+                            <div className="mt-4">
+                              <div className="flex items-center justify-between mb-3">
+                                <h4 className="text-sm font-semibold text-gray-700 flex items-center gap-2">
+                                  <FaRuler className="w-4 h-4" />
+                                  Variant Sizes ({variant.variantSizes?.length || 0})
+                                </h4>
+                                <button
+                                  onClick={() => {
+                                    setSelectedVariantId(variant.id);
+                                    setOpenAddSizeModal(true);
+                                  }}
+                                  className="px-3 py-1 bg-[#f20c32] hover:bg-black text-white text-xs font-semibold flex justify-center items-center gap-1 rounded-md transition-colors"
+                                >
+                                  <FaPlus className="w-3 h-3" />
+                                  Add size
+                                </button>
+                              </div>
+                              
+                              {variant.variantSizes && variant.variantSizes.length > 0 ? (
+                                <div className="overflow-x-auto">
+                                  <table className="w-full text-sm">
+                                    <thead>
+                                      <tr className="bg-gray-50 border-b border-gray-200">
+                                        <th className="px-4 py-2 text-left font-semibold text-gray-700">Size</th>
+                                        <th className="px-4 py-2 text-left font-semibold text-gray-700">Variant Size Name</th>
+                                        <th className="px-4 py-2 text-left font-semibold text-gray-700">Supplier SKU</th>
+                                        <th className="px-4 py-2 text-left font-semibold text-gray-700">UPC</th>
+                                        <th className="px-4 py-2 text-left font-semibold text-gray-700">Inventory</th>
+                                      </tr>
+                                    </thead>
+                                    <tbody>
+                                      {variant.variantSizes.map((size) => (
+                                        <tr
+                                          key={size.id}
+                                          className="border-b border-gray-100 hover:bg-gray-50"
+                                        >
+                                          <td className="px-4 py-3">
+                                            <span className="inline-flex items-center gap-2">
+                                              <FaRuler className="w-3 h-3 text-gray-400" />
+                                              <span className="font-medium text-gray-800">{size.size || "N/A"}</span>
+                                            </span>
+                                          </td>
+                                          <td className="px-4 py-3 text-gray-700">{size.variantSize || "N/A"}</td>
+                                          <td className="px-4 py-3">
+                                            {size.supplierSku ? (
+                                              <span className="inline-flex items-center gap-1">
+                                                <FaBarcode className="w-3 h-3 text-gray-400" />
+                                                <span className="font-mono text-xs">{size.supplierSku}</span>
+                                              </span>
+                                            ) : (
+                                              "N/A"
+                                            )}
+                                          </td>
+                                          <td className="px-4 py-3">
+                                            {size.upc ? (
+                                              <span className="inline-flex items-center gap-1">
+                                                <FaBox className="w-3 h-3 text-gray-400" />
+                                                <span className="font-mono text-xs">{size.upc}</span>
+                                              </span>
+                                            ) : (
+                                              "N/A"
+                                            )}
+                                          </td>
+                                          <td className="px-4 py-3">
+                                            {size.inventory && size.inventory.length > 0 ? (
+                                              <div className="flex items-center gap-2">
+                                                <button
+                                                  onClick={() => {
+                                                    setSelectedVariantSizeId(size.id);
+                                                    setOpenViewInventoryModal(true);
+                                                  }}
+                                                  className="p-1.5 bg-blue-500 hover:bg-blue-600 text-white rounded-full transition-colors"
+                                                  title="View Inventory"
+                                                >
+                                                  <FaEye size={12} />
+                                                </button>
+                                                <button
+                                                  onClick={() => {
+                                                    setSelectedInventoryData(size.inventory[0]);
+                                                    setSelectedVariantSizeId(size.id);
+                                                    setOpenEditInventoryModal(true);
+                                                  }}
+                                                  className="p-1.5 bg-yellow-500 hover:bg-yellow-600 text-white rounded-full transition-colors"
+                                                  title="Edit Inventory"
+                                                >
+                                                  <FaEdit size={12} />
+                                                </button>
+                                                {/* <button
+                                                  onClick={() => {
+                                                    setSelectedInventoryData(size.inventory[0]);
+                                                    setOpenDeleteInventoryModal(true);
+                                                  }}
+                                                  className="p-1.5 bg-red-500 hover:bg-red-600 text-white rounded-full transition-colors"
+                                                  title="Delete Inventory"
+                                                >
+                                                  <FaTrash size={12} />
+                                                </button> */}
+                                              </div>
+                                            ) : (
+                                              <button
+                                                onClick={() => {
+                                                  setSelectedVariantSizeId(size.id);
+                                                  setOpenAddInventoryModal(true);
+                                                }}
+                                                className="p-1.5 bg-[#f20c32] hover:bg-black text-white rounded-full transition-colors"
+                                                title="Add Inventory"
+                                              >
+                                                <FaPlus size={12} />
+                                              </button>
+                                            )}
+                                          </td>
+                                        </tr>
+                                      ))}
+                                    </tbody>
+                                  </table>
+                                </div>
+                              ) : (
+                                <div className="text-center py-4 text-gray-500 text-sm bg-gray-50 rounded">
+                                  <FaRuler className="w-5 h-5 mx-auto mb-2 text-gray-400" />
+                                  No sizes available for this variant
+                                </div>
+                              )}
+                            </div>
+
+                            {/* Variant Metadata */}
+                            <div className="mt-3 pt-3 border-t border-gray-100 text-xs text-gray-500">
+                              <div className="flex items-center justify-between">
+                                <span>
+                                  <strong>Created:</strong>{" "}
+                                  {variant.createdAt
+                                    ? new Date(variant.createdAt).toLocaleDateString("en-US", {
+                                        year: "numeric",
+                                        month: "short",
+                                        day: "numeric",
+                                        hour: "2-digit",
+                                        minute: "2-digit",
+                                      })
+                                    : "N/A"}
+                                </span>
+                                <span>
+                                  <strong>Updated:</strong>{" "}
+                                  {variant.updatedAt
+                                    ? new Date(variant.updatedAt).toLocaleDateString("en-US", {
+                                        year: "numeric",
+                                        month: "short",
+                                        day: "numeric",
+                                        hour: "2-digit",
+                                        minute: "2-digit",
+                                      })
+                                    : "N/A"}
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="text-center py-8 text-gray-500">
+                        <FaPalette className="w-12 h-12 mx-auto mb-3 text-gray-300" />
+                        <p>No variants available for this hat</p>
+                      </div>
+                    )}
+                  </div>
+                </Tabs.Item>
+                <Tabs.Item
+                  active={activeTab === 1}
+                  title={
+                    <div className="flex items-center gap-2">
+                      <FaDollarSign className="w-4 h-4" />
+                      <span>Price Tier</span>
+                    </div>
+                  }
+                  onClick={() => setActiveTab(1)}
+                >
+                  {/* Price Tier Content */}
+                  <div>
+                    <div className="flex items-center justify-between mb-4">
+                      <h2 className="text-xl font-semibold text-gray-800 flex items-center gap-2">
+                        <FaDollarSign className="w-5 h-5 text-[#f20c32]" />
+                        Price Tier ({priceTierData.length})
+                      </h2>
+                      <Button
+                        onClick={handleAddPriceTier}
+                        className="bg-[#f20c32] hover:bg-black px-4 py-1 text-white text-sm font-semibold flex justify-center items-center gap-2 rounded-md"
+                      >
+                        <FaPlus className="w-4 h-4" />
+                        Add Price Tier
+                      </Button>
+                    </div>
+
+                    {/* AG Grid Table */}
+                    <div
+                      className="ag-theme-alpine"
+                      style={{ height: 400, width: "100%" }}
+                    >
+                      <AgGridReact
+                        rowData={priceTierData}
+                        columnDefs={priceTierColumnDefs}
+                        pagination={true}
+                        paginationPageSize={10}
+                        domLayout="autoHeight"
+                        paginationPageSizeSelector={[10, 20, 50, 100]}
+                        getRowHeight={() => 50}
+                      />
+                    </div>
+                  </div>
+                </Tabs.Item>
+              </Tabs>
             </div>
           </div>
 
@@ -413,6 +689,92 @@ export const HatDetails = () => {
           setOpenModal={setOpenAddSizeModal}
           onSizeAdded={fetchHatDetails}
           variantId={selectedVariantId}
+        />
+      )}
+
+      {/* Add Price Tier Modal */}
+      {openAddPriceTierModal && (
+        <AddPriceTierModal
+          openModal={openAddPriceTierModal}
+          setOpenModal={setOpenAddPriceTierModal}
+          onPriceTierAdded={fetchPriceTiers}
+          priceTierData={null}
+          isEdit={false}
+          hatId={id}
+        />
+      )}
+
+      {/* Edit Price Tier Modal */}
+      {openEditPriceTierModal && selectedPriceTierData && (
+        <AddPriceTierModal
+          openModal={openEditPriceTierModal}
+          setOpenModal={setOpenEditPriceTierModal}
+          onPriceTierAdded={fetchPriceTiers}
+          priceTierData={selectedPriceTierData}
+          isEdit={true}
+          hatId={id}
+        />
+      )}
+
+      {/* View Inventory Modal */}
+      {openViewInventoryModal && selectedVariantSizeId && (
+        <ViewInventoryModal
+          openModal={openViewInventoryModal}
+          setOpenModal={setOpenViewInventoryModal}
+          variantSizeId={selectedVariantSizeId}
+          onInventoryUpdated={fetchHatDetails}
+        />
+      )}
+
+      {/* Add Inventory Modal */}
+      {openAddInventoryModal && selectedVariantSizeId && (
+        <AddVariantSizeInventoryModal
+          openModal={openAddInventoryModal}
+          setOpenModal={setOpenAddInventoryModal}
+          onInventoryAdded={fetchHatDetails}
+          inventoryData={null}
+          isEdit={false}
+          variantSizeId={selectedVariantSizeId}
+        />
+      )}
+
+      {/* Edit Inventory Modal */}
+      {openEditInventoryModal && selectedInventoryData && selectedVariantSizeId && (
+        <AddVariantSizeInventoryModal
+          openModal={openEditInventoryModal}
+          setOpenModal={setOpenEditInventoryModal}
+          onInventoryAdded={fetchHatDetails}
+          inventoryData={selectedInventoryData}
+          isEdit={true}
+          variantSizeId={selectedVariantSizeId}
+        />
+      )}
+
+      {/* Delete Inventory Confirmation Modal */}
+      {openDeleteInventoryModal && selectedInventoryData && (
+        <DeleteConfirmModal
+          openModal={openDeleteInventoryModal}
+          setOpenModal={setOpenDeleteInventoryModal}
+          onConfirm={() => {
+            const payload = {
+              inventory_id: selectedInventoryData.inventoryId || selectedInventoryData.id,
+            };
+            dispatch(inventoryDelete(payload))
+              .unwrap()
+              .then((response) => {
+                console.log("Inventory deleted successfully:", response);
+                toast.success("Inventory deleted successfully!");
+                fetchHatDetails();
+                setOpenDeleteInventoryModal(false);
+                setSelectedInventoryData(null);
+              })
+              .catch((error) => {
+                console.error("Error deleting inventory:", error);
+                toast.error("Failed to delete inventory. Please try again.");
+              });
+          }}
+          supplierName="this inventory"
+          itemType="inventory"
         />
       )}
     </div>
