@@ -139,10 +139,23 @@ const AddHatModal = ({ openModal, setOpenModal, onHatAdded, hatData, isEdit, sup
         Promise.all(promises)
           .then((responses) => {
             console.log("Hat updated successfully:", responses);
-            toast.success("Hat updated successfully!", {
-              position: "top-right",
-              autoClose: 3000,
-            });
+            const response = responses[responses.length - 1]; // Get the last response (hat update)
+            if(response?.status_code === 200 || response?.status_code === 201){
+              toast.success(response?.message || "Hat updated successfully!", {
+                position: "top-right",
+                autoClose: 3000,
+              });
+            }else if(response?.status_code === 422){
+              toast.error(response?.message || "Validation error occurred", {
+                position: "top-right",
+                autoClose: 3000,
+              });
+            }else {
+              toast.error(response?.message || "Failed to update hat", {
+                position: "top-right",
+                autoClose: 3000,
+              });
+            }
             reset();
             setSelectedImage(null);
             setImagePreview(null);
@@ -158,7 +171,8 @@ const AddHatModal = ({ openModal, setOpenModal, onHatAdded, hatData, isEdit, sup
           })
           .catch((error) => {
             console.error("Error updating hat:", error);
-            toast.error("Failed to update hat. Please try again.", {
+            const errorMessage = error?.response?.data?.message || error?.message || "Failed to update hat. Please try again.";
+            toast.error(errorMessage, {
               position: "top-right",
               autoClose: 3000,
             });
@@ -172,10 +186,22 @@ const AddHatModal = ({ openModal, setOpenModal, onHatAdded, hatData, isEdit, sup
           .unwrap()
           .then((response) => {
             console.log("Hat added successfully:", response);
-            toast.success("Hat added successfully!", {
-              position: "top-right",
-              autoClose: 3000,
-            });
+            if(response?.status_code === 200 || response?.status_code === 201){
+              toast.success(response?.message || "Hat added successfully!", {
+                position: "top-right",
+                autoClose: 3000,
+              });
+            }else if(response?.status_code === 422){
+              toast.error(response?.message || "Validation error occurred", {
+                position: "top-right",
+                autoClose: 3000,
+              });
+            }else {
+              toast.error(response?.message || "Failed to add hat", {
+                position: "top-right",
+                autoClose: 3000,
+              });
+            }
             reset();
             setSelectedImage(null);
             setImagePreview(null);
@@ -191,7 +217,8 @@ const AddHatModal = ({ openModal, setOpenModal, onHatAdded, hatData, isEdit, sup
           })
           .catch((error) => {
             console.error("Error adding hat:", error);
-            toast.error("Failed to add hat. Please try again.", {
+            const errorMessage = error?.response?.data?.message || error?.message || "Failed to add hat. Please try again.";
+            toast.error(errorMessage, {
               position: "top-right",
               autoClose: 3000,
             });
@@ -202,7 +229,8 @@ const AddHatModal = ({ openModal, setOpenModal, onHatAdded, hatData, isEdit, sup
       }
     } catch (error) {
       console.error("Error saving hat:", error);
-      toast.error(`Failed to ${isEdit ? "update" : "add"} hat. Please try again.`, {
+      const errorMessage = error?.response?.data?.message || error?.message || `Failed to ${isEdit ? "update" : "add"} hat. Please try again.`;
+      toast.error(errorMessage, {
         position: "top-right",
         autoClose: 3000,
       });

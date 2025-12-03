@@ -44,10 +44,22 @@ const AddSupplierModal = ({ openModal, setOpenModal, onSupplierAdded, supplierDa
           .unwrap()
           .then((response) => {
             console.log("Supplier updated successfully:", response);
-            toast.success("Supplier updated successfully!", {
-              position: "top-right",
-              autoClose: 3000,
-            });
+            if(response?.status_code === 200 || response?.status_code === 201){
+              toast.success(response?.message || "Supplier added successfully!", {
+                position: "top-right",
+                autoClose: 3000,
+              });
+            }else if(response?.status_code === 422){
+              toast.error(response?.message || "Validation error occurred", {
+                position: "top-right",
+                autoClose: 3000,
+              });
+            }else {
+              toast.error(response?.message || "Failed to add supplier", {
+                position: "top-right",
+                autoClose: 3000,
+              });
+            }
             reset();
             // Close modal after a short delay to ensure toast is visible
             setTimeout(() => {
@@ -60,7 +72,8 @@ const AddSupplierModal = ({ openModal, setOpenModal, onSupplierAdded, supplierDa
           })
           .catch((error) => {
             console.error("Error updating supplier:", error);
-            toast.error("Failed to update supplier. Please try again.", {
+            const errorMessage = error?.response?.data?.message || error?.message || "Failed to update supplier. Please try again.";
+            toast.error(errorMessage, {
               position: "top-right",
               autoClose: 3000,
             });
@@ -74,10 +87,22 @@ const AddSupplierModal = ({ openModal, setOpenModal, onSupplierAdded, supplierDa
           .unwrap()
           .then((response) => {
             console.log("Supplier added successfully:", response);
-            toast.success("Supplier added successfully!", {
-              position: "top-right",
-              autoClose: 3000,
-            });
+            if(response?.status_code === 200 || response?.status_code === 201){
+              toast.success(response?.message || "Supplier updated successfully!", {
+                position: "top-right",
+                autoClose: 3000,
+              });
+            }else if(response?.status_code === 422){
+              toast.error(response?.message || "Validation error occurred", {
+                position: "top-right",
+                autoClose: 3000,
+              });
+            }else {
+              toast.error(response?.message || "Failed to update supplier", {
+                position: "top-right",
+                autoClose: 3000,
+              });
+            }
             reset();
             // Close modal after a short delay to ensure toast is visible
             setTimeout(() => {
@@ -90,7 +115,8 @@ const AddSupplierModal = ({ openModal, setOpenModal, onSupplierAdded, supplierDa
           })
           .catch((error) => {
             console.error("Error adding supplier:", error);
-            toast.error("Failed to add supplier. Please try again.", {
+            const errorMessage = error?.response?.data?.message || error?.message || "Failed to add supplier. Please try again.";
+            toast.error(errorMessage, {
               position: "top-right",
               autoClose: 3000,
             });
@@ -101,7 +127,8 @@ const AddSupplierModal = ({ openModal, setOpenModal, onSupplierAdded, supplierDa
       }
     } catch (error) {
       console.error("Error saving supplier:", error);
-      toast.error(`Failed to ${isEdit ? "update" : "add"} supplier. Please try again.`, {
+      const errorMessage = error?.response?.data?.message || error?.message || `Failed to ${isEdit ? "update" : "add"} supplier. Please try again.`;
+      toast.error(errorMessage, {
         position: "top-right",
         autoClose: 3000,
       });

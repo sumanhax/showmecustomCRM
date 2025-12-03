@@ -4,7 +4,9 @@ import { useDispatch, useSelector } from "react-redux";
 import { AgGridReact } from "ag-grid-react";
 import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-alpine.css";
-import { hatDetails, supplierList, pricetierList, pricetierStatusChange, inventorySingle, inventoryDelete } from "../../Reducer/EcommerceSlice";
+import { hatDetails, supplierList, pricetierList, pricetierStatusChange, inventorySingle, inventoryDelete, hatMultiImageDelete } from "../../Reducer/EcommerceSlice";
+import AddHatImagesModal from "./AddHatImagesModal";
+import EditHatImageModal from "./EditHatImageModal";
 import Loader from "../../components/Loader";
 import { toast } from "react-toastify";
 import { Button, Tabs } from "flowbite-react";
@@ -39,6 +41,9 @@ export const HatDetails = () => {
   const [openDeleteInventoryModal, setOpenDeleteInventoryModal] = useState(false);
   const [selectedVariantSizeId, setSelectedVariantSizeId] = useState(null);
   const [selectedInventoryData, setSelectedInventoryData] = useState(null);
+  const [openAddHatImagesModal, setOpenAddHatImagesModal] = useState(false);
+  const [openEditHatImageModal, setOpenEditHatImageModal] = useState(false);
+  const [selectedImageData, setSelectedImageData] = useState(null);
 
   // Function to fetch hat details
   const fetchHatDetails = useCallback(() => {
@@ -148,6 +153,31 @@ export const HatDetails = () => {
         toast.error("Failed to change price tier status. Please try again.");
       });
   };
+  // Handle edit multi image
+  const handleMultiEdit = (imageId) => {
+    const imageItem = hatData?.hatImages?.find((img) => img.id === imageId);
+    if (imageItem) {
+      setSelectedImageData(imageItem);
+      setOpenEditHatImageModal(true);
+    } else {
+      toast.error("Image not found");
+    }
+  };
+
+  // delete multi images
+  const handleMultiImageDelete = (imageId) => {
+    dispatch(hatMultiImageDelete(imageId))
+      .unwrap()
+      .then((response) => {
+        console.log("Image deleted successfully:", response);
+        toast.success(response?.message || "Image deleted successfully!");
+        fetchHatDetails()
+      })
+      .catch((error) => {
+        console.error("Error deleting image:", error);
+        toast.error(error?.message || "Failed to delete image. Please try again.");
+      });
+  }
 
   // Custom cell renderer for Actions in price tier table
   const PriceTierActionsRenderer = (params) => {
@@ -278,9 +308,9 @@ export const HatDetails = () => {
             <h1 className="text-3xl font-bold text-gray-800">Hat Details</h1>
           </div>
           <div className={`px-4 py-2 rounded-full text-white text-sm font-semibold ${
-            hatData.active ? "bg-green-500" : "bg-gray-400"
+            hatData?.active ? "bg-green-500" : "bg-gray-400"
           }`}>
-            {hatData.active ? "Active" : "Inactive"}
+            {hatData?.active ? "Active" : "Inactive"}
           </div>
         </div>
 
@@ -296,11 +326,11 @@ export const HatDetails = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="text-sm font-semibold text-gray-600">Hat Name</label>
-                  <p className="text-lg text-gray-800 mt-1">{hatData.hatName || "N/A"}</p>
+                  <p className="text-lg text-gray-800 mt-1">{hatData?.hatName || "N/A"}</p>
                 </div>
                 <div>
                   <label className="text-sm font-semibold text-gray-600">Supplier Style Code</label>
-                  <p className="text-lg text-gray-800 mt-1">{hatData.supplierStyleCode || "N/A"}</p>
+                  <p className="text-lg text-gray-800 mt-1">{hatData?.supplierStyleCode || "N/A"}</p>
                 </div>
                 <div>
                   <label className="text-sm font-semibold text-gray-600">Supplier</label>
@@ -308,15 +338,15 @@ export const HatDetails = () => {
                 </div>
                 <div>
                   <label className="text-sm font-semibold text-gray-600">Base Price</label>
-                  <p className="text-lg text-gray-800 mt-1">{hatData.basePrice || "N/A"}</p>
+                  <p className="text-lg text-gray-800 mt-1">{hatData?.basePrice || "N/A"}</p>
                 </div>
                 <div>
                   <label className="text-sm font-semibold text-gray-600">Min Order Quantity</label>
-                  <p className="text-lg text-gray-800 mt-1">{hatData.minOrderQty || "N/A"}</p>
+                  <p className="text-lg text-gray-800 mt-1">{hatData?.minOrderQty || "N/A"}</p>
                 </div>
                 <div>
                   <label className="text-sm font-semibold text-gray-600">Hat ID</label>
-                  <p className="text-sm text-gray-500 mt-1 font-mono">{hatData.id || "N/A"}</p>
+                  <p className="text-sm text-gray-500 mt-1 font-mono">{hatData?.id || "N/A"}</p>
                 </div>
               </div>
             </div>
@@ -339,7 +369,7 @@ export const HatDetails = () => {
                     <div className="flex items-center justify-between mb-4">
                       <h2 className="text-xl font-semibold text-gray-800 flex items-center gap-2">
                         <FaPalette className="w-5 h-5 text-[#f20c32]" />
-                        Product Variants ({hatData.productVariants?.length || 0})
+                        Product Variants ({hatData?.productVariants?.length || 0})
                       </h2>
                       <Button
                         onClick={() => setOpenAddVariantModal(true)}
@@ -350,9 +380,9 @@ export const HatDetails = () => {
                       </Button>
                     </div>
                     
-                    {hatData.productVariants && hatData.productVariants.length > 0 ? (
+                    {hatData?.productVariants && hatData?.productVariants.length > 0 ? (
                       <div className="space-y-4">
-                        {hatData.productVariants.map((variant, index) => (
+                        {hatData?.productVariants.map((variant, index) => (
                           <div
                             key={variant.id}
                             className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow"
@@ -619,12 +649,24 @@ export const HatDetails = () => {
           {/* Right Column - Image */}
           <div className="lg:col-span-1">
             <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm sticky top-6">
-              <h2 className="text-xl font-semibold text-gray-800 mb-4 flex items-center gap-2">
-                <FaImage className="w-5 h-5 text-[#f20c32]" />
-                Hat Image
-              </h2>
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-xl font-semibold text-gray-800 flex items-center gap-2">
+                  <FaImage className="w-5 h-5 text-[#f20c32]" />
+                  Hat Image
+                </h2>
+                <Button
+                  onClick={() => setOpenAddHatImagesModal(true)}
+                  className="bg-[#f20c32] hover:bg-black px-3 py-1 text-white text-xs font-semibold flex justify-center items-center gap-1 rounded-md"
+                >
+                  <FaPlus className="w-3 h-3" />
+                  Add more images
+                </Button>
+               
+              </div>
+              
+              {/* Primary Image */}
               {hatData.images ? (
-                <div className="relative">
+                <div className="relative mb-4">
                   <img
                     src={hatData.images}
                     alt={hatData.hatName || "Hat"}
@@ -647,11 +689,65 @@ export const HatDetails = () => {
                   </div>
                 </div>
               ) : (
-                <div className="flex items-center justify-center w-full h-64 bg-gray-100 rounded-lg border border-gray-200">
+                <div className="flex items-center justify-center w-full h-64 bg-gray-100 rounded-lg border border-gray-200 mb-4">
                   <div className="text-center text-gray-400">
                     <FaImage className="w-12 h-12 mx-auto mb-2" />
                     <p>No image available</p>
                   </div>
+                </div>
+              )}
+
+              {/* Multi Images Grid */}
+              {hatData.hatImages && hatData.hatImages.length > 0 && (
+                <div>
+                  <h3 className="text-sm font-semibold text-gray-700 mb-3">
+                    Additional Images ({hatData.hatImages.length})
+                  </h3>
+                  <div className="grid grid-cols-3 gap-2">
+  {hatData.hatImages.map((imageItem, index) => (
+    <div
+      key={imageItem.id || index}
+      className="relative group border border-gray-200 rounded-lg overflow-hidden aspect-square"
+    >
+      {/* Delete Icon */}
+      <button
+        onClick={() => handleMultiEdit(imageItem.id)}
+        className="absolute top-1 right-9 bg-white p-1 rounded-full shadow"
+      >
+        <FaEdit className="text-blue-600 w-4 h-4" />
+      </button>
+      {/* Delete Icon */}
+      <button
+        onClick={() => handleMultiImageDelete(imageItem.id)}
+        className="absolute top-1 right-1 bg-white p-1 rounded-full shadow"
+      >
+        <FaTrash className="text-red-500 w-4 h-4" />
+      </button>
+
+      {/* Image */}
+      <img
+        src={imageItem.imageUrls || ""}
+        alt={`Hat image ${index + 1}`}
+        className="w-full h-full object-cover"
+        onError={(e) => {
+          e.target.style.display = "none";
+          if (e.target.nextSibling) {
+            e.target.nextSibling.style.display = "flex";
+          }
+        }}
+      />
+
+      {/* Placeholder Icon */}
+      <div
+        className="hidden items-center justify-center w-full h-full bg-gray-100"
+        style={{ display: "none" }}
+      >
+        <FaImage className="w-6 h-6 text-gray-400" />
+      </div>
+    </div>
+  ))}
+</div>
+
                 </div>
               )}
             </div>
@@ -775,6 +871,26 @@ export const HatDetails = () => {
           }}
           supplierName="this inventory"
           itemType="inventory"
+        />
+      )}
+
+      {/* Add Hat Images Modal */}
+      {openAddHatImagesModal && (
+        <AddHatImagesModal
+          openModal={openAddHatImagesModal}
+          setOpenModal={setOpenAddHatImagesModal}
+          hatId={id}
+          onImagesAdded={fetchHatDetails}
+        />
+      )}
+
+      {/* Edit Hat Image Modal */}
+      {openEditHatImageModal && selectedImageData && (
+        <EditHatImageModal
+          openModal={openEditHatImageModal}
+          setOpenModal={setOpenEditHatImageModal}
+          imageData={selectedImageData}
+          onImageUpdated={fetchHatDetails}
         />
       )}
     </div>

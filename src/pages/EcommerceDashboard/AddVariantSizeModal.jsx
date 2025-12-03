@@ -33,13 +33,25 @@ const AddVariantSizeModal = ({ openModal, setOpenModal, onSizeAdded, variantId }
       // Dispatch add variant size action
       dispatch(addVarientSize(formData))
         .unwrap()
-        .then((response) => {
-          console.log("Variant size added successfully:", response);
-          toast.success("Variant size added successfully!", {
-            position: "top-right",
-            autoClose: 3000,
-          });
-          reset();
+          .then((response) => {
+            console.log("Variant size added successfully:", response);
+            if(response?.status_code === 200 || response?.status_code === 201){
+              toast.success(response?.message || "Variant size added successfully!", {
+                position: "top-right",
+                autoClose: 3000,
+              });
+            }else if(response?.status_code === 422){
+              toast.error(response?.message || "Validation error occurred", {
+                position: "top-right",
+                autoClose: 3000,
+              });
+            }else {
+              toast.error(response?.message || "Failed to add variant size", {
+                position: "top-right",
+                autoClose: 3000,
+              });
+            }
+            reset();
           // Close modal after a short delay to ensure toast is visible
           setTimeout(() => {
             setOpenModal(false);
@@ -49,19 +61,21 @@ const AddVariantSizeModal = ({ openModal, setOpenModal, onSizeAdded, variantId }
             }
           }, 100);
         })
-        .catch((error) => {
-          console.error("Error adding variant size:", error);
-          toast.error("Failed to add variant size. Please try again.", {
-            position: "top-right",
-            autoClose: 3000,
-          });
-        })
+          .catch((error) => {
+            console.error("Error adding variant size:", error);
+            const errorMessage = error?.response?.data?.message || error?.message || "Failed to add variant size. Please try again.";
+            toast.error(errorMessage, {
+              position: "top-right",
+              autoClose: 3000,
+            });
+          })
         .finally(() => {
           setIsSubmitting(false);
         });
     } catch (error) {
       console.error("Error saving variant size:", error);
-      toast.error("Failed to add variant size. Please try again.", {
+      const errorMessage = error?.response?.data?.message || error?.message || "Failed to add variant size. Please try again.";
+      toast.error(errorMessage, {
         position: "top-right",
         autoClose: 3000,
       });

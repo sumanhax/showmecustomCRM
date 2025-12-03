@@ -41,10 +41,22 @@ const AddVariantSizeInventoryModal = ({ openModal, setOpenModal, onInventoryAdde
           .unwrap()
           .then((response) => {
             console.log("Inventory updated successfully:", response);
-            toast.success("Inventory updated successfully!", {
-              position: "top-right",
-              autoClose: 3000,
-            });
+            if(response?.status_code === 200 || response?.status_code === 201){
+              toast.success(response?.message || "Inventory updated successfully!", {
+                position: "top-right",
+                autoClose: 3000,
+              });
+            }else if(response?.status_code === 422){
+              toast.error(response?.message || "Validation error occurred", {
+                position: "top-right",
+                autoClose: 3000,
+              });
+            }else {
+              toast.error(response?.message || "Failed to update inventory", {
+                position: "top-right",
+                autoClose: 3000,
+              });
+            }
             reset();
             // Close modal after a short delay to ensure toast is visible
             setTimeout(() => {
@@ -57,7 +69,8 @@ const AddVariantSizeInventoryModal = ({ openModal, setOpenModal, onInventoryAdde
           })
           .catch((error) => {
             console.error("Error updating inventory:", error);
-            toast.error("Failed to update inventory. Please try again.", {
+            const errorMessage = error?.response?.data?.message || error?.message || "Failed to update inventory. Please try again.";
+            toast.error(errorMessage, {
               position: "top-right",
               autoClose: 3000,
             });
@@ -71,10 +84,22 @@ const AddVariantSizeInventoryModal = ({ openModal, setOpenModal, onInventoryAdde
           .unwrap()
           .then((response) => {
             console.log("Inventory added successfully:", response);
-            toast.success("Inventory added successfully!", {
-              position: "top-right",
-              autoClose: 3000,
-            });
+            if(response?.status_code === 200 || response?.status_code === 201){
+              toast.success(response?.message || "Inventory added successfully!", {
+                position: "top-right",
+                autoClose: 3000,
+              });
+            }else if(response?.status_code === 422){
+              toast.error(response?.message || "Validation error occurred", {
+                position: "top-right",
+                autoClose: 3000,
+              });
+            }else {
+              toast.error(response?.message || "Failed to add inventory", {
+                position: "top-right",
+                autoClose: 3000,
+              });
+            }
             reset();
             // Close modal after a short delay to ensure toast is visible
             setTimeout(() => {
@@ -87,7 +112,8 @@ const AddVariantSizeInventoryModal = ({ openModal, setOpenModal, onInventoryAdde
           })
           .catch((error) => {
             console.error("Error adding inventory:", error);
-            toast.error("Failed to add inventory. Please try again.", {
+            const errorMessage = error?.response?.data?.message || error?.message || "Failed to add inventory. Please try again.";
+            toast.error(errorMessage, {
               position: "top-right",
               autoClose: 3000,
             });
@@ -98,7 +124,8 @@ const AddVariantSizeInventoryModal = ({ openModal, setOpenModal, onInventoryAdde
       }
     } catch (error) {
       console.error("Error saving inventory:", error);
-      toast.error(`Failed to ${isEdit ? "update" : "add"} inventory. Please try again.`, {
+      const errorMessage = error?.response?.data?.message || error?.message || `Failed to ${isEdit ? "update" : "add"} inventory. Please try again.`;
+      toast.error(errorMessage, {
         position: "top-right",
         autoClose: 3000,
       });

@@ -5,7 +5,7 @@ import { useDispatch } from "react-redux";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { login, managerLogin, repsLogin } from "../../../Reducer/AuthSlice";
-import { toast, ToastContainer } from "react-toastify";
+import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Cookies from "js-cookie";
 
@@ -61,33 +61,47 @@ const Login = () => {
     if (data.role === "Manager") {
       dispatch(managerLogin(data))
         .then((res) => {
-          console.log("Res admin: ", res);
+          console.log("Res manager: ", res);
           if (res?.payload?.status_code === 200) {
             navigate("/crm-dashboard");
+          }else if(res?.payload?.response?.data?.status_code === 422){
+            toast.error(res?.payload?.response?.data?.message);
+          }else {
+            toast.error(res?.payload?.response?.data?.message);
           }
         })
         .catch((err) => {
           console.log("err", err);
-          toast.error(err?.payload?.message);
+          const errorMessage = err?.payload?.message || err?.payload?.response?.data?.message || err?.message || "An error occurred";
+          toast.error(errorMessage);
         });
     }else if(data.role==='Reps'){
       dispatch(repsLogin(data)).then((res)=>{
         if(res?.payload?.status_code===200){
           navigate("/rep-dashboard");
+        }else if(res?.payload?.response?.data?.status_code === 422){
+          toast.error(res?.payload?.response?.data?.message);
+        }else {
+          toast.error(res?.payload?.response?.data?.message);
         }
       })
     } 
     
     else {
       dispatch(login(data)).then((res) => {
-        console.log("Res manager: ", res);
+        console.log("Res admin: ", res);
         if (res?.payload?.status_code === 200) {
           navigate("/crm-dashboard");
+        }else if(res?.payload?.response?.data?.status_code === 422){
+          toast.error(res?.payload?.response?.data?.message);
+        }else {
+          toast.error(res?.payload?.response?.data?.message);
         }
       });
     }
   };
   return (
+    <>
     <div className="my-0 lg:my-0 mx-4 lg:mx-0 flex justify-center items-center wrapper_bg_area">
       <div className="w-full my-0 mx-auto">
         <div className="lg:flex h-screen">
@@ -241,6 +255,7 @@ const Login = () => {
         <AfterLoginModal openModal={openModal} setOpenModal={setOpenModal} />
       )}
     </div>
+    </>
   );
 };
 

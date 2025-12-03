@@ -40,10 +40,22 @@ const AddDecorationModal = ({ openModal, setOpenModal, onDecorationAdded, decora
           .unwrap()
           .then((response) => {
             console.log("Decoration updated successfully:", response);
-            toast.success("Decoration updated successfully!", {
-              position: "top-right",
-              autoClose: 3000,
-            });
+            if(response?.status_code === 200 || response?.status_code === 201){
+              toast.success(response?.message || "Decoration updated successfully!", {
+                position: "top-right",
+                autoClose: 3000,
+              });
+            }else if(response?.status_code === 422){
+              toast.error(response?.message || "Validation error occurred", {
+                position: "top-right",
+                autoClose: 3000,
+              });
+            }else {
+              toast.error(response?.message || "Failed to update decoration", {
+                position: "top-right",
+                autoClose: 3000,
+              });
+            }
             reset();
             // Close modal after a short delay to ensure toast is visible
             setTimeout(() => {
@@ -56,7 +68,8 @@ const AddDecorationModal = ({ openModal, setOpenModal, onDecorationAdded, decora
           })
           .catch((error) => {
             console.error("Error updating decoration:", error);
-            toast.error("Failed to update decoration. Please try again.", {
+            const errorMessage = error?.response?.data?.message || error?.message || "Failed to update decoration. Please try again.";
+            toast.error(errorMessage, {
               position: "top-right",
               autoClose: 3000,
             });
@@ -69,11 +82,24 @@ const AddDecorationModal = ({ openModal, setOpenModal, onDecorationAdded, decora
         dispatch(decorationAdd(payload))
           .unwrap()
           .then((response) => {
-            console.log("Decoration added successfully:", response);
-            toast.success("Decoration added successfully!", {
-              position: "top-right",
-              autoClose: 3000,
-            });
+            console.log("Decoration added successfully:", response?.status_code);
+            if(response?.status_code === 200 || response?.status_code === 201){
+              toast.success(response?.message || "Decoration added successfully!", {
+                position: "top-right",
+                autoClose: 3000,
+              });
+            }else if(response?.status_code === 422){
+              toast.error(response?.message || "Validation error occurred", {
+                position: "top-right",
+                autoClose: 3000,
+              });
+            }else {
+              toast.error(response?.message || "Failed to add decoration", {
+                position: "top-right",
+                autoClose: 3000,
+              });
+            }
+           
             reset();
             // Close modal after a short delay to ensure toast is visible
             setTimeout(() => {
@@ -86,7 +112,8 @@ const AddDecorationModal = ({ openModal, setOpenModal, onDecorationAdded, decora
           })
           .catch((error) => {
             console.error("Error adding decoration:", error);
-            toast.error("Failed to add decoration. Please try again.", {
+            const errorMessage = error?.response?.data?.message || error?.message || "Failed to add decoration. Please try again.";
+            toast.error(errorMessage, {
               position: "top-right",
               autoClose: 3000,
             });
@@ -97,7 +124,8 @@ const AddDecorationModal = ({ openModal, setOpenModal, onDecorationAdded, decora
       }
     } catch (error) {
       console.error("Error saving decoration:", error);
-      toast.error(`Failed to ${isEdit ? "update" : "add"} decoration. Please try again.`, {
+      const errorMessage = error?.response?.data?.message || error?.message || `Failed to ${isEdit ? "update" : "add"} decoration. Please try again.`;
+      toast.error(errorMessage, {
         position: "top-right",
         autoClose: 3000,
       });

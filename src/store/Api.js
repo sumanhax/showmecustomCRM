@@ -1,7 +1,7 @@
 import axios from 'axios';
 const api = axios.create({ baseURL: import.meta.env.VITE_API_BASE_URL });
 let domain = window.location.origin
-const formDataURL = [];
+const formDataURL = ['/api/admin/hat/hat-images','/api/admin/hat/hat-images-update'];
 api.interceptors.request.use((req) => {
   let userTokenData;
   try {

@@ -36,10 +36,22 @@ const AddLogoModal = ({ openModal, setOpenModal, onLogoAdded, logoData, isEdit }
           .unwrap()
           .then((response) => {
             console.log("Logo updated successfully:", response);
-            toast.success("Logo updated successfully!", {
-              position: "top-right",
-              autoClose: 3000,
-            });
+            if(response?.status_code === 200 || response?.status_code === 201){
+              toast.success(response?.message || "Logo updated successfully!", {
+                position: "top-right",
+                autoClose: 3000,
+              });
+            }else if(response?.status_code === 422){
+              toast.error(response?.message || "Validation error occurred", {
+                position: "top-right",
+                autoClose: 3000,
+              });
+            }else {
+              toast.error(response?.message || "Failed to update logo", {
+                position: "top-right",
+                autoClose: 3000,
+              });
+            }
             reset();
             // Close modal after a short delay to ensure toast is visible
             setTimeout(() => {
@@ -52,7 +64,8 @@ const AddLogoModal = ({ openModal, setOpenModal, onLogoAdded, logoData, isEdit }
           })
           .catch((error) => {
             console.error("Error updating logo:", error);
-            toast.error("Failed to update logo. Please try again.", {
+            const errorMessage = error?.response?.data?.message || error?.message || "Failed to update logo. Please try again.";
+            toast.error(errorMessage, {
               position: "top-right",
               autoClose: 3000,
             });
@@ -66,10 +79,22 @@ const AddLogoModal = ({ openModal, setOpenModal, onLogoAdded, logoData, isEdit }
           .unwrap()
           .then((response) => {
             console.log("Logo added successfully:", response);
-            toast.success("Logo added successfully!", {
-              position: "top-right",
-              autoClose: 3000,
-            });
+            if(response?.status_code === 200 || response?.status_code === 201){
+              toast.success(response?.message || "Logo added successfully!", {
+                position: "top-right",
+                autoClose: 3000,
+              });
+            }else if(response?.status_code === 422){
+              toast.error(response?.message || "Validation error occurred", {
+                position: "top-right",
+                autoClose: 3000,
+              });
+            }else {
+              toast.error(response?.message || "Failed to add logo", {
+                position: "top-right",
+                autoClose: 3000,
+              });
+            }
             reset();
             // Close modal after a short delay to ensure toast is visible
             setTimeout(() => {
@@ -82,7 +107,8 @@ const AddLogoModal = ({ openModal, setOpenModal, onLogoAdded, logoData, isEdit }
           })
           .catch((error) => {
             console.error("Error adding logo:", error);
-            toast.error("Failed to add logo. Please try again.", {
+            const errorMessage = error?.response?.data?.message || error?.message || "Failed to add logo. Please try again.";
+            toast.error(errorMessage, {
               position: "top-right",
               autoClose: 3000,
             });
@@ -93,7 +119,8 @@ const AddLogoModal = ({ openModal, setOpenModal, onLogoAdded, logoData, isEdit }
       }
     } catch (error) {
       console.error("Error saving logo:", error);
-      toast.error(`Failed to ${isEdit ? "update" : "add"} logo. Please try again.`, {
+      const errorMessage = error?.response?.data?.message || error?.message || `Failed to ${isEdit ? "update" : "add"} logo. Please try again.`;
+      toast.error(errorMessage, {
         position: "top-right",
         autoClose: 3000,
       });

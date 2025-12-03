@@ -103,10 +103,23 @@ const AddVariantModal = ({ openModal, setOpenModal, onVariantAdded, hatId, varia
         Promise.all(promises)
           .then((responses) => {
             console.log("Variant updated successfully:", responses);
-            toast.success("Variant updated successfully!", {
-              position: "top-right",
-              autoClose: 3000,
-            });
+            const response = responses[responses.length - 1]; // Get the last response (variant update)
+            if(response?.status_code === 200 || response?.status_code === 201){
+              toast.success(response?.message || "Variant updated successfully!", {
+                position: "top-right",
+                autoClose: 3000,
+              });
+            }else if(response?.status_code === 422){
+              toast.error(response?.message || "Validation error occurred", {
+                position: "top-right",
+                autoClose: 3000,
+              });
+            }else {
+              toast.error(response?.message || "Failed to update variant", {
+                position: "top-right",
+                autoClose: 3000,
+              });
+            }
             reset();
             setSelectedImage(null);
             setImagePreview(null);
@@ -119,7 +132,8 @@ const AddVariantModal = ({ openModal, setOpenModal, onVariantAdded, hatId, varia
           })
           .catch((error) => {
             console.error("Error updating variant:", error);
-            toast.error("Failed to update variant. Please try again.", {
+            const errorMessage = error?.response?.data?.message || error?.message || "Failed to update variant. Please try again.";
+            toast.error(errorMessage, {
               position: "top-right",
               autoClose: 3000,
             });
@@ -146,10 +160,22 @@ const AddVariantModal = ({ openModal, setOpenModal, onVariantAdded, hatId, varia
           .unwrap()
           .then((response) => {
             console.log("Variant added successfully:", response);
-            toast.success("Variant added successfully!", {
-              position: "top-right",
-              autoClose: 3000,
-            });
+            if(response?.status_code === 200 || response?.status_code === 201){
+              toast.success(response?.message || "Variant added successfully!", {
+                position: "top-right",
+                autoClose: 3000,
+              });
+            }else if(response?.status_code === 422){
+              toast.error(response?.message || "Validation error occurred", {
+                position: "top-right",
+                autoClose: 3000,
+              });
+            }else {
+              toast.error(response?.message || "Failed to add variant", {
+                position: "top-right",
+                autoClose: 3000,
+              });
+            }
             reset();
             setSelectedImage(null);
             setImagePreview(null);
@@ -162,7 +188,8 @@ const AddVariantModal = ({ openModal, setOpenModal, onVariantAdded, hatId, varia
           })
           .catch((error) => {
             console.error("Error adding variant:", error);
-            toast.error("Failed to add variant. Please try again.", {
+            const errorMessage = error?.response?.data?.message || error?.message || "Failed to add variant. Please try again.";
+            toast.error(errorMessage, {
               position: "top-right",
               autoClose: 3000,
             });
@@ -173,7 +200,8 @@ const AddVariantModal = ({ openModal, setOpenModal, onVariantAdded, hatId, varia
       }
     } catch (error) {
       console.error("Error saving variant:", error);
-      toast.error(`Failed to ${isEdit ? "update" : "add"} variant. Please try again.`, {
+      const errorMessage = error?.response?.data?.message || error?.message || `Failed to ${isEdit ? "update" : "add"} variant. Please try again.`;
+      toast.error(errorMessage, {
         position: "top-right",
         autoClose: 3000,
       });

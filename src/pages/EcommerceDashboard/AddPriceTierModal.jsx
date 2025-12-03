@@ -1,14 +1,33 @@
 import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { Modal } from "flowbite-react";
-import { useDispatch } from "react-redux";
-import { pricetierAdd, pricetierUpdate } from "../../Reducer/EcommerceSlice";
+import { useDispatch, useSelector } from "react-redux";
+import { pricetierAdd, pricetierUpdate, decorationList } from "../../Reducer/EcommerceSlice";
 
 const AddPriceTierModal = ({ openModal, setOpenModal, onPriceTierAdded, priceTierData, isEdit, hatId }) => {
   const dispatch = useDispatch();
+  const { decorationListData } = useSelector((state) => state.ecom);
   const { register, handleSubmit, reset, setValue, formState: { errors } } = useForm();
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Fetch decoration list when modal opens
+  useEffect(() => {
+    if (openModal) {
+      dispatch(decorationList());
+    }
+  }, [openModal, dispatch]);
+
+  // Extract decoration options from decorationListData
+  const decorationOptions = useMemo(() => {
+    if (decorationListData?.data?.data && Array.isArray(decorationListData.data.data)) {
+      return decorationListData.data.data.map((item) => ({
+        id: item.id,
+        decorationMethod: item.fields?.["Decoration Method"] || "",
+      }));
+    }
+    return [];
+  }, [decorationListData]);
 
   // Pre-fill form when priceTierData is provided (for edit mode)
   useEffect(() => {
@@ -18,6 +37,7 @@ const AddPriceTierModal = ({ openModal, setOpenModal, onPriceTierAdded, priceTie
       setValue("unit_price", priceTierData.unit_price || "");
       setValue("notes", priceTierData.notes || "");
       setValue("active", priceTierData.active ?? true);
+      setValue("decoration_method_id", priceTierData.id || "");
     } else if (!isEdit && openModal) {
       // Reset form for add mode
       reset();
@@ -36,6 +56,7 @@ const AddPriceTierModal = ({ openModal, setOpenModal, onPriceTierAdded, priceTie
         unit_price: parseFloat(data.unit_price) || 0,
         notes: data.notes || "",
         active: data.active ?? true,
+        "Decoration Method": data.decoration_method_id || "",
       };
 
       if (isEdit && priceTierData) {
@@ -44,10 +65,22 @@ const AddPriceTierModal = ({ openModal, setOpenModal, onPriceTierAdded, priceTie
           .unwrap()
           .then((response) => {
             console.log("Price tier updated successfully:", response);
-            toast.success("Price tier updated successfully!", {
-              position: "top-right",
-              autoClose: 3000,
-            });
+            if(response?.status_code === 200 || response?.status_code === 201){
+              toast.success(response?.message || "Price tier updated successfully!", {
+                position: "top-right",
+                autoClose: 3000,
+              });
+            }else if(response?.status_code === 422){
+              toast.error(response?.message || "Validation error occurred", {
+                position: "top-right",
+                autoClose: 3000,
+              });
+            }else {
+              toast.error(response?.message || "Failed to update price tier", {
+                position: "top-right",
+                autoClose: 3000,
+              });
+            }
             reset();
             // Close modal after a short delay to ensure toast is visible
             setTimeout(() => {
@@ -59,8 +92,9 @@ const AddPriceTierModal = ({ openModal, setOpenModal, onPriceTierAdded, priceTie
             }, 100);
           })
           .catch((error) => {
-            console.error("Error updating price tier:", error);
-            toast.error("Failed to update price tier. Please try again.", {
+            console.error(error?.response?.data?.message, error);
+            const errorMessage = error?.response?.data?.message || error?.message || "Failed to update price tier. Please try again.";
+            toast.error(errorMessage, {
               position: "top-right",
               autoClose: 3000,
             });
@@ -74,10 +108,22 @@ const AddPriceTierModal = ({ openModal, setOpenModal, onPriceTierAdded, priceTie
           .unwrap()
           .then((response) => {
             console.log("Price tier added successfully:", response);
-            toast.success("Price tier added successfully!", {
+           if(response?.status_code === 200 || response?.status_code === 201){
+            toast.success(response?.message || "Price tier added successfully!", {
               position: "top-right",
               autoClose: 3000,
             });
+           }else if(response?.status_code === 422){
+            toast.error(response?.message || "Validation error occurred", {
+              position: "top-right",
+              autoClose: 3000,
+            });
+           }else {
+            toast.error(response?.message || "Failed to add price tier", {
+              position: "top-right",
+              autoClose: 3000,
+            });
+           }
             reset();
             // Close modal after a short delay to ensure toast is visible
             setTimeout(() => {
@@ -89,11 +135,12 @@ const AddPriceTierModal = ({ openModal, setOpenModal, onPriceTierAdded, priceTie
             }, 100);
           })
           .catch((error) => {
-            console.error("Error adding price tier:", error);
-            toast.error("Failed to add price tier. Please try again.", {
+            console.error(error?.response?.data?.message, error);
+            const errorMessage = error?.response?.data?.message || error?.message || "Failed to add price tier. Please try again.";
+            toast.error(errorMessage, {
               position: "top-right",
               autoClose: 3000,
-            });
+            });  
           })
           .finally(() => {
             setIsSubmitting(false);
@@ -101,7 +148,8 @@ const AddPriceTierModal = ({ openModal, setOpenModal, onPriceTierAdded, priceTie
       }
     } catch (error) {
       console.error("Error saving price tier:", error);
-      toast.error(`Failed to ${isEdit ? "update" : "add"} price tier. Please try again.`, {
+      const errorMessage = error?.response?.data?.message || error?.message || `Failed to ${isEdit ? "update" : "add"} price tier. Please try again.`;
+      toast.error(errorMessage, {
         position: "top-right",
         autoClose: 3000,
       });
@@ -198,6 +246,35 @@ const AddPriceTierModal = ({ openModal, setOpenModal, onPriceTierAdded, priceTie
             />
             {errors.unit_price && (
               <p className="text-red-500 text-xs mt-1">{errors.unit_price.message}</p>
+            )}
+          </div>
+
+          {/* Decoration Method Field */}
+          <div>
+            <label
+              htmlFor="decoration_method_id"
+              className="block text-sm font-semibold text-gray-700 mb-1"
+            >
+              Decoration Method
+            </label>
+            <select
+              id="decoration_method_id"
+              {...register("decoration_method_id")}
+              className={`w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 ${
+                errors.decoration_method_id
+                  ? "border-red-500 focus:ring-red-500"
+                  : "border-gray-300 focus:ring-blue-500"
+              }`}
+            >
+              <option value="">Select Decoration Method</option>
+              {decorationOptions.map((option) => (
+                <option key={option.id} value={option.id}>
+                  {option.decorationMethod}
+                </option>
+              ))}
+            </select>
+            {errors.decoration_method_id && (
+              <p className="text-red-500 text-xs mt-1">{errors.decoration_method_id.message}</p>
             )}
           </div>
 

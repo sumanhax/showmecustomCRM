@@ -97,7 +97,7 @@ export const supplierActiveToggle = createAsyncThunk(
         }
     }
 )
-
+// hat api's
 export const hatList = createAsyncThunk(
     'supplier/hatList',
     async ({ limit, page }, { rejectWithValue }) => {
@@ -193,7 +193,6 @@ export const hatEditImageUpload = createAsyncThunk(
         }
     }
 )
-
 export const hatDelete = createAsyncThunk(
     'supplier/hatDelete',
     async (id, { rejectWithValue }) => {
@@ -213,6 +212,65 @@ export const hatDelete = createAsyncThunk(
         }
     }
 )
+export const hatMultiImageUpload = createAsyncThunk(
+    'supplier/hatMultiImageUpload',
+    async (userInput, { rejectWithValue }) => {
+        try {
+            const response = await apiUser.post(`/api/admin/hat/hat-images`, userInput);
+            if (response?.data?.status_code === 201 || response?.data?.status_code === 200) {
+                return response.data;
+            } else {
+                if (response?.data?.errors) {
+                    return rejectWithValue(response.data.errors);
+                } else {
+                    return rejectWithValue('Something went wrong.');
+                }
+            }
+        } catch (err) {
+            return rejectWithValue(err);
+        }
+    }
+)
+export const hatMultiImageUpdate = createAsyncThunk(
+    'supplier/hatMultiImageUpdate',
+    async (userInput, { rejectWithValue }) => {
+        try {
+            const response = await apiUser.post(`/api/admin/hat/hat-images-update`, userInput);
+            if (response?.data?.status_code === 201 || response?.data?.status_code === 200) {
+                return response.data;
+            } else {
+                if (response?.data?.errors) {
+                    return rejectWithValue(response.data.errors);
+                } else {
+                    return rejectWithValue('Something went wrong.');
+                }
+            }
+        } catch (err) {
+            return rejectWithValue(err);
+        }
+    }
+)
+export const hatMultiImageDelete = createAsyncThunk(
+    'supplier/hatMultiImageDelete',
+    async (userInput, { rejectWithValue }) => {
+        try {
+            const response = await apiUser.delete(`/api/admin/hat/hat-images-delete/${userInput}`);
+            if (response?.data?.status_code === 201 || response?.data?.status_code === 200) {
+                return response.data;
+            } else {
+                if (response?.data?.errors) {
+                    return rejectWithValue(response.data.errors);
+                } else {
+                    return rejectWithValue('Something went wrong.');
+                }
+            }
+        } catch (err) {
+            return rejectWithValue(err);
+        }
+    }
+)
+
+// Variant
 export const addVarientSize = createAsyncThunk(
     'supplier/addVarientSize',
     async (userInput, { rejectWithValue }) => {
@@ -506,7 +564,7 @@ export const inventoryDelete = createAsyncThunk(
         'supplier/decorationUpdate',
         async ({ id, userInput }, { rejectWithValue }) => {
             try {
-                const response = await apiUser.post(`/api/admin/decoration/update/${id}`, userInput);
+                const response = await apiUser.patch(`/api/admin/decoration/update/${id}`, userInput);
                 if (response?.data?.status_code === 201 || response?.data?.status_code === 200) {
                     return response.data;
                 } else {
@@ -700,6 +758,11 @@ const initialState = {
     error: null,
     loading: false, 
     inventorySingleloading: false,
+    pricetierLoading: false,
+    decorationLoading: false,
+    hatMultiImageUploadLoading: false,
+    variantloading: false,
+    inventoryloading: false,
     message: null,
     addSupplierData:{},
     supplierListData:{},
@@ -868,99 +931,138 @@ const AddSlice = createSlice(
                 })
                 .addCase(hatEditImageUpload.pending, (state) => {
                     state.message = null
-                    state.loading = true;
+                    state.hatMultiImageUploadLoading = true;
                     state.error = null
                 })
                 .addCase(hatEditImageUpload.fulfilled, (state, { payload }) => {
-                    state.loading = false;
+                    state.hatMultiImageUploadLoading = false;
                     state.message = payload;
                 })
                 .addCase(hatEditImageUpload.rejected, (state, { payload }) => {
+                    state.hatMultiImageUploadLoading = false;
+                    state.error = payload;
+                })
+                .addCase(hatMultiImageUpload.pending, (state) => {
+                    state.message = null
+                    state.hatMultiImageUploadLoading = true;
+                    state.error = null
+                })
+                .addCase(hatMultiImageUpload.fulfilled, (state, { payload }) => {
+                    state.hatMultiImageUploadLoading = false;
+                    state.message = payload;
+                })
+                .addCase(hatMultiImageUpload.rejected, (state, { payload }) => {
+                    state.hatMultiImageUploadLoading = false;
+                    state.error = payload;
+                })
+                .addCase(hatMultiImageUpdate.pending, (state) => {
+                    state.message = null
+                    state.hatMultiImageUploadLoading = true;
+                    state.error = null
+                })
+                .addCase(hatMultiImageUpdate.fulfilled, (state, { payload }) => {
+                    state.hatMultiImageUploadLoading = false;
+                    state.message = payload;
+                })
+                .addCase(hatMultiImageUpdate.rejected, (state, { payload }) => {
+                    state.hatMultiImageUploadLoading = false;
+                    state.error = payload;
+                })
+                .addCase(hatMultiImageDelete.pending, (state) => {
+                    state.message = null
+                    state.loading = true;
+                    state.error = null
+                })
+                .addCase(hatMultiImageDelete.fulfilled, (state, { payload }) => {
+                    state.loading = false;
+                    state.message = payload;
+                })
+                .addCase(hatMultiImageDelete.rejected, (state, { payload }) => {
                     state.loading = false;
                     state.error = payload;
                 })
                 // varient
                 .addCase(addVarientSize.pending, (state) => {
                     state.message = null
-                    state.loading = true;
+                    state.variantloading = true;
                     state.error = null
                 })
                 .addCase(addVarientSize.fulfilled, (state, { payload }) => {
-                    state.loading = false;
+                    state.variantloading = false;
                     state.message = payload;
                     
                 })
                 .addCase(addVarientSize.rejected, (state, { payload }) => {
-                    state.loading = false;
+                    state.variantloading = false;
                     state.error = payload;
                 })
                 .addCase(addVarient.pending, (state) => {
                     state.message = null
-                    state.loading = true;
+                    state.variantloading = true;
                     state.error = null
                 })
                 .addCase(addVarient.fulfilled, (state, { payload }) => {
-                    state.loading = false;
+                    state.variantloading = false;
                     state.message = payload;
                     
                 })
                 .addCase(addVarient.rejected, (state, { payload }) => {
-                    state.loading = false;
+                    state.variantloading = false;
                     state.error = payload;
                 })
                 .addCase(updateVarient.pending, (state) => {
                     state.message = null
-                    state.loading = true;
+                    state.variantloading = true;
                     state.error = null
                 })
                 .addCase(updateVarient.fulfilled, (state, { payload }) => {
-                    state.loading = false;
+                    state.variantloading = false;
                     state.message = payload;
                 })
                 .addCase(updateVarient.rejected, (state, { payload }) => {
-                    state.loading = false;
+                    state.variantloading = false;
                     state.error = payload;
                 })
                 .addCase(updateVarientImage.pending, (state) => {
                     state.message = null
-                    state.loading = true;
+                    state.variantloading = true;
                     state.error = null
                 })
                 .addCase(updateVarientImage.fulfilled, (state, { payload }) => {
-                    state.loading = false;
+                    state.variantloading = false;
                     state.message = payload;
                 })
                 .addCase(updateVarientImage.rejected, (state, { payload }) => {
-                    state.loading = false;
+                    state.variantloading = false;
                     state.error = payload;
                 })
                 .addCase(varientList.pending, (state) => {
                     state.message = null
-                    state.loading = true;
+                    state.variantloading = true;
                     state.error = null
                 })
                 .addCase(varientList.fulfilled, (state, { payload }) => {
-                    state.loading = false;
+                    state.variantloading = false;
                     state.message = payload;
                     state.varientListData=payload
                 })
                 .addCase(varientList.rejected, (state, { payload }) => {
-                    state.loading = false;
+                    state.variantloading = false;
                     state.error = payload;
                 })
                 // inventory
                 .addCase(inventoryList.pending, (state) => {
                     state.message = null
-                    state.loading = true;
+                    state.inventoryloading = true;
                     state.error = null
                 })
                 .addCase(inventoryList.fulfilled, (state, { payload }) => {
-                    state.loading = false;
+                    state.inventoryloading = false;
                     state.message = payload;
                     state.inventoryListData=payload
                 })
                 .addCase(inventoryList.rejected, (state, { payload }) => {
-                    state.loading = false;
+                    state.inventoryloading = false;
                     state.error = payload;
                 })
                 .addCase(inventorySingle.pending, (state) => {
@@ -979,98 +1081,98 @@ const AddSlice = createSlice(
                 })
                 .addCase(inventoryAdd.pending, (state) => {
                     state.message = null
-                    state.loading = true;
+                    state.inventoryloading = true;
                     state.error = null
                 })
                 .addCase(inventoryAdd.fulfilled, (state, { payload }) => {
-                    state.loading = false;
+                    state.inventoryloading = false;
                     state.message = payload;
                   
                 })
                 .addCase(inventoryAdd.rejected, (state, { payload }) => {
-                    state.loading = false;
+                    state.inventoryloading = false;
                     state.error = payload;
                 })
                 .addCase(inventoryEdit.pending, (state) => {
                     state.message = null
-                    state.loading = true;
+                    state.inventoryloading = true;
                     state.error = null
                 })
                 .addCase(inventoryEdit.fulfilled, (state, { payload }) => {
-                    state.loading = false;
+                    state.inventoryloading = false;
                     state.message = payload;
                     state.inventoryEditData=payload
                 })
                 .addCase(inventoryEdit.rejected, (state, { payload }) => {
-                    state.loading = false;
+                    state.inventoryloading = false;
                     state.error = payload;
                 })
                 .addCase(inventoryUpdate.pending, (state) => {
                     state.message = null
-                    state.loading = true;
+                    state.inventoryloading = true;
                     state.error = null
                 })
                 .addCase(inventoryUpdate.fulfilled, (state, { payload }) => {
-                    state.loading = false;
+                    state.inventoryloading = false;
                     state.message = payload;
                    
                 })
                 .addCase(inventoryUpdate.rejected, (state, { payload }) => {
-                    state.loading = false;
+                    state.inventoryloading = false;
                     state.error = payload;
                 })
                 .addCase(inventoryShowHide.pending, (state) => {
                     state.message = null
-                    state.loading = true;
+                    state.inventorySingleloading = true;
                     state.error = null
                 })
                 .addCase(inventoryShowHide.fulfilled, (state, { payload }) => {
-                    state.loading = false;
+                    state.inventorySingleloading = false;
                     state.message = payload;
                 })
                 .addCase(inventoryShowHide.rejected, (state, { payload }) => {
-                    state.loading = false;
+                    state.inventorySingleloading = false;
                     state.error = payload;
                 })
                 .addCase(inventoryDelete.pending, (state) => {
                     state.message = null
-                    state.loading = true;
+                    state.inventoryloading = true;
                     state.error = null
                 })
                 .addCase(inventoryDelete.fulfilled, (state, { payload }) => {
-                    state.loading = false;
+                    state.inventoryloading = false;
                     state.message = payload;
                 })
                 .addCase(inventoryDelete.rejected, (state, { payload }) => {
-                    state.loading = false;
+                    state.inventoryloading = false;
                     state.error = payload;
                 })
                 // decoration
                 .addCase(decorationList.pending, (state) => {
                     state.message = null
-                    state.loading = true;
+                    state.decorationLoading = true;
                     state.error = null
                 })
                 .addCase(decorationList.fulfilled, (state, { payload }) => {
-                    state.loading = false;
+                    state.decorationLoading = false;
                     state.message = payload;
                     state.decorationListData=payload
                 })
                 .addCase(decorationList.rejected, (state, { payload }) => {
-                    state.loading = false;
+                    state.decorationLoading = false;
                     state.error = payload;
                 })
                 .addCase(decorationAdd.pending, (state) => {
                     state.message = null
-                    state.loading = true;
+                    state.decorationLoading = true;
                     state.error = null
                 })
                 .addCase(decorationAdd.fulfilled, (state, { payload }) => {
-                    state.loading = false;
+                    state.decorationLoading = false;
                     state.message = payload;
                 })
                 .addCase(decorationAdd.rejected, (state, { payload }) => {
-                    state.loading = false;
+                    state.decorationLoading = false;
                     state.error = payload;
                 })
                 .addCase(decorationSingle.pending, (state) => {
@@ -1079,37 +1181,37 @@ const AddSlice = createSlice(
                     state.error = null
                 })
                 .addCase(decorationSingle.fulfilled, (state, { payload }) => {
-                    state.loading = false;
+                    state.decorationLoading = false;
                     state.message = payload;
                 })
                 .addCase(decorationSingle.rejected, (state, { payload }) => {
-                    state.loading = false;
+                    state.decorationLoading = false;
                     state.error = payload;
                 })
                 .addCase(decorationUpdate.pending, (state) => {
                     state.message = null
-                    state.loading = true;
+                    state.decorationLoading = true;
                     state.error = null
                 })
                 .addCase(decorationUpdate.fulfilled, (state, { payload }) => {
-                    state.loading = false;
+                    state.decorationLoading = false;
                     state.message = payload;
                 })
                 .addCase(decorationUpdate.rejected, (state, { payload }) => {
-                    state.loading = false;
+                    state.decorationLoading = false;
                     state.error = payload;
                 })
                 .addCase(decorationStatusChange.pending, (state) => {
                     state.message = null
-                    state.loading = true;
+                    state.decorationLoading = true;
                     state.error = null
                 })  
                 .addCase(decorationStatusChange.fulfilled, (state, { payload }) => {
-                    state.loading = false;
+                    state.decorationLoading = false;
                     state.message = payload;
                 })
                 .addCase(decorationStatusChange.rejected, (state, { payload }) => {
-                    state.loading = false;
+                    state.decorationLoading = false;
                     state.error = payload;
                 })
                 // logo
@@ -1169,54 +1271,54 @@ const AddSlice = createSlice(
                 // pricetier
                 .addCase(pricetierList.pending, (state) => {
                     state.message = null
-                    state.loading = true;
+                    state.pricetierLoading = true;
                     state.error = null
                 })
                 .addCase(pricetierList.fulfilled, (state, { payload }) => {
-                    state.loading = false;
+                    state.pricetierLoading = false;
                     state.message = payload;
                     state.pricetierListData=payload
                 })
                 .addCase(pricetierList.rejected, (state, { payload }) => {
-                    state.loading = false;
+                    state.pricetierLoading = false;
                     state.error = payload;
                 })
                 .addCase(pricetierAdd.pending, (state) => {
                     state.message = null
-                    state.loading = true;
+                    state.pricetierLoading = true;
                     state.error = null
                 })
                 .addCase(pricetierAdd.fulfilled, (state, { payload }) => {
-                    state.loading = false;
+                    state.pricetierLoading = false;
                     state.message = payload;
                 })
                 .addCase(pricetierAdd.rejected, (state, { payload }) => {
-                    state.loading = false;
+                    state.pricetierLoading = false;
                     state.error = payload;
                 })
                 .addCase(pricetierUpdate.pending, (state) => {
                     state.message = null
-                    state.loading = true;
+                    state.pricetierLoading = true;
                     state.error = null
                 })
                 .addCase(pricetierUpdate.fulfilled, (state, { payload }) => {
-                    state.loading = false;
+                    state.pricetierLoading = false;
                     state.message = payload;
                 })
                 .addCase(pricetierUpdate.rejected, (state, { payload }) => {
-                    state.loading = false;
+                    state.pricetierLoading = false;
                     state.error = payload;
                 })
                 .addCase(pricetierStatusChange.pending, (state) => {
                     state.message = null
-                    state.loading = true;
+                    state.pricetierLoading = true;
                 })
                 .addCase(pricetierStatusChange.fulfilled, (state, { payload }) => {
-                    state.loading = false;
+                    state.pricetierLoading = false;
                     state.message = payload;
                 })
                 .addCase(pricetierStatusChange.rejected, (state, { payload }) => {
-                    state.loading = false;
+                    state.pricetierLoading = false;
                     state.error = payload;
                 })
             }
