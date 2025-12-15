@@ -370,22 +370,71 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                         </NavLink>
                         {/* Dropdown menu */}
                         {open && !sidebarOpen && (
+                          // <ul className="mb-2 mt-1 flex flex-col gap-0.5 pl-4">
+                          //   {/* Supplier */}
+                          //   <li>
+                          //     <NavLink
+                          //       to="/supplier"
+                          //       className={`group relative flex items-center gap-2 rounded-sm px-4 py-2 justify-start font-normal text-sm text-gray-600 duration-300 ease-in-out hover:bg-graydark mb-2 ${pathname.includes('supplier') &&
+                          //         'bg-graydark dark:bg-meta-4'
+                          //         }`}
+                          //     >
+                          //       <MdStorefront className='text-xl' />
+                          //       Supplier
+                          //     </NavLink>
+                          //   </li>
+                          //   {/* Hat */}
+                          //   <li>
+                          //     <NavLink
+                          //       to="/hat"
+                          //       className={`group relative flex items-center gap-2 rounded-sm px-4 py-2 justify-start font-normal text-sm text-gray-600 duration-300 ease-in-out hover:bg-graydark mb-2 ${pathname.includes('supplier') &&
+                          //         'bg-graydark dark:bg-meta-4'
+                          //         }`}
+                          //     >
+                          //       <MdStorefront className='text-xl' />
+                          //       Hat
+                          //     </NavLink>
+                          //   </li>
+                            
+                          //   { <li>
+                          //     <NavLink
+                          //       to="/decoration"
+                          //       className={`group relative flex items-center gap-2 rounded-sm px-4 py-2 justify-start font-normal text-sm text-gray-600 duration-300 ease-in-out hover:bg-graydark mb-2 ${pathname.includes('supplier') &&
+                          //         'bg-graydark dark:bg-meta-4'
+                          //         }`}
+                          //     >
+                          //       <MdStorefront className='text-xl' />
+                          //       Decoration
+                          //     </NavLink>
+                          //   </li> }
+                            
+                          //   { <li>
+                          //     <NavLink
+                          //       to="/logo"
+                          //       className={`group relative flex items-center gap-2 rounded-sm px-4 py-2 justify-start font-normal text-sm text-gray-600 duration-300 ease-in-out hover:bg-graydark mb-2 ${pathname.includes('supplier') &&
+                          //         'bg-graydark dark:bg-meta-4'
+                          //         }`}
+                          //     >
+                          //       <MdStorefront className='text-xl' />
+                          //       Logo
+                          //     </NavLink>
+                          //   </li> }
+                          // </ul>
                           <ul className="mb-2 mt-1 flex flex-col gap-0.5 pl-4">
-                            {/* Supplier */}
+                             
                             <li>
-                              <NavLink
-                                to="/supplier"
+                               <NavLink
+                                to="/brand"
                                 className={`group relative flex items-center gap-2 rounded-sm px-4 py-2 justify-start font-normal text-sm text-gray-600 duration-300 ease-in-out hover:bg-graydark mb-2 ${pathname.includes('supplier') &&
                                   'bg-graydark dark:bg-meta-4'
                                   }`}
                               >
                                 <MdStorefront className='text-xl' />
-                                Supplier
+                                Brand
                               </NavLink>
                             </li>
-                            {/* Hat */}
                             <li>
-                              <NavLink
+                               <NavLink
                                 to="/hat"
                                 className={`group relative flex items-center gap-2 rounded-sm px-4 py-2 justify-start font-normal text-sm text-gray-600 duration-300 ease-in-out hover:bg-graydark mb-2 ${pathname.includes('supplier') &&
                                   'bg-graydark dark:bg-meta-4'
@@ -395,51 +444,6 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                                 Hat
                               </NavLink>
                             </li>
-                            {/* inventory */}
-                            {/* { <li>
-                              <NavLink
-                                to="/inventory"
-                                className={`group relative flex items-center gap-2 rounded-sm px-4 py-2 justify-start font-normal text-sm text-gray-600 duration-300 ease-in-out hover:bg-graydark mb-2 ${pathname.includes('supplier') &&
-                                  'bg-graydark dark:bg-meta-4'
-                                  }`}
-                              >
-                                <MdStorefront className='text-xl' />
-                                Inventory
-                              </NavLink>
-                            </li> } */}
-                            { <li>
-                              <NavLink
-                                to="/decoration"
-                                className={`group relative flex items-center gap-2 rounded-sm px-4 py-2 justify-start font-normal text-sm text-gray-600 duration-300 ease-in-out hover:bg-graydark mb-2 ${pathname.includes('supplier') &&
-                                  'bg-graydark dark:bg-meta-4'
-                                  }`}
-                              >
-                                <MdStorefront className='text-xl' />
-                                Decoration
-                              </NavLink>
-                            </li> }
-                            {/* { <li>
-                              <NavLink
-                                to="/pricetier"
-                                className={`group relative flex items-center gap-2 rounded-sm px-4 py-2 justify-start font-normal text-sm text-gray-600 duration-300 ease-in-out hover:bg-graydark mb-2 ${pathname.includes('supplier') &&
-                                  'bg-graydark dark:bg-meta-4'
-                                  }`}
-                              >
-                                <MdStorefront className='text-xl' />
-                                Price Tier
-                              </NavLink>
-                            </li> } */}
-                            { <li>
-                              <NavLink
-                                to="/logo"
-                                className={`group relative flex items-center gap-2 rounded-sm px-4 py-2 justify-start font-normal text-sm text-gray-600 duration-300 ease-in-out hover:bg-graydark mb-2 ${pathname.includes('supplier') &&
-                                  'bg-graydark dark:bg-meta-4'
-                                  }`}
-                              >
-                                <MdStorefront className='text-xl' />
-                                Logo
-                              </NavLink>
-                            </li> }
                           </ul>
                         )}
                       </>

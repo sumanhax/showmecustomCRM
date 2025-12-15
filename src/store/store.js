@@ -41,6 +41,7 @@ import SidebarSlice from '../Reducer/SidebarSlice'
 import AddSlice from '../Reducer/AddSlice'
 import TaskSlice from '../Reducer/TaskSlice'
 import EcommerceSlice from '../Reducer/EcommerceSlice'
+import EcommerceNewSlice from '../Reducer/EcommerceNewSlice'
 const store = configureStore({
   reducer: {
     auth: AuthSlice,
@@ -85,6 +86,7 @@ const store = configureStore({
     add: AddSlice,
     tasks:TaskSlice,
     ecom:EcommerceSlice,
+    newecom:EcommerceNewSlice
   },
   devTools: import.meta.env.DEV,
 });

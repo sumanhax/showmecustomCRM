@@ -46,9 +46,12 @@ import MyProfile from '../pages/MyProfile/myProfile.jsx';
 import SingleLead from '../pages/ManageLeads/SingleLead.jsx';
 import ManageKanbanBulkOrder from '../pages/Kanban/ManageKanbanBulkOrder.jsx';
 import  ManageSupplier  from '../pages/EcommerceDashboard/ManageSupplier.jsx';
-import ManageHat from '../pages/EcommerceDashboard/ManageHat.jsx';
+// import ManageHat from '../pages/EcommerceDashboard/ManageHat.jsx';
+import ManageHat from '../pages/EcommerceDashboardNew/ManageHat/ManageHat.jsx';
+import ManageBrand from '../pages/EcommerceDashboardNew/ManageBrand/ManageBrand.jsx';
 import  ManageInventory  from '../pages/EcommerceDashboard/ManageInventory.jsx';
-import { HatDetails } from '../pages/EcommerceDashboard/HatDetails.jsx';
+// import { HatDetails } from '../pages/EcommerceDashboard/HatDetails.jsx';
+import  {HatDetails}  from '../pages/EcommerceDashboardNew/ManageHat/HatDetails.jsx';
 import ManageDecoration from '../pages/EcommerceDashboard/ManageDecoration.jsx';
 import ManageLogo from '../pages/EcommerceDashboard/ManageLogo.jsx';
 import ManagePriceTier from '../pages/EcommerceDashboard/ManagePriceTier.jsx';
@@ -456,16 +459,6 @@ const allRoutes = [
       },
     ],  
   },
-  {
-    path: '/hat',
-    element: <InsideLayout />,
-    children: [
-      {
-        index: true,
-        element: <ManageHat />,
-      },
-    ],  
-  },
 
   {
     path: '/hat-details/:id',
@@ -514,6 +507,26 @@ const allRoutes = [
       {
         index: true,
         element: <ManagePriceTier />,
+      },
+    ],  
+  },
+  {
+    path: '/hat',
+    element: <InsideLayout />,
+    children: [
+      {
+        index: true,
+        element: <ManageHat />,
+      },
+    ],  
+  },
+  {
+    path: '/brand',
+    element: <InsideLayout />,
+    children: [
+      {
+        index: true,
+        element: <ManageBrand />,
       },
     ],  
   },

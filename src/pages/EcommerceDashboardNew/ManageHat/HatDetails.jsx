@@ -4,29 +4,31 @@ import { useDispatch, useSelector } from "react-redux";
 import { AgGridReact } from "ag-grid-react";
 import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-alpine.css";
-import { hatDetails, supplierList, pricetierList, pricetierStatusChange, inventorySingle, inventoryDelete, hatMultiImageDelete } from "../../Reducer/EcommerceSlice";
-import AddHatImagesModal from "./AddHatImagesModal";
-import EditHatImageModal from "./EditHatImageModal";
-import Loader from "../../components/Loader";
+// import { hatDetails, supplierList, pricetierList, pricetierStatusChange, inventorySingle, inventoryDelete, hatMultiImageDelete } from "../../Reducer/EcommerceSlice";
+// import AddHatImagesModal from "./AddHatImagesModal";
+// import EditHatImageModal from "./EditHatImageModal";
+import Loader from "../../../components/Loader";
 import { toast } from "react-toastify";
 import { Button, Tabs } from "flowbite-react";
 import { FaArrowLeft, FaImage, FaTag, FaCheckCircle, FaTimesCircle, FaPalette, FaRuler, FaBarcode, FaBox, FaPlus, FaEdit, FaDollarSign, FaEye, FaTrash } from "react-icons/fa";
 import AddVariantModal from "./AddVariantModal";
-import AddVariantSizeModal from "./AddVariantSizeModal";
-import AddPriceTierModal from "./AddPriceTierModal";
-import AddVariantSizeInventoryModal from "./AddVariantSizeInventoryModal";
-import ViewInventoryModal from "./ViewInventoryModal";
-import DeleteConfirmModal from "./DeleteConfirmModal";
-import { hatList } from "../../Reducer/EcommerceNewSlice";
+// import AddVariantSizeModal from "./AddVariantSizeModal";
+// import AddPriceTierModal from "./AddPriceTierModal";
+// import AddVariantSizeInventoryModal from "./AddVariantSizeInventoryModal";
+// import ViewInventoryModal from "./ViewInventoryModal";
+import DeleteConfirmModal from "../DeleteConfirmModal";
+// import { hatList } from "../../Reducer/EcommerceNewSlice";
+import { brandList, hatColorList, hatColorSingle, hatSingle, hatSizeSingle } from "../../../Reducer/EcommerceNewSlice";
 
 export const HatDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const { hatDetailsData, loading, supplierListData, pricetierListData } = useSelector((state) => state.ecom);
-  
+  const { pricetierListData } = useSelector((state) => state.ecom);
+  const { hatSingleData, brandListData, hatColorSingleData, hatSizeSingleData, loading } = useSelector((state) => state.newecom);
+
   const [hatData, setHatData] = useState(null);
-  const [supplierName, setSupplierName] = useState("");
+  const [brandName, setBrandName] = useState("");
   const [openAddVariantModal, setOpenAddVariantModal] = useState(false);
   const [openEditVariantModal, setOpenEditVariantModal] = useState(false);
   const [openAddSizeModal, setOpenAddSizeModal] = useState(false);
@@ -45,16 +47,17 @@ export const HatDetails = () => {
   const [openAddHatImagesModal, setOpenAddHatImagesModal] = useState(false);
   const [openEditHatImageModal, setOpenEditHatImageModal] = useState(false);
   const [selectedImageData, setSelectedImageData] = useState(null);
+  const [sizesByColor, setSizesByColor] = useState({});
 
   // Function to fetch hat details
   const fetchHatDetails = useCallback(() => {
     if (id) {
-      dispatch(hatDetails(id))
+      dispatch(hatSingle(id))
         .unwrap()
         .then((response) => {
           console.log("Hat details:", response);
           if (response?.data) {
-            setHatData(response.data);
+            setHatData(response.data[0]);
           }
         })
         .catch((error) => {
@@ -64,48 +67,70 @@ export const HatDetails = () => {
     }
   }, [id, dispatch]);
 
+  console.log("hatData", hatData)
   // Function to fetch price tiers
-  const fetchPriceTiers = useCallback(() => {
+  const fetchHatColor = useCallback(() => {
     if (id) {
-      dispatch(pricetierList(id))
+      dispatch(hatColorSingle(id))
         .unwrap()
         .then((response) => {
-          console.log("Price tiers fetched:", response);
+          console.log("hat colors fetched:", response);
         })
         .catch((error) => {
-          console.error("Error fetching price tiers:", error);
-          toast.error("Failed to fetch price tiers.");
+          console.error("Error fetching hat colors:", error);
+          toast.error("Failed to fetch hat colors.");
         });
     }
   }, [id, dispatch]);
 
+  const fetchHatSizes = useCallback(
+    async (hatColorId) => {
+      if (!hatColorId) return;
+
+      try {
+        const response = await dispatch(hatSizeSingle(hatColorId)).unwrap();
+        setSizesByColor((prev) => ({
+          ...prev,
+          [hatColorId]: Array.isArray(response?.data) ? response.data : [],
+        }));
+      } catch (error) {
+        console.error("Error fetching Hat sizes:", error);
+        toast.error("Failed to fetch Hat sizes.");
+      }
+    },
+    [dispatch]
+  );
+
+
   useEffect(() => {
     fetchHatDetails();
-    fetchPriceTiers();
-  }, [fetchHatDetails, fetchPriceTiers]);
+    fetchHatColor();
 
-  // Fetch suppliers to get supplier name
+  }, [fetchHatDetails, fetchHatColor]);
+
+  // Fetch brand to get supplier name
   useEffect(() => {
-    dispatch(supplierList())
+    dispatch(brandList())
       .unwrap()
       .catch((error) => {
         console.error("Error fetching suppliers:", error);
       });
   }, [dispatch]);
 
-  // Get supplier name from supplierListData
+  // Get brand name from brandListData
   useEffect(() => {
-    if (hatData?.supplier && hatData.supplier.length > 0 && supplierListData?.data) {
-      const supplierId = hatData.supplier[0];
-      const foundSupplier = supplierListData.data.find(
-        (supp) => supp.id === supplierId
+    if (hatData && hatData?.brand_id) {
+      const brandId = hatData?.brand_id;
+      const foundBrand = brandListData?.data?.find(
+        (brand) => brand.id === brandId
       );
-      if (foundSupplier?.fields?.["Supplier Name"]) {
-        setSupplierName(foundSupplier.fields["Supplier Name"]);
+      if (foundBrand?.name) {
+        setBrandName(foundBrand?.name);
       }
     }
-  }, [hatData, supplierListData]);
+  }, [hatData, brandListData]);
 
+  console.log("hatSizeSingleData", hatSizeSingleData)
   // Extract and transform price tier list from response
   const priceTierData = useMemo(() => {
     if (pricetierListData?.data?.data && Array.isArray(pricetierListData.data.data)) {
@@ -128,17 +153,28 @@ export const HatDetails = () => {
     setSelectedPriceTierData(null);
     setOpenAddPriceTierModal(true);
   };
+  useEffect(() => {
+    const colors = hatColorSingleData?.data || [];
+    if (!colors.length) return;
+
+    colors.forEach((c) => {
+      if (c?.id && !sizesByColor[c.id]) {
+        fetchHatSizes(c.id);
+      }
+    });
+  }, [hatColorSingleData, fetchHatSizes, sizesByColor]);
+
 
   // Handle edit price tier
-  const handleEditPriceTier = (priceTierId) => {
-    const priceTier = priceTierData.find((pt) => pt.id === priceTierId);
-    if (priceTier) {
-      setSelectedPriceTierData(priceTier);
-      setOpenEditPriceTierModal(true);
-    } else {
-      toast.error("Price tier not found");
-    }
-  };
+  // const handleEditPriceTier = (priceTierId) => {
+  //   const priceTier = priceTierData.find((pt) => pt.id === priceTierId);
+  //   if (priceTier) {
+  //     setSelectedPriceTierData(priceTier);
+  //     setOpenEditPriceTierModal(true);
+  //   } else {
+  //     toast.error("Price tier not found");
+  //   }
+  // };
 
   // Handle active/inactive toggle for price tier
   const handleTogglePriceTierStatus = (priceTierId, currentStatus) => {
@@ -147,7 +183,7 @@ export const HatDetails = () => {
       .then((response) => {
         console.log("Price tier status changed successfully:", response);
         toast.success(`Price tier ${!currentStatus ? "activated" : "deactivated"} successfully!`);
-        fetchPriceTiers();
+        fetchHatColor();
       })
       .catch((error) => {
         console.error("Error changing price tier status:", error);
@@ -186,13 +222,13 @@ export const HatDetails = () => {
 
     return (
       <div className="flex gap-2 justify-center items-center">
-        <button
+        {/* <button
           onClick={() => handleEditPriceTier(priceTierId)}
           className="bg-yellow-500 hover:bg-yellow-600 p-2 text-white rounded-full transition-colors"
           title="Edit"
         >
           <FaEdit size={14} />
-        </button>
+        </button> */}
       </div>
     );
   };
@@ -205,11 +241,10 @@ export const HatDetails = () => {
     return (
       <button
         onClick={() => handleTogglePriceTierStatus(priceTierId, isActive)}
-        className={`px-4 py-1 rounded-full text-white text-xs font-semibold transition-colors ${
-          isActive
+        className={`px-4 py-1 rounded-full text-white text-xs font-semibold transition-colors ${isActive
             ? "bg-green-500 hover:bg-green-600"
             : "bg-gray-400 hover:bg-gray-500"
-        }`}
+          }`}
         style={{ fontSize: '12px' }}
       >
         {isActive ? "Active" : "Inactive"}
@@ -308,10 +343,9 @@ export const HatDetails = () => {
             </button>
             <h1 className="text-3xl font-bold text-gray-800">Hat Details</h1>
           </div>
-          <div className={`px-4 py-2 rounded-full text-white text-sm font-semibold ${
-            hatData?.active ? "bg-green-500" : "bg-gray-400"
-          }`}>
-            {hatData?.active ? "Active" : "Inactive"}
+          <div className={`px-4 py-2 rounded-full text-white text-sm font-semibold ${hatData?.is_active ? "bg-green-500" : "bg-gray-400"
+            }`}>
+            {hatData?.is_active ? "Active" : "Inactive"}
           </div>
         </div>
 
@@ -327,23 +361,23 @@ export const HatDetails = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="text-sm font-semibold text-gray-600">Hat Name</label>
-                  <p className="text-lg text-gray-800 mt-1">{hatData?.hatName || "N/A"}</p>
+                  <p className="text-lg text-gray-800 mt-1">{hatData?.name || "N/A"}</p>
                 </div>
                 <div>
-                  <label className="text-sm font-semibold text-gray-600">Supplier Style Code</label>
-                  <p className="text-lg text-gray-800 mt-1">{hatData?.supplierStyleCode || "N/A"}</p>
+                  <label className="text-sm font-semibold text-gray-600">Style Code</label>
+                  <p className="text-lg text-gray-800 mt-1">{hatData?.internal_style_code || "N/A"}</p>
                 </div>
                 <div>
-                  <label className="text-sm font-semibold text-gray-600">Supplier</label>
-                  <p className="text-lg text-gray-800 mt-1">{supplierName || "N/A"}</p>
+                  <label className="text-sm font-semibold text-gray-600">Brand</label>
+                  <p className="text-lg text-gray-800 mt-1">{brandName || "N/A"}</p>
                 </div>
                 <div>
-                  <label className="text-sm font-semibold text-gray-600">Base Price</label>
-                  <p className="text-lg text-gray-800 mt-1">{hatData?.basePrice || "N/A"}</p>
+                  <label className="text-sm font-semibold text-gray-600">Description</label>
+                  <p className="text-lg text-gray-800 mt-1">{hatData?.description || "N/A"}</p>
                 </div>
                 <div>
                   <label className="text-sm font-semibold text-gray-600">Min Order Quantity</label>
-                  <p className="text-lg text-gray-800 mt-1">{hatData?.minOrderQty || "N/A"}</p>
+                  <p className="text-lg text-gray-800 mt-1">{hatData?.min_qty || "N/A"}</p>
                 </div>
                 <div>
                   <label className="text-sm font-semibold text-gray-600">Hat ID</label>
@@ -360,7 +394,7 @@ export const HatDetails = () => {
                   title={
                     <div className="flex items-center gap-2">
                       <FaPalette className="w-4 h-4" />
-                      <span>Product Variants</span>
+                      <span>Color Variants</span>
                     </div>
                   }
                   onClick={() => setActiveTab(0)}
@@ -370,38 +404,43 @@ export const HatDetails = () => {
                     <div className="flex items-center justify-between mb-4">
                       <h2 className="text-xl font-semibold text-gray-800 flex items-center gap-2">
                         <FaPalette className="w-5 h-5 text-[#f20c32]" />
-                        Product Variants ({hatData?.productVariants?.length || 0})
+                        Hat Color ({hatColorSingleData?.data?.length || 0})
                       </h2>
                       <Button
                         onClick={() => setOpenAddVariantModal(true)}
                         className="bg-[#f20c32] hover:bg-black px-4 py-1 text-white text-sm font-semibold flex justify-center items-center gap-2 rounded-md"
                       >
                         <FaPlus className="w-4 h-4" />
-                        Add Variants
+                        Add Color
                       </Button>
                     </div>
-                    
-                    {hatData?.productVariants && hatData?.productVariants.length > 0 ? (
+
+                    {hatColorSingleData?.data && hatColorSingleData?.data?.length > 0 ? (
                       <div className="space-y-4">
-                        {hatData?.productVariants.map((variant, index) => (
+                        {hatColorSingleData?.data?.map((variant, index) => (
                           <div
                             key={variant.id}
                             className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow"
                           >
                             {/* Variant Header */}
-                            <div className="flex items-start justify-between mb-3">
-                              <div className="flex-1">
-                                <div className="flex items-center gap-3 mb-2">
+                            {/* Variant Header */}
+                            <div className="flex items-start justify-between gap-4 mb-3">
+                              {/* LEFT */}
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center gap-3 mb-2 flex-wrap">
                                   <h3 className="text-lg font-semibold text-gray-800">
-                                    Variant #{index + 1}: {variant.variantName || "Unnamed Variant"}
+                                    Color #{index + 1}: {variant.name || "Unnamed Color"}
                                   </h3>
-                                  <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                                    variant.active
-                                      ? "bg-green-100 text-green-700"
-                                      : "bg-gray-100 text-gray-700"
-                                  }`}>
-                                    {variant.active ? "Active" : "Inactive"}
+
+                                  <span
+                                    className={`px-3 py-1 rounded-full text-xs font-semibold ${variant.is_active
+                                        ? "bg-green-100 text-green-700"
+                                        : "bg-gray-100 text-gray-700"
+                                      }`}
+                                  >
+                                    {variant.is_active ? "Active" : "Inactive"}
                                   </span>
+
                                   <button
                                     onClick={() => {
                                       setSelectedVariantData(variant);
@@ -414,35 +453,59 @@ export const HatDetails = () => {
                                     Edit
                                   </button>
                                 </div>
+
                                 <div className="flex items-center gap-4 text-sm text-gray-600">
                                   <div className="flex items-center gap-2">
                                     <FaPalette className="w-4 h-4" />
                                     <span>
-                                      <strong>Color:</strong> {variant.color || "N/A"}
+                                      <strong>Color:</strong>
                                     </span>
                                   </div>
-                                  {variant.colorCode && (
+
+                                  {variant.color_code && (
                                     <div className="flex items-center gap-2">
                                       <div
                                         className="w-5 h-5 rounded border border-gray-300"
-                                        style={{ backgroundColor: variant.colorCode }}
-                                        title={variant.colorCode}
+                                        style={{ backgroundColor: variant.color_code }}
+                                        title={variant.color_code}
                                       />
-                                      <span className="font-mono text-xs">{variant.colorCode}</span>
+                                      <span className="font-mono text-xs">{variant.color_code}</span>
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+
+                              {/* RIGHT (IMAGE BOX) */}
+                              <div className="shrink-0">
+                                <div className="w-28 h-20 sm:w-32 sm:h-24 rounded-lg border border-gray-200 bg-gray-50 overflow-hidden flex items-center justify-center">
+                                  {variant?.primary_image_url ? (
+                                    <img
+                                      src={variant.primary_image_url}
+                                      alt={variant?.name ? `${variant.name} color` : "Hat color"}
+                                      className="w-full h-full object-cover"
+                                      loading="lazy"
+                                      onError={(e) => {
+                                        e.currentTarget.style.display = "none";
+                                      }}
+                                    />
+                                  ) : (
+                                    <div className="text-xs text-gray-400 px-2 text-center">
+                                      No image
                                     </div>
                                   )}
                                 </div>
                               </div>
                             </div>
 
+
                             {/* Variant Sizes */}
                             <div className="mt-4">
                               <div className="flex items-center justify-between mb-3">
                                 <h4 className="text-sm font-semibold text-gray-700 flex items-center gap-2">
                                   <FaRuler className="w-4 h-4" />
-                                  Variant Sizes ({variant.variantSizes?.length || 0})
+                                  Color Sizes ({sizesByColor?.[variant.id]?.length || 0})
                                 </h4>
-                                <button
+                                {/* <button
                                   onClick={() => {
                                     setSelectedVariantId(variant.id);
                                     setOpenAddSizeModal(true);
@@ -451,10 +514,10 @@ export const HatDetails = () => {
                                 >
                                   <FaPlus className="w-3 h-3" />
                                   Add size
-                                </button>
+                                </button> */}
                               </div>
-                              
-                              {variant.variantSizes && variant.variantSizes.length > 0 ? (
+
+                              {(sizesByColor?.[variant.id] || []).length > 0 ? (
                                 <div className="overflow-x-auto">
                                   <table className="w-full text-sm">
                                     <thead>
@@ -462,12 +525,12 @@ export const HatDetails = () => {
                                         <th className="px-4 py-2 text-left font-semibold text-gray-700">Size</th>
                                         <th className="px-4 py-2 text-left font-semibold text-gray-700">Variant Size Name</th>
                                         <th className="px-4 py-2 text-left font-semibold text-gray-700">Supplier SKU</th>
-                                        <th className="px-4 py-2 text-left font-semibold text-gray-700">UPC</th>
+                                        {/* <th className="px-4 py-2 text-left font-semibold text-gray-700">UPC</th> */}
                                         <th className="px-4 py-2 text-left font-semibold text-gray-700">Inventory</th>
                                       </tr>
                                     </thead>
                                     <tbody>
-                                      {variant.variantSizes.map((size) => (
+                                      {(sizesByColor?.[variant.id] || []).map((size) => (
                                         <tr
                                           key={size.id}
                                           className="border-b border-gray-100 hover:bg-gray-50"
@@ -475,21 +538,21 @@ export const HatDetails = () => {
                                           <td className="px-4 py-3">
                                             <span className="inline-flex items-center gap-2">
                                               <FaRuler className="w-3 h-3 text-gray-400" />
-                                              <span className="font-medium text-gray-800">{size.size || "N/A"}</span>
+                                              <span className="font-medium text-gray-800">{size.size_label || "N/A"}</span>
                                             </span>
                                           </td>
-                                          <td className="px-4 py-3 text-gray-700">{size.variantSize || "N/A"}</td>
+                                          <td className="px-4 py-3 text-gray-700">{size.variant_name || "N/A"}</td>
                                           <td className="px-4 py-3">
-                                            {size.supplierSku ? (
+                                            {size.supplier_sku ? (
                                               <span className="inline-flex items-center gap-1">
                                                 <FaBarcode className="w-3 h-3 text-gray-400" />
-                                                <span className="font-mono text-xs">{size.supplierSku}</span>
+                                                <span className="font-mono text-xs">{size.supplier_sku}</span>
                                               </span>
                                             ) : (
                                               "N/A"
                                             )}
                                           </td>
-                                          <td className="px-4 py-3">
+                                          {/* <td className="px-4 py-3">
                                             {size.upc ? (
                                               <span className="inline-flex items-center gap-1">
                                                 <FaBox className="w-3 h-3 text-gray-400" />
@@ -498,7 +561,7 @@ export const HatDetails = () => {
                                             ) : (
                                               "N/A"
                                             )}
-                                          </td>
+                                          </td> */}
                                           <td className="px-4 py-3">
                                             {size.inventory && size.inventory.length > 0 ? (
                                               <div className="flex items-center gap-2">
@@ -555,7 +618,7 @@ export const HatDetails = () => {
                               ) : (
                                 <div className="text-center py-4 text-gray-500 text-sm bg-gray-50 rounded">
                                   <FaRuler className="w-5 h-5 mx-auto mb-2 text-gray-400" />
-                                  No sizes available for this variant
+                                  No sizes available for this color
                                 </div>
                               )}
                             </div>
@@ -565,26 +628,26 @@ export const HatDetails = () => {
                               <div className="flex items-center justify-between">
                                 <span>
                                   <strong>Created:</strong>{" "}
-                                  {variant.createdAt
-                                    ? new Date(variant.createdAt).toLocaleDateString("en-US", {
-                                        year: "numeric",
-                                        month: "short",
-                                        day: "numeric",
-                                        hour: "2-digit",
-                                        minute: "2-digit",
-                                      })
+                                  {variant.created_at
+                                    ? new Date(variant.created_at).toLocaleDateString("en-US", {
+                                      year: "numeric",
+                                      month: "short",
+                                      day: "numeric",
+                                      hour: "2-digit",
+                                      minute: "2-digit",
+                                    })
                                     : "N/A"}
                                 </span>
                                 <span>
                                   <strong>Updated:</strong>{" "}
-                                  {variant.updatedAt
-                                    ? new Date(variant.updatedAt).toLocaleDateString("en-US", {
-                                        year: "numeric",
-                                        month: "short",
-                                        day: "numeric",
-                                        hour: "2-digit",
-                                        minute: "2-digit",
-                                      })
+                                  {variant.updated_at
+                                    ? new Date(variant.updated_at).toLocaleDateString("en-US", {
+                                      year: "numeric",
+                                      month: "short",
+                                      day: "numeric",
+                                      hour: "2-digit",
+                                      minute: "2-digit",
+                                    })
                                     : "N/A"}
                                 </span>
                               </div>
@@ -655,16 +718,16 @@ export const HatDetails = () => {
                   <FaImage className="w-5 h-5 text-[#f20c32]" />
                   Hat Image
                 </h2>
-                <Button
+                {/* <Button
                   onClick={() => setOpenAddHatImagesModal(true)}
                   className="bg-[#f20c32] hover:bg-black px-3 py-1 text-white text-xs font-semibold flex justify-center items-center gap-1 rounded-md"
                 >
                   <FaPlus className="w-3 h-3" />
                   Add more images
-                </Button>
-               
+                </Button> */}
+
               </div>
-              
+
               {/* Primary Image */}
               {hatData.images ? (
                 <div className="relative mb-4">
@@ -705,49 +768,49 @@ export const HatDetails = () => {
                     Additional Images ({hatData.hatImages.length})
                   </h3>
                   <div className="grid grid-cols-3 gap-2">
-  {hatData.hatImages.map((imageItem, index) => (
-    <div
-      key={imageItem.id || index}
-      className="relative group border border-gray-200 rounded-lg overflow-hidden aspect-square"
-    >
-      {/* Delete Icon */}
-      <button
-        onClick={() => handleMultiEdit(imageItem.id)}
-        className="absolute top-1 right-9 bg-white p-1 rounded-full shadow"
-      >
-        <FaEdit className="text-blue-600 w-4 h-4" />
-      </button>
-      {/* Delete Icon */}
-      <button
-        onClick={() => handleMultiImageDelete(imageItem.id)}
-        className="absolute top-1 right-1 bg-white p-1 rounded-full shadow"
-      >
-        <FaTrash className="text-red-500 w-4 h-4" />
-      </button>
+                    {hatData.hatImages.map((imageItem, index) => (
+                      <div
+                        key={imageItem.id || index}
+                        className="relative group border border-gray-200 rounded-lg overflow-hidden aspect-square"
+                      >
+                        {/* Delete Icon */}
+                        <button
+                          onClick={() => handleMultiEdit(imageItem.id)}
+                          className="absolute top-1 right-9 bg-white p-1 rounded-full shadow"
+                        >
+                          <FaEdit className="text-blue-600 w-4 h-4" />
+                        </button>
+                        {/* Delete Icon */}
+                        <button
+                          onClick={() => handleMultiImageDelete(imageItem.id)}
+                          className="absolute top-1 right-1 bg-white p-1 rounded-full shadow"
+                        >
+                          <FaTrash className="text-red-500 w-4 h-4" />
+                        </button>
 
-      {/* Image */}
-      <img
-        src={imageItem.imageUrls || ""}
-        alt={`Hat image ${index + 1}`}
-        className="w-full h-full object-cover"
-        onError={(e) => {
-          e.target.style.display = "none";
-          if (e.target.nextSibling) {
-            e.target.nextSibling.style.display = "flex";
-          }
-        }}
-      />
+                        {/* Image */}
+                        <img
+                          src={imageItem.imageUrls || ""}
+                          alt={`Hat image ${index + 1}`}
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            e.target.style.display = "none";
+                            if (e.target.nextSibling) {
+                              e.target.nextSibling.style.display = "flex";
+                            }
+                          }}
+                        />
 
-      {/* Placeholder Icon */}
-      <div
-        className="hidden items-center justify-center w-full h-full bg-gray-100"
-        style={{ display: "none" }}
-      >
-        <FaImage className="w-6 h-6 text-gray-400" />
-      </div>
-    </div>
-  ))}
-</div>
+                        {/* Placeholder Icon */}
+                        <div
+                          className="hidden items-center justify-center w-full h-full bg-gray-100"
+                          style={{ display: "none" }}
+                        >
+                          <FaImage className="w-6 h-6 text-gray-400" />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
 
                 </div>
               )}
@@ -762,6 +825,7 @@ export const HatDetails = () => {
           openModal={openAddVariantModal}
           setOpenModal={setOpenAddVariantModal}
           onVariantAdded={fetchHatDetails}
+          hatColorSingleData={hatColorSingleData}
           hatId={id}
           isEdit={false}
         />
@@ -794,7 +858,7 @@ export const HatDetails = () => {
         <AddPriceTierModal
           openModal={openAddPriceTierModal}
           setOpenModal={setOpenAddPriceTierModal}
-          onPriceTierAdded={fetchPriceTiers}
+          onPriceTierAdded={fetchHatColor}
           priceTierData={null}
           isEdit={false}
           hatId={id}
@@ -806,7 +870,7 @@ export const HatDetails = () => {
         <AddPriceTierModal
           openModal={openEditPriceTierModal}
           setOpenModal={setOpenEditPriceTierModal}
-          onPriceTierAdded={fetchPriceTiers}
+          onPriceTierAdded={fetchHatColor}
           priceTierData={selectedPriceTierData}
           isEdit={true}
           hatId={id}
@@ -870,7 +934,7 @@ export const HatDetails = () => {
                 toast.error("Failed to delete inventory. Please try again.");
               });
           }}
-          supplierName="this inventory"
+          brandName="this inventory"
           itemType="inventory"
         />
       )}
