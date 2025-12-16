@@ -3,7 +3,7 @@ import { toast } from "react-toastify";
 import { useEffect, useState } from "react";
 import { Modal } from "flowbite-react";
 import { useDispatch } from "react-redux";
-import { brandAdd } from "../../../Reducer/EcommerceNewSlice";
+import { brandAdd, brandList } from "../../../Reducer/EcommerceNewSlice";
 import { useNavigate } from "react-router-dom";
 
 const AddHatModal = ({ openModal, setOpenModal, onHatAdded, brandData, isEdit, supplierListData }) => {
@@ -175,6 +175,7 @@ const AddHatModal = ({ openModal, setOpenModal, onHatAdded, brandData, isEdit, s
           .then((response) => {
             console.log("Hat/brand added successfully:", response);
             if (response?.status_code === 200 || response?.status_code === 201) {
+              dispatch(brandList())
               toast.success(response?.message || "Added successfully!", {
                 position: "top-right",
                 autoClose: 3000,
