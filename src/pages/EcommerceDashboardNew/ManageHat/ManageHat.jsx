@@ -65,7 +65,7 @@ const ManageHat = () => {
   // Fetch hats using Redux with pagination
   const fetchHats = (page = currentPage, limit = pageSize) => {
     console.log("fetchHats called - refreshing hats data", { page, limit });
-    dispatch(hatList({ limit, page }))
+    dispatch(hatList())
       .unwrap()
       .then((response) => {
         console.log("Hats data refreshed:", response);
@@ -386,10 +386,10 @@ const ManageHat = () => {
               rowData={filteredHatData}
               columnDefs={columnDefs}
               pagination={true}
-              paginationPageSize={pageSize}
+               paginationPageSize={pageSize}
               domLayout="autoHeight"
-              paginationPageSizeSelector={[10, 20, 50, 100]}
-              onPaginationChanged={onPaginationChanged}
+               paginationPageSizeSelector={[10, 20, 50, 100]}
+              // onPaginationChanged={onPaginationChanged}
               getRowHeight={() => 50}
             />
           </div>

@@ -55,6 +55,7 @@ import  {HatDetails}  from '../pages/EcommerceDashboardNew/ManageHat/HatDetails.
 import ManageDecoration from '../pages/EcommerceDashboard/ManageDecoration.jsx';
 import ManageLogo from '../pages/EcommerceDashboard/ManageLogo.jsx';
 import ManagePriceTier from '../pages/EcommerceDashboard/ManagePriceTier.jsx';
+import ManagePriceTire from '../pages/EcommerceDashboardNew/PricingTire/ManagePriceTire.jsx';
 
 
 const allRoutes = [
@@ -527,6 +528,17 @@ const allRoutes = [
       {
         index: true,
         element: <ManageBrand />,
+      },
+    ],  
+  },
+
+    {
+    path: '/pricing-tire',
+    element: <InsideLayout />,
+    children: [
+      {
+        index: true,
+        element: <ManagePriceTire />,
       },
     ],  
   },
