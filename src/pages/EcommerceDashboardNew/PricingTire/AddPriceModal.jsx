@@ -34,7 +34,7 @@ dispatch(addPriceTire(data)).then((res)=>{
 }
     return(
         <>
-         <Modal
+            <Modal
               show={openAddPriceModal}
               onClose={() => {
                 setOpenAddPriceModal(false);
@@ -62,7 +62,7 @@ dispatch(addPriceTire(data)).then((res)=>{
                     <Select
                       id="brand_id"
                       {...register("hat_id", {
-                        required: "Hat is is required",
+                        required: "Hat is required",
                       })}
                       className={`w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 ${
                         errors.brand_id

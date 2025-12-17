@@ -3,7 +3,7 @@ import { toast } from "react-toastify";
 import { useEffect, useState } from "react";
 import { Modal } from "flowbite-react";
 import { useDispatch } from "react-redux";
-import { brandAdd, hatColorAdd } from "../../../Reducer/EcommerceNewSlice";
+import { brandAdd, hatColorAdd, hatColorSingle } from "../../../Reducer/EcommerceNewSlice";
 import { useNavigate } from "react-router-dom";
 
 const AddVariantModal = ({
@@ -172,6 +172,7 @@ const AddVariantModal = ({
           .unwrap()
           .then((response) => {
             if (response?.status_code === 200 || response?.status_code === 201) {
+              dispatch(hatColorSingle(hatId))
               toast.success(response?.message || "Added successfully!", {
                 position: "top-right",
                 autoClose: 3000,
