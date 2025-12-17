@@ -9,7 +9,7 @@ import "ag-grid-community/styles/ag-theme-alpine.css";
 // import EditHatImageModal from "./EditHatImageModal";
 import Loader from "../../../components/Loader";
 import { toast } from "react-toastify";
-import { Button, Tabs } from "flowbite-react";
+import { Button, FileInput, Tabs } from "flowbite-react";
 import { FaArrowLeft, FaImage, FaTag, FaCheckCircle, FaTimesCircle, FaPalette, FaRuler, FaBarcode, FaBox, FaPlus, FaEdit, FaDollarSign, FaEye, FaTrash } from "react-icons/fa";
 import AddVariantModal from "./AddVariantModal";
 // import AddVariantSizeModal from "./AddVariantSizeModal";
@@ -18,7 +18,7 @@ import AddVariantModal from "./AddVariantModal";
 // import ViewInventoryModal from "./ViewInventoryModal";
 import DeleteConfirmModal from "../DeleteConfirmModal";
 // import { hatList } from "../../Reducer/EcommerceNewSlice";
-import { brandList, hatColorList, hatColorSingle, hatSingle, hatSizeSingle } from "../../../Reducer/EcommerceNewSlice";
+import { brandList, hatColorList, hatColorSingle, hatImageAdd, hatSingle, hatSizeSingle } from "../../../Reducer/EcommerceNewSlice";
 import AddVariantSizeModal from "./AddVariantSizeModal";
 import AddVariantSizeInventoryModal from "./AddVariantSizeInventoryModal";
 
@@ -51,6 +51,23 @@ export const HatDetails = () => {
   const [selectedImageData, setSelectedImageData] = useState(null);
   const [sizesByColor, setSizesByColor] = useState({});
 
+const handleImageUpload = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append("image", file);
+    formData.append("hat_style_id", id);
+    formData.append("hat_color_id",0)
+    formData.append("image_type","png")
+    formData.append("alt_text","Cap Image")
+    formData.append("is_primary",1)
+
+    dispatch(hatImageAdd(formData)).then((res)=>{
+      console.log("Res",res);
+      
+    });
+  };
   // Function to fetch hat details
   const fetchHatDetails = useCallback(() => {
     if (id) {
@@ -329,6 +346,8 @@ export const HatDetails = () => {
       </div>
     );
   }
+
+
 
   return (
     <div className="wrapper_area my-0 mx-auto p-6 rounded-xl bg-white">
@@ -707,6 +726,7 @@ export const HatDetails = () => {
                   <FaPlus className="w-3 h-3" />
                   Add more images
                 </Button> */}
+             
 
               </div>
 
@@ -742,9 +762,13 @@ export const HatDetails = () => {
                   </div>
                 </div>
               )}
+                 <FileInput
+                 accept="image/*"
+                onChange={handleImageUpload}
+                 />
 
               {/* Multi Images Grid */}
-              {hatData.hatImages && hatData.hatImages.length > 0 && (
+              {/* {hatData.hatImages && hatData.hatImages.length > 0 && (
                 <div>
                   <h3 className="text-sm font-semibold text-gray-700 mb-3">
                     Additional Images ({hatData.hatImages.length})
@@ -755,14 +779,14 @@ export const HatDetails = () => {
                         key={imageItem.id || index}
                         className="relative group border border-gray-200 rounded-lg overflow-hidden aspect-square"
                       >
-                        {/* Delete Icon */}
+                     
                         <button
                           onClick={() => handleMultiEdit(imageItem.id)}
                           className="absolute top-1 right-9 bg-white p-1 rounded-full shadow"
                         >
                           <FaEdit className="text-blue-600 w-4 h-4" />
                         </button>
-                        {/* Delete Icon */}
+                       
                         <button
                           onClick={() => handleMultiImageDelete(imageItem.id)}
                           className="absolute top-1 right-1 bg-white p-1 rounded-full shadow"
@@ -770,7 +794,7 @@ export const HatDetails = () => {
                           <FaTrash className="text-red-500 w-4 h-4" />
                         </button>
 
-                        {/* Image */}
+                    
                         <img
                           src={imageItem.imageUrls || ""}
                           alt={`Hat image ${index + 1}`}
@@ -783,7 +807,7 @@ export const HatDetails = () => {
                           }}
                         />
 
-                        {/* Placeholder Icon */}
+                       
                         <div
                           className="hidden items-center justify-center w-full h-full bg-gray-100"
                           style={{ display: "none" }}
@@ -795,7 +819,7 @@ export const HatDetails = () => {
                   </div>
 
                 </div>
-              )}
+              )} */}
             </div>
           </div>
         </div>

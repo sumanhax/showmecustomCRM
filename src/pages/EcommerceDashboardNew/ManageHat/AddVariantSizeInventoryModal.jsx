@@ -1,6 +1,7 @@
 import { Modal, Select } from "flowbite-react";
 import { useForm } from "react-hook-form";
 import { useDispatch } from "react-redux";
+import { addInventory } from "../../../Reducer/AddInvetoryNewSlice";
 
 const AddVariantSizeInventoryModal=({
           openModal,
@@ -20,7 +21,13 @@ const AddVariantSizeInventoryModal=({
         formState: { errors },
       } = useForm();
 
-
+const onSubmit=(data)=>{
+    dispatch(addInventory({...data,hat_size_variant_id:variantSizeId})).then((res)=>{
+        if(res?.payload?.status_code===201){
+             setOpenModal(false)
+        }
+    })
+}
     return(
         <>
         <Modal
@@ -30,73 +37,55 @@ const AddVariantSizeInventoryModal=({
                 }}
                 size="md"
                 >
-                <Modal.Header>{isEdit ? "Edit Hat" : "Add New Size"}</Modal.Header>
+                <Modal.Header>{isEdit ? "Edit Hat" : "Add New Inventory"}</Modal.Header>
                 <Modal.Body>
                 <form 
                  onSubmit={handleSubmit(onSubmit)}
                     className="space-y-4">
                     {/* Image Upload Field */}
-        
-                    <div>
-                    <label
-                        htmlFor="brand_id"
-                        className="block text-sm font-semibold text-gray-700 mb-1"
-                    >
-                        Quantity On Hand *
-                    </label>
-        
-                    <Select
-                        id="brand_id"
-                        {...register("qty_on_hand", {
-                        required: "Quantity On Hand is required",
-                        })}
-                        className={`w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 ${
-                        errors.brand_id
-                            ? "border-red-500 focus:ring-red-500"
-                            : "border-gray-300 focus:ring-blue-500"
-                        }`}
-                    >
-                        {/* IMPORTANT: empty value */}
-                        <div className="h-[100px] overflow-y-scroll">
-                        <option value="">Select Size</option>
-            
-                        <option className="h-[50px] overflow-y-scroll"  value="XL/XXL">XL/XXL</option>
-                        <option className="h-[50px] overflow-y-scroll"  value="L/XL">L/XL</option>
-                        <option className="h-[50px] overflow-y-scroll"  value="OSFA">OSFA</option>
-                        <option className="h-[50px] overflow-y-scroll"  value="S/M">S/M</option>
-                        
-                        </div>
-                    </Select>
-        
-                    {errors.size_label && (
-                        <p className="text-red-500 text-xs mt-1">
-                        {errors.size_label.message}
-                        </p>
-                    )}
-                    </div>
-        
-                    
                     {/* Name Field */}
                     <div>
                     <label
                         htmlFor="name"
                         className="block text-sm font-semibold text-gray-700 mb-1"
                     >
-                        Variant Name *
+                        Quantity On Hand *
                     </label>
                     <input
                         type="text"
                         id="name"
-                        {...register("variant_name", { required: "Variant Name is required" })}
+                        {...register("qty_on_hand", { required: "Quantity On Hand is required" })}
                         className={`w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 ${
                         errors.name
                             ? "border-red-500 focus:ring-red-500"
                             : "border-gray-300 focus:ring-blue-500"
                         }`}
-                        placeholder="Enter Variant Name"
+                        placeholder="Enter Quantity On Hand"
                     />
-                    {errors.variant_name && (
-                        <p className="text-red-500 text-xs mt-1">{errors.variant_name.message}</p>
+                    {errors.qty_on_hand && (
+                        <p className="text-red-500 text-xs mt-1">{errors.qty_on_hand.message}</p>
+                    )}
+                    </div>
+                     <div>
+                    <label
+                        htmlFor="name"
+                        className="block text-sm font-semibold text-gray-700 mb-1"
+                    >
+                       Source *
+                    </label>
+                    <input
+                        type="text"
+                        id="name"
+                        {...register("source", { required: "Quantity On Hand is required" })}
+                        className={`w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 ${
+                        errors.name
+                            ? "border-red-500 focus:ring-red-500"
+                            : "border-gray-300 focus:ring-blue-500"
+                        }`}
+                        placeholder="Enter Source"
+                    />
+                    {errors.source && (
+                        <p className="text-red-500 text-xs mt-1">{errors.source.message}</p>
                     )}
                     </div>
         
@@ -106,7 +95,7 @@ const AddVariantSizeInventoryModal=({
                     <button
                         type="button"
                         onClick={() => {
-                        setOpenAddPriceModal(false);
+                        setOpenModal(false);
                         reset();
                         }}
                     //  disabled={isSubmitting}

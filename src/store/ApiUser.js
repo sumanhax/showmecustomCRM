@@ -1,7 +1,7 @@
 import axios from 'axios';
 const apiUser = axios.create({ baseURL: import.meta.env.VITE_API_BASE_URL_USER });
 let domain = window.location.origin
-const formDataURL = [];
+const formDataURL = ['/postgresapi/admin/hat/image/save'];
 apiUser.interceptors.request.use((req) => {
   let userTokenData;
   try {
