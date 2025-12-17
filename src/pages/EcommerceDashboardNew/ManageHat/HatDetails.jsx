@@ -19,6 +19,7 @@ import AddVariantModal from "./AddVariantModal";
 import DeleteConfirmModal from "../DeleteConfirmModal";
 // import { hatList } from "../../Reducer/EcommerceNewSlice";
 import { brandList, hatColorList, hatColorSingle, hatSingle, hatSizeSingle } from "../../../Reducer/EcommerceNewSlice";
+import AddVariantSizeModal from "./AddVariantSizeModal";
 
 export const HatDetails = () => {
   const { id } = useParams();
@@ -422,10 +423,9 @@ export const HatDetails = () => {
                             key={variant.id}
                             className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow"
                           >
-                            {/* Variant Header */}
-                            {/* Variant Header */}
+                         
                             <div className="flex items-start justify-between gap-4 mb-3">
-                              {/* LEFT */}
+                              
                               <div className="flex-1 min-w-0">
                                 <div className="flex items-center gap-3 mb-2 flex-wrap">
                                   <h3 className="text-lg font-semibold text-gray-800">
@@ -475,12 +475,11 @@ export const HatDetails = () => {
                                 </div>
                               </div>
 
-                              {/* RIGHT (IMAGE BOX) */}
                               <div className="shrink-0">
                                 <div className="w-28 h-20 sm:w-32 sm:h-24 rounded-lg border border-gray-200 bg-gray-50 overflow-hidden flex items-center justify-center">
                                   {variant?.primary_image_url ? (
                                     <img
-                                      src={variant.primary_image_url}
+                                      src={"https://arsalaanrasulshowmeropi.bestworks.cloud"+variant.primary_image_url}
                                       alt={variant?.name ? `${variant.name} color` : "Hat color"}
                                       className="w-full h-full object-cover"
                                       loading="lazy"
@@ -498,14 +497,14 @@ export const HatDetails = () => {
                             </div>
 
 
-                            {/* Variant Sizes */}
+                           
                             <div className="mt-4">
                               <div className="flex items-center justify-between mb-3">
                                 <h4 className="text-sm font-semibold text-gray-700 flex items-center gap-2">
                                   <FaRuler className="w-4 h-4" />
                                   Color Sizes ({sizesByColor?.[variant.id]?.length || 0})
                                 </h4>
-                                {/* <button
+                                <button
                                   onClick={() => {
                                     setSelectedVariantId(variant.id);
                                     setOpenAddSizeModal(true);
@@ -514,7 +513,7 @@ export const HatDetails = () => {
                                 >
                                   <FaPlus className="w-3 h-3" />
                                   Add size
-                                </button> */}
+                                </button>
                               </div>
 
                               {(sizesByColor?.[variant.id] || []).length > 0 ? (
@@ -525,7 +524,7 @@ export const HatDetails = () => {
                                         <th className="px-4 py-2 text-left font-semibold text-gray-700">Size</th>
                                         <th className="px-4 py-2 text-left font-semibold text-gray-700">Variant Size Name</th>
                                         <th className="px-4 py-2 text-left font-semibold text-gray-700">Supplier SKU</th>
-                                        {/* <th className="px-4 py-2 text-left font-semibold text-gray-700">UPC</th> */}
+                                       
                                         <th className="px-4 py-2 text-left font-semibold text-gray-700">Inventory</th>
                                       </tr>
                                     </thead>
@@ -552,16 +551,7 @@ export const HatDetails = () => {
                                               "N/A"
                                             )}
                                           </td>
-                                          {/* <td className="px-4 py-3">
-                                            {size.upc ? (
-                                              <span className="inline-flex items-center gap-1">
-                                                <FaBox className="w-3 h-3 text-gray-400" />
-                                                <span className="font-mono text-xs">{size.upc}</span>
-                                              </span>
-                                            ) : (
-                                              "N/A"
-                                            )}
-                                          </td> */}
+                                     
                                           <td className="px-4 py-3">
                                             {size.inventory && size.inventory.length > 0 ? (
                                               <div className="flex items-center gap-2">
@@ -586,16 +576,7 @@ export const HatDetails = () => {
                                                 >
                                                   <FaEdit size={12} />
                                                 </button>
-                                                {/* <button
-                                                  onClick={() => {
-                                                    setSelectedInventoryData(size.inventory[0]);
-                                                    setOpenDeleteInventoryModal(true);
-                                                  }}
-                                                  className="p-1.5 bg-red-500 hover:bg-red-600 text-white rounded-full transition-colors"
-                                                  title="Delete Inventory"
-                                                >
-                                                  <FaTrash size={12} />
-                                                </button> */}
+                                             
                                               </div>
                                             ) : (
                                               <button
@@ -623,7 +604,7 @@ export const HatDetails = () => {
                               )}
                             </div>
 
-                            {/* Variant Metadata */}
+                        
                             <div className="mt-3 pt-3 border-t border-gray-100 text-xs text-gray-500">
                               <div className="flex items-center justify-between">
                                 <span>
@@ -849,7 +830,8 @@ export const HatDetails = () => {
           openModal={openAddSizeModal}
           setOpenModal={setOpenAddSizeModal}
           onSizeAdded={fetchHatDetails}
-          variantId={selectedVariantId}
+          colorId={selectedVariantId}
+          isEdit={false}
         />
       )}
 

@@ -237,9 +237,9 @@ export const hatSizeAdd = createAsyncThunk(
 )
 export const hatSizeList = createAsyncThunk(
     'ecommerce/hatSizeList',
-    async (_, { rejectWithValue }) => {
+    async ({hat_color_id}, { rejectWithValue }) => {
         try {
-            const response = await apiUser.get(`/postgresapi/admin/hat/size/list`);
+            const response = await apiUser.get(`/postgresapi/admin/hat/size/list?${hat_color_id}`);
             if (response?.data?.status_code === 201 || response?.data?.status_code === 200) {
                 return response.data;
             } else {

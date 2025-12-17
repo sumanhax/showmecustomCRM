@@ -301,7 +301,7 @@ dispatch(primaryDecorationList({page:1,limit:10}))
     return (
       <div className="wrapper_area my-0 mx-auto p-6 rounded-xl bg-white">
         <div className="h-full lg:h-screen flex items-center justify-center">
-          <Loader size="large" text="Loading brands..." />
+          <Loader size="large" text="Loading Price Tires..." />
         </div>
       </div>
     );
