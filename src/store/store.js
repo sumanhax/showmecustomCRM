@@ -43,6 +43,7 @@ import TaskSlice from '../Reducer/TaskSlice'
 import EcommerceSlice from '../Reducer/EcommerceSlice'
 import EcommerceNewSlice from '../Reducer/EcommerceNewSlice'
 import ManagePriceTireNewSlice from '../Reducer/ManagePriceTireNewSlice'
+import AddInvetoryNewSlice from '../Reducer/AddInvetoryNewSlice'
 const store = configureStore({
   reducer: {
     auth: AuthSlice,
@@ -88,7 +89,8 @@ const store = configureStore({
     tasks:TaskSlice,
     ecom:EcommerceSlice,
     newecom:EcommerceNewSlice,
-    decoration:ManagePriceTireNewSlice
+    decoration:ManagePriceTireNewSlice,
+    invent:AddInvetoryNewSlice
   },
   devTools: import.meta.env.DEV,
 });

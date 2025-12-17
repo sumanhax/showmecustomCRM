@@ -1,7 +1,7 @@
 import { Modal, Select } from "flowbite-react";
 import { useForm } from "react-hook-form";
 import { useDispatch } from "react-redux";
-import { hatSizeAdd } from "../../../Reducer/EcommerceNewSlice";
+import { hatSizeAdd, hatSizeSingle } from "../../../Reducer/EcommerceNewSlice";
 
 const AddVariantSizeModal=({
      openModal,
@@ -23,7 +23,11 @@ const AddVariantSizeModal=({
       const onSubmit=(data)=>{
         dispatch(hatSizeAdd({...data,hat_color_id:Number(colorId),is_active:1})).then((res)=>{
             console.log("res",res);
-            
+            if(res?.payload?.status_code===201){
+                dispatch(hatSizeSingle(colorId))
+                 setOpenModal(false)
+                 window.location.reload()
+            }
         })
       }
     return(
@@ -35,7 +39,7 @@ const AddVariantSizeModal=({
         }}
         size="md"
         >
-        <Modal.Header>{isEdit ? "Edit Hat" : "Add New Size"} {colorId}</Modal.Header>
+        <Modal.Header>{isEdit ? "Edit Hat" : "Add New Size"}</Modal.Header>
         <Modal.Body>
         <form 
          onSubmit={handleSubmit(onSubmit)}
@@ -158,7 +162,7 @@ const AddVariantSizeModal=({
             <button
                 type="button"
                 onClick={() => {
-                setOpenAddPriceModal(false);
+                setOpenModal(false)
                 reset();
                 }}
             //  disabled={isSubmitting}
@@ -177,7 +181,7 @@ const AddVariantSizeModal=({
             </div>
         </form>
         </Modal.Body>
-    </Modal>
+        </Modal>
         </>
     )
 }

@@ -20,6 +20,7 @@ import DeleteConfirmModal from "../DeleteConfirmModal";
 // import { hatList } from "../../Reducer/EcommerceNewSlice";
 import { brandList, hatColorList, hatColorSingle, hatSingle, hatSizeSingle } from "../../../Reducer/EcommerceNewSlice";
 import AddVariantSizeModal from "./AddVariantSizeModal";
+import AddVariantSizeInventoryModal from "./AddVariantSizeInventoryModal";
 
 export const HatDetails = () => {
   const { id } = useParams();
