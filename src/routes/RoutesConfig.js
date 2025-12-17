@@ -56,6 +56,7 @@ import ManageDecoration from '../pages/EcommerceDashboard/ManageDecoration.jsx';
 import ManageLogo from '../pages/EcommerceDashboard/ManageLogo.jsx';
 import ManagePriceTier from '../pages/EcommerceDashboard/ManagePriceTier.jsx';
 import ManagePriceTire from '../pages/EcommerceDashboardNew/PricingTire/ManagePriceTire.jsx';
+import ManageWareHouse from '../pages/EcommerceDashboardNew/WareHouse/ManageWareHouse.jsx';
 
 
 const allRoutes = [
@@ -539,6 +540,16 @@ const allRoutes = [
       {
         index: true,
         element: <ManagePriceTire />,
+      },
+    ],  
+  },
+    {
+    path: '/warehouse',
+    element: <InsideLayout />,
+    children: [
+      {
+        index: true,
+        element: <ManageWareHouse />,
       },
     ],  
   },
