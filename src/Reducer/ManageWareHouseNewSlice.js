@@ -4,9 +4,9 @@ import apiUser from "../store/ApiUser";
 
 export const warehouseList = createAsyncThunk(
     'warehouseList',
-    async ({page,limit}, { rejectWithValue }) => {
+    async (_, { rejectWithValue }) => {
         try {
-            const response = await apiUser.get(`/postgresapi/admin/warehouse/list?page=${page}&limit=${limit}`);
+            const response = await apiUser.get(`/postgresapi/admin/warehouse/list`);
             if (response?.data?.status_code === 201 || response?.data?.status_code === 200) {
                 return response.data;
             } else {

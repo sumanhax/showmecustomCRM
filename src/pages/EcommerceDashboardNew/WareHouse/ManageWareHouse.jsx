@@ -7,13 +7,14 @@ import { AgGridReact } from "ag-grid-react";
 import Loader from "../../../components/Loader";
 import AddWareHouseModal from "./AddWareHouseModal";
 import { warehouseList } from "../../../Reducer/ManageWareHouseNewSlice";
+import { toast } from "react-toastify";
 
 const ManageWareHouse=()=>{
 
   const dispatch = useDispatch();
   const { warehouseListData, loading, error } = useSelector((state) => state.warehouse);
   const [openAddWareHouseModal, setOpenAddWareHouseModal] = useState(false);
-  const [openEditbrandModal, setOpenEditbrandModal] = useState(false);
+  const [openEditwarehouseModal, setOpenEditwarehouseModal] = useState(false);
   const [openDeleteModal, setOpenDeleteModal] = useState(false);
   const [selectedwarehouseData, setSelectedwarehouseData] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
@@ -55,51 +56,51 @@ const ManageWareHouse=()=>{
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
- // Filter brands based on search term
+ // Filter warehouses based on search term
  const filteredWarehouseData = useMemo(() => {
   if (!searchTerm) return warehouseData;
   
   const searchLower = searchTerm.toLowerCase();
-  return warehouseData.filter((brand) => 
-    (brand.name && brand.name.toLowerCase().includes(searchLower)) ||
-    (brand.code && brand.code.toLowerCase().includes(searchLower)) ||
-    (brand.websiteURL && brand.websiteURL.toLowerCase().includes(searchLower)) 
+  return warehouseData.filter((warehouse) => 
+    (warehouse.name && warehouse.name.toLowerCase().includes(searchLower)) ||
+    (warehouse.code && warehouse.code.toLowerCase().includes(searchLower)) ||
+    (warehouse.websiteURL && warehouse.websiteURL.toLowerCase().includes(searchLower)) 
   );
 }, [warehouseData, searchTerm]);
 
-  // Handle add new brand
+  // Handle add new warehouse
   const handleAddWarehouse = () => {
     setSelectedwarehouseData(null);
     setOpenAddWareHouseModal(true);
   };
 
-  // Handle edit brand
-  const handleEditbrand = (brandId) => {
-    console.log("handleEditbrand called with brandId:", brandId);
-    const brand = warehouseData.find((s) => s.id === brandId);
-    console.log("Found brand:", brand);
-    if (brand) {
-      // Pass the brand with flattened structure to modal
+  // Handle edit warehouse
+  const handleEditwarehouse = (warehouseId) => {
+    console.log("handleEditwarehouse called with warehouseId:", warehouseId);
+    const warehouse = warehouseData.find((s) => s.id === warehouseId);
+    console.log("Found warehouse:", warehouse);
+    if (warehouse) {
+      // Pass the warehouse with flattened structure to modal
       setSelectedwarehouseData({
-        id: brand.id,
-        name: brand.name,
-        code: brand.code,
-        isActive: brand.isActive,
-        website_url:brand.websiteURL,
-        image_url:brand.imageURL
+        id: warehouse.id,
+        name: warehouse.name,
+        code: warehouse.code,
+        isActive: warehouse.isActive,
+        website_url:warehouse.websiteURL,
+        image_url:warehouse.imageURL
       });
-      setOpenEditbrandModal(true);
+      setOpenEditwarehouseModal(true);
     } else {
-      console.log("brand not found");
-      toast.error("brand not found");
+      console.log("warehouse not found");
+      toast.error("warehouse not found");
     }
   };
 
-  // Handle delete brand
-  const handleDeletebrand = (brandId) => {
-    const brand = warehouseData.find((s) => s.id === brandId);
-    if (brand) {
-      setSelectedwarehouseData(brand);
+  // Handle delete warehouse
+  const handleDeletewarehouse = (warehouseId) => {
+    const warehouse = warehouseData.find((s) => s.id === warehouseId);
+    if (warehouse) {
+      setSelectedwarehouseData(warehouse);
       setOpenDeleteModal(true);
     }
   };
@@ -108,73 +109,73 @@ const ManageWareHouse=()=>{
   const handleConfirmDelete = () => {
     if (!selectedwarehouseData) return;
 
-    const brandId = selectedwarehouseData.id;
-    console.log("Deleting brand:", brandId);
+    const warehouseId = selectedwarehouseData.id;
+    console.log("Deleting warehouse:", warehouseId);
 
-    dispatch(brandDelete(brandId))
+    dispatch(warehouseDelete(warehouseId))
       .unwrap()
       .then((response) => {
-        console.log("brand deleted successfully:", response);
-        toast.success("brand deleted successfully!");
+        console.log("warehouse deleted successfully:", response);
+        toast.success("warehouse deleted successfully!");
         fetchWareHouse();
         setOpenDeleteModal(false);
         setSelectedwarehouseData(null);
       })
       .catch((error) => {
-        console.error("Error deleting brand:", error);
-        toast.error("Failed to delete brand. Please try again.");
+        console.error("Error deleting warehouse:", error);
+        toast.error("Failed to delete warehouse. Please try again.");
       });
   };
 
   // Handle toggle active status
-  const handleToggleActive = (brandId, currentStatus) => {
-    console.log("Toggling active status for brand:", brandId);
+  const handleToggleActive = (warehouseId, currentStatus) => {
+    console.log("Toggling active status for warehouse:", warehouseId);
     const newStatus = !currentStatus;
 
     // Use edit action to update isActive status with proper field name
-    dispatch(brandActiveToggle(
-      brandId
+    dispatch(warehouseActiveToggle(
+      warehouseId
     ))
       .unwrap()
       .then((response) => {
-        console.log("brand status updated successfully:", response);
-        toast.success(`brand ${newStatus ? "activated" : "deactivated"} successfully!`);
+        console.log("warehouse status updated successfully:", response);
+        toast.success(`warehouse ${newStatus ? "activated" : "deactivated"} successfully!`);
         fetchWareHouse();
       })
       .catch((error) => {
-        console.error("Error updating brand status:", error);
-        toast.error("Failed to update brand status. Please try again.");
+        console.error("Error updating warehouse status:", error);
+        toast.error("Failed to update warehouse status. Please try again.");
       });
   };
 
-  // Handle view brand (sample handler)
-  const handleViewbrand = (brandId) => {
-    console.log("Viewing brand:", brandId);
+  // Handle view warehouse (sample handler)
+  const handleViewwarehouse = (warehouseId) => {
+    console.log("Viewing warehouse:", warehouseId);
     
-    dispatch(brandDetails(brandId))
+    dispatch(warehouseDetails(warehouseId))
       .unwrap()
       .then((response) => {
-        console.log("brand details:", response);
-        const brand = warehouseData.find((s) => s.id === brandId);
-        if (brand) {
-          toast.info(`Viewing brand: ${brand.name} (${brand.code})`);
+        console.log("warehouse details:", response);
+        const warehouse = warehouseData.find((s) => s.id === warehouseId);
+        if (warehouse) {
+          toast.info(`Viewing warehouse: ${warehouse.name} (${warehouse.code})`);
           // Add navigation or modal to show full details
         }
       })
       .catch((error) => {
-        console.error("Error fetching brand details:", error);
-        toast.error("Failed to fetch brand details.");
+        console.error("Error fetching warehouse details:", error);
+        toast.error("Failed to fetch warehouse details.");
       });
   };
 
   // Custom cell renderer for isActive toggle
   const ActiveToggleRenderer = (params) => {
     const isActive = params.value;
-    const brandId = params.data.id;
+    const warehouseId = params.data.id;
 
     return (
       <button
-        onClick={() => handleToggleActive(brandId, isActive)}
+        onClick={() => handleToggleActive(warehouseId, isActive)}
         className={`px-4 py-1 rounded-full text-white text-xs font-semibold transition-colors ${
           isActive
             ? "bg-green-500 hover:bg-green-600"
@@ -189,26 +190,26 @@ const ManageWareHouse=()=>{
 
   // Custom cell renderer for Actions
   const ActionsRenderer = (params) => {
-    const brandId = params.data.id;
+    const warehouseId = params.data.id;
 
     return (
       <div className="flex gap-2 justify-center items-center">
         <button
-          onClick={() => handleViewbrand(brandId)}
+          onClick={() => handleViewwarehouse(warehouseId)}
           className="bg-blue-500 hover:bg-blue-600 p-2 text-white rounded-full transition-colors"
           title="View"
         >
           <FaEye size={14} />
         </button>
         <button
-          onClick={() => handleEditbrand(brandId)}
+          onClick={() => handleEditwarehouse(warehouseId)}
           className="bg-yellow-500 hover:bg-yellow-600 p-2 text-white rounded-full transition-colors"
           title="Edit"
         >
           <FaEdit size={14} />
         </button>
         <button
-          onClick={() => handleDeletebrand(brandId)}
+          onClick={() => handleDeletewarehouse(warehouseId)}
           className="bg-red-500 hover:bg-red-600 p-2 text-white rounded-full transition-colors"
           title="Delete"
         >
@@ -284,7 +285,7 @@ const ManageWareHouse=()=>{
     return (
       <div className="wrapper_area my-0 mx-auto p-6 rounded-xl bg-white">
         <div className="h-full lg:h-screen flex items-center justify-center">
-          <Loader size="large" text="Loading brands..." />
+          <Loader size="large" text="Loading warehouses..." />
         </div>
       </div>
     );
@@ -302,7 +303,7 @@ const ManageWareHouse=()=>{
               <div className="relative">
                 <input
                   type="text"
-                  placeholder="Search brands by name or code..."
+                  placeholder="Search warehouses by name or code..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="w-full px-4 py-2 pl-10 pr-10 text-gray-700 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -336,7 +337,7 @@ const ManageWareHouse=()=>{
           {searchTerm && (
             <div className="mb-4">
               <p className="text-sm text-gray-600">
-                Showing {filteredwarehouseData.length} of {warehouseData.length} brands
+                Showing {filteredWarehouseData.length} of {warehouseData.length} warehouses
               </p>
             </div>
           )}
@@ -347,7 +348,7 @@ const ManageWareHouse=()=>{
             style={{ height: 600, width: "100%" }}
           >
             <AgGridReact
-              rowData={filteredwarehouseData}
+              rowData={filteredWarehouseData}
               columnDefs={columnDefs}
               pagination={true}
               paginationPageSize={10}
@@ -362,7 +363,7 @@ const ManageWareHouse=()=>{
           <AddWareHouseModal
             openAddWareHouseModal={openAddWareHouseModal}
             setOpenAddWareHouseModal={setOpenAddWareHouseModal}
-           // onbrandAdded={fetchWareHouse}
+           // onwarehouseAdded={fetchWareHouse}
             warehouseData={null}
             isEdit={false}
             hatListData={hatListData}
@@ -372,11 +373,11 @@ const ManageWareHouse=()=>{
         )}
 
 {/*       
-        {openAddbrandModal && (
-          <AddbrandModal
-            openModal={openAddbrandModal}
-            setOpenModal={setOpenAddbrandModal}
-            onbrandAdded={fetchWareHouse}
+        {openAddwarehouseModal && (
+          <AddwarehouseModal
+            openModal={openAddwarehouseModal}
+            setOpenModal={setOpenAddwarehouseModal}
+            onwarehouseAdded={fetchWareHouse}
             warehouseData={null}
             isEdit={false}
             
@@ -384,11 +385,11 @@ const ManageWareHouse=()=>{
         )}
 
 
-        {openEditbrandModal && selectedwarehouseData && (
-          <AddbrandModal
-            openModal={openEditbrandModal}
-            setOpenModal={setOpenEditbrandModal}
-            onbrandAdded={fetchWareHouse}
+        {openEditwarehouseModal && selectedwarehouseData && (
+          <AddwarehouseModal
+            openModal={openEditwarehouseModal}
+            setOpenModal={setOpenEditwarehouseModal}
+            onwarehouseAdded={fetchWareHouse}
             warehouseData={selectedwarehouseData}
             isEdit={true}
           />
@@ -400,7 +401,7 @@ const ManageWareHouse=()=>{
             openModal={openDeleteModal}
             setOpenModal={setOpenDeleteModal}
             onConfirm={handleConfirmDelete}
-            brandName={selectedwarehouseData.name}
+            warehouseName={selectedwarehouseData.name}
           />
         )} */}
       </div>
