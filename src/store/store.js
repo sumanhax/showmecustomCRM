@@ -43,11 +43,8 @@ import TaskSlice from '../Reducer/TaskSlice'
 import EcommerceSlice from '../Reducer/EcommerceSlice'
 import EcommerceNewSlice from '../Reducer/EcommerceNewSlice'
 import ManagePriceTireNewSlice from '../Reducer/ManagePriceTireNewSlice'
-<<<<<<< HEAD
 import ManageWareHouseNewSlice from '../Reducer/ManageWareHouseNewSlice'
-=======
 import AddInvetoryNewSlice from '../Reducer/AddInvetoryNewSlice'
->>>>>>> f68d7e590b6605241507ab4363498f0c2ecfac0c
 const store = configureStore({
   reducer: {
     auth: AuthSlice,
@@ -94,11 +91,8 @@ const store = configureStore({
     ecom:EcommerceSlice,
     newecom:EcommerceNewSlice,
     decoration:ManagePriceTireNewSlice,
-<<<<<<< HEAD
-    warehouse:ManageWareHouseNewSlice
-=======
+    warehouse:ManageWareHouseNewSlice,
     invent:AddInvetoryNewSlice
->>>>>>> f68d7e590b6605241507ab4363498f0c2ecfac0c
   },
   devTools: import.meta.env.DEV,
 });

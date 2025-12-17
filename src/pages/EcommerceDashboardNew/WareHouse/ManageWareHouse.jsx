@@ -25,12 +25,9 @@ const ManageWareHouse=()=>{
       // Transform the nested structure to flat structure for AG Grid
       return warehouseListData.data.map((item) => ({
         id: item.id,
-        hatName: item?.hats?.name || "",
-        decorationType: item?.decoration_type?.name || "",
-        minQty: item?.min_qty || 0,
-        maxQty: item?.max_qty || 0,
-        displayLabel: item?.display_label || "",
-        unitPrice: item?.unit_price || "0.00",
+        warehouseName: item?.name || "",
+        code: item?.code || "",
+        address: item?.address || "",
         isActive: item?.is_active ?? false,
         createdTime: item.created_at,
       }));
@@ -80,19 +77,18 @@ const ManageWareHouse=()=>{
     const warehouse = warehouseData.find((s) => s.id === warehouseId);
     console.log("Found warehouse:", warehouse);
     if (warehouse) {
+      console.log("wareHouse",warehouse)
       // Pass the warehouse with flattened structure to modal
       setSelectedwarehouseData({
         id: warehouse.id,
-        name: warehouse.name,
-        code: warehouse.code,
-        isActive: warehouse.isActive,
-        website_url:warehouse.websiteURL,
-        image_url:warehouse.imageURL
+        name: warehouse?.warehouseName,
+        code: warehouse?.code,
+        address:warehouse?.address,
+        is_active: warehouse.isActive ? 1 : 0,
       });
       setOpenEditwarehouseModal(true);
     } else {
       console.log("warehouse not found");
-      toast.error("warehouse not found");
     }
   };
 
@@ -221,47 +217,26 @@ const ManageWareHouse=()=>{
 
   const columnDefs = [
     {
-      field: "hatName",
-      headerName: "Hat Name",
+      field: "warehouseName",
+      headerName: "Warehouse Name",
       sortable: true,
       filter: true,
       flex: 1,
     },
     {
-      field: "decorationType",
-      headerName: "Decoration Type",
-      sortable: true,
-      filter: true,
-      flex: 1,
-    },
-    {
-      field: "minQty",
-      headerName: "Min Qty.",
-      sortable: true,
-      filter: true,
-      flex: 1,
-    },
-    {
-      field: "maxQty",
-      headerName: "Max Qty.",
+      field: "code",
+      headerName: "Code",
       sortable: true,
       filter: true,
       flex: 1,
     },
     
      {
-      field: "displayLabel",
-      headerName: "Display Label",
+      field: "address",
+      headerName: "Address",
       sortable: true,
       filter: true,
-      flex: 1,
-    },
-    {
-      field: "unitPrice",
-      headerName: "Unit Price",
-      sortable: true,
-      filter: true,
-      flex: 1,
+      flex: 2,
     },
     
     {
@@ -328,7 +303,7 @@ const ManageWareHouse=()=>{
                 onClick={handleAddWarehouse}
                 className="bg-[#f20c32] hover:bg-black px-4 py-1 text-white text-base font-semibold flex justify-center items-center rounded-md"
               >
-                Add New Pricing
+                Add New Warehouse
               </Button>
             </div>
           </div>
@@ -361,40 +336,28 @@ const ManageWareHouse=()=>{
 
          {openAddWareHouseModal && (
           <AddWareHouseModal
-            openAddWareHouseModal={openAddWareHouseModal}
-            setOpenAddWareHouseModal={setOpenAddWareHouseModal}
+            openModal={openAddWareHouseModal}
+            setOpenModal={setOpenAddWareHouseModal}
            // onwarehouseAdded={fetchWareHouse}
-            warehouseData={null}
+            warehouseData={warehouseData}
             isEdit={false}
-            hatListData={hatListData}
-            decoList={decoList}
+            // hatListData={hatListData}
+            // decoList={decoList}
             
           />
         )}
 
-{/*       
-        {openAddwarehouseModal && (
-          <AddwarehouseModal
-            openModal={openAddwarehouseModal}
-            setOpenModal={setOpenAddwarehouseModal}
-            onwarehouseAdded={fetchWareHouse}
-            warehouseData={null}
-            isEdit={false}
-            
-          />
-        )}
-
-
+     
         {openEditwarehouseModal && selectedwarehouseData && (
-          <AddwarehouseModal
+          <AddWareHouseModal
             openModal={openEditwarehouseModal}
             setOpenModal={setOpenEditwarehouseModal}
-            onwarehouseAdded={fetchWareHouse}
+            // onwarehouseAdded={fetchWareHouse}
             warehouseData={selectedwarehouseData}
             isEdit={true}
           />
         )}
-
+{/*  
         
         {openDeleteModal && selectedwarehouseData && (
           <DeleteConfirmModal
