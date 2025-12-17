@@ -9,7 +9,7 @@ import Loader from "../../../components/Loader";
 import AddbrandModal from "./AddbrandModal";
 import DeleteConfirmModal from "../DeleteConfirmModal";
 import { FaSearch, FaTimes, FaEye, FaEdit, FaTrash } from "react-icons/fa";
-import { brandList } from "../../../Reducer/EcommerceNewSlice";
+import { brandDelete, brandList } from "../../../Reducer/EcommerceNewSlice";
 
 const Managebrand = () => {
   const dispatch = useDispatch();

@@ -3,11 +3,11 @@ import apiUser from "../store/ApiUser";
 
 
 
-export const priceTierList = createAsyncThunk(
-    'priceTierList',
+export const inventoryList = createAsyncThunk(
+    'inventoryList',
     async ({page,limit}, { rejectWithValue }) => {
         try {
-            const response = await apiUser.get(`/postgresapi/admin/decoration-price-tier/list?page=${page}&limit=${limit}`);
+            const response = await apiUser.get(`/postgresapi/admin/inventory-item/list?page=${page}&limit=${limit}`);
             if (response?.data?.status_code === 201 || response?.data?.status_code === 200) {
                 return response.data;
             } else {
@@ -45,8 +45,7 @@ export const addInventory = createAsyncThunk(
 const initialState={
     loading:false,
     error:false,
- 
-    allPriceTierList:[],
+    inventoryListData:[],
     addinventData:{}
 }
 const AddInvetoryNewSlice=createSlice(
@@ -56,15 +55,15 @@ const AddInvetoryNewSlice=createSlice(
         reducers:{},
         extraReducers:(builder)=>{
             builder
-            .addCase(priceTierList.pending,(state)=>{
+            .addCase(inventoryList.pending,(state)=>{
                 state.loading=true
             })
-            .addCase(priceTierList.fulfilled,(state,{payload})=>{
+            .addCase(inventoryList.fulfilled,(state,{payload})=>{
                 state.loading=false
-                state.allPriceTierList=payload
+                state.inventoryListData=payload
                 state.error=false
             })
-            .addCase(priceTierList.rejected,(state,{payload})=>{
+            .addCase(inventoryList.rejected,(state,{payload})=>{
                 state.loading=false
                 state.error=payload
             })

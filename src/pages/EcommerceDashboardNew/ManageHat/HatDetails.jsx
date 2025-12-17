@@ -18,16 +18,18 @@ import AddVariantModal from "./AddVariantModal";
 // import ViewInventoryModal from "./ViewInventoryModal";
 import DeleteConfirmModal from "../DeleteConfirmModal";
 // import { hatList } from "../../Reducer/EcommerceNewSlice";
-import { brandList, hatColorList, hatColorSingle, hatImageAdd, hatSingle, hatSizeSingle } from "../../../Reducer/EcommerceNewSlice";
+import { brandList, hatColorList, hatColorSingle, hatImageAdd, hatImageGet, hatSingle, hatSizeSingle } from "../../../Reducer/EcommerceNewSlice";
 import AddVariantSizeModal from "./AddVariantSizeModal";
 import AddVariantSizeInventoryModal from "./AddVariantSizeInventoryModal";
+import { inventoryList } from "../../../Reducer/AddInvetoryNewSlice";
 
 export const HatDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { pricetierListData } = useSelector((state) => state.ecom);
-  const { hatSingleData, brandListData, hatColorSingleData, hatSizeSingleData, loading } = useSelector((state) => state.newecom);
+  const { hatSingleData, brandListData, hatColorSingleData, hatSizeSingleData, hatImageGetData, loading } = useSelector((state) => state.newecom);
+  const { inventoryListData, loading: invenloading } = useSelector((state) => state.invent);
 
   const [hatData, setHatData] = useState(null);
   const [brandName, setBrandName] = useState("");
@@ -50,22 +52,24 @@ export const HatDetails = () => {
   const [openEditHatImageModal, setOpenEditHatImageModal] = useState(false);
   const [selectedImageData, setSelectedImageData] = useState(null);
   const [sizesByColor, setSizesByColor] = useState({});
+  const [hideFileUpload, setHideFileUpload] = useState('');
 
-const handleImageUpload = (e) => {
+  const handleImageUpload = (e) => {
     const file = e.target.files[0];
     if (!file) return;
 
     const formData = new FormData();
     formData.append("image", file);
     formData.append("hat_style_id", id);
-    formData.append("hat_color_id",0)
-    formData.append("image_type","png")
-    formData.append("alt_text","Cap Image")
-    formData.append("is_primary",1)
+    // formData.append("hat_color_id",0)
+    formData.append("image_type", "png")
+    formData.append("alt_text", "Cap Image")
+    formData.append("is_primary", 1)
 
-    dispatch(hatImageAdd(formData)).then((res)=>{
-      console.log("Res",res);
-      
+    dispatch(hatImageAdd(formData)).then((res) => {
+      console.log("Res", res);
+      toast.success(res?.payload?.data?.message)
+      fetchHatImage()
     });
   };
   // Function to fetch hat details
@@ -101,6 +105,44 @@ const handleImageUpload = (e) => {
         });
     }
   }, [id, dispatch]);
+  // fetch HatImage
+  const fetchHatImage = useCallback(() => {
+    if (id) {
+      dispatch(hatImageGet(id))
+        .unwrap()
+        .then((response) => {
+          console.log("hat image fetched:", response);
+          if(response?.data?.length>0){
+            setHideFileUpload('hidden')
+          }else{
+            setHideFileUpload('')
+          }
+        })
+        .catch((error) => {
+          console.error("Error fetching hat image:", error);
+          toast.error("Failed to fetch hat image.");
+        });
+    }
+  }, [id, dispatch]);
+
+  const fetchInventory = useCallback(() => {
+    if (id) {
+      dispatch(inventoryList({page:1,limit:100}))
+        .unwrap()
+        .then((response) => {
+          console.log("hat image fetched:", response);
+          if(response?.data?.length>0){
+            setHideFileUpload('hidden')
+          }else{
+            setHideFileUpload('')
+          }
+        })
+        .catch((error) => {
+          console.error("Error fetching hat image:", error);
+          toast.error("Failed to fetch hat image.");
+        });
+    }
+  }, [id, dispatch]);
 
   const fetchHatSizes = useCallback(
     async (hatColorId) => {
@@ -124,8 +166,9 @@ const handleImageUpload = (e) => {
   useEffect(() => {
     fetchHatDetails();
     fetchHatColor();
+    fetchHatImage();
 
-  }, [fetchHatDetails, fetchHatColor]);
+  }, [fetchHatDetails, fetchHatColor, fetchHatImage]);
 
   // Fetch brand to get supplier name
   useEffect(() => {
@@ -136,6 +179,7 @@ const handleImageUpload = (e) => {
       });
   }, [dispatch]);
 
+  console.log("hatImageGetData", hatImageGetData)
   // Get brand name from brandListData
   useEffect(() => {
     if (hatData && hatData?.brand_id) {
@@ -261,8 +305,8 @@ const handleImageUpload = (e) => {
       <button
         onClick={() => handleTogglePriceTierStatus(priceTierId, isActive)}
         className={`px-4 py-1 rounded-full text-white text-xs font-semibold transition-colors ${isActive
-            ? "bg-green-500 hover:bg-green-600"
-            : "bg-gray-400 hover:bg-gray-500"
+          ? "bg-green-500 hover:bg-green-600"
+          : "bg-gray-400 hover:bg-gray-500"
           }`}
         style={{ fontSize: '12px' }}
       >
@@ -443,9 +487,9 @@ const handleImageUpload = (e) => {
                             key={variant.id}
                             className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow"
                           >
-                         
+
                             <div className="flex items-start justify-between gap-4 mb-3">
-                              
+
                               <div className="flex-1 min-w-0">
                                 <div className="flex items-center gap-3 mb-2 flex-wrap">
                                   <h3 className="text-lg font-semibold text-gray-800">
@@ -454,14 +498,14 @@ const handleImageUpload = (e) => {
 
                                   <span
                                     className={`px-3 py-1 rounded-full text-xs font-semibold ${variant.is_active
-                                        ? "bg-green-100 text-green-700"
-                                        : "bg-gray-100 text-gray-700"
+                                      ? "bg-green-100 text-green-700"
+                                      : "bg-gray-100 text-gray-700"
                                       }`}
                                   >
                                     {variant.is_active ? "Active" : "Inactive"}
                                   </span>
 
-                                  <button
+                                  {/* <button
                                     onClick={() => {
                                       setSelectedVariantData(variant);
                                       setOpenEditVariantModal(true);
@@ -471,7 +515,7 @@ const handleImageUpload = (e) => {
                                   >
                                     <FaEdit size={12} />
                                     Edit
-                                  </button>
+                                  </button> */}
                                 </div>
 
                                 <div className="flex items-center gap-4 text-sm text-gray-600">
@@ -499,7 +543,7 @@ const handleImageUpload = (e) => {
                                 <div className="w-28 h-20 sm:w-32 sm:h-24 rounded-lg border border-gray-200 bg-gray-50 overflow-hidden flex items-center justify-center">
                                   {variant?.primary_image_url ? (
                                     <img
-                                      src={"https://arsalaanrasulshowmeropi.bestworks.cloud"+variant.primary_image_url}
+                                      src={"https://arsalaanrasulshowmeropi.bestworks.cloud" + variant.primary_image_url}
                                       alt={variant?.name ? `${variant.name} color` : "Hat color"}
                                       className="w-full h-full object-cover"
                                       loading="lazy"
@@ -517,7 +561,7 @@ const handleImageUpload = (e) => {
                             </div>
 
 
-                           
+
                             <div className="mt-4">
                               <div className="flex items-center justify-between mb-3">
                                 <h4 className="text-sm font-semibold text-gray-700 flex items-center gap-2">
@@ -544,7 +588,7 @@ const handleImageUpload = (e) => {
                                         <th className="px-4 py-2 text-left font-semibold text-gray-700">Size</th>
                                         <th className="px-4 py-2 text-left font-semibold text-gray-700">Variant Size Name</th>
                                         <th className="px-4 py-2 text-left font-semibold text-gray-700">Supplier SKU</th>
-                                       
+
                                         <th className="px-4 py-2 text-left font-semibold text-gray-700">Inventory</th>
                                       </tr>
                                     </thead>
@@ -571,7 +615,7 @@ const handleImageUpload = (e) => {
                                               "N/A"
                                             )}
                                           </td>
-                                     
+
                                           <td className="px-4 py-3">
                                             {size.inventory && size.inventory.length > 0 ? (
                                               <div className="flex items-center gap-2">
@@ -596,7 +640,7 @@ const handleImageUpload = (e) => {
                                                 >
                                                   <FaEdit size={12} />
                                                 </button>
-                                             
+
                                               </div>
                                             ) : (
                                               <button
@@ -624,7 +668,7 @@ const handleImageUpload = (e) => {
                               )}
                             </div>
 
-                        
+
                             <div className="mt-3 pt-3 border-t border-gray-100 text-xs text-gray-500">
                               <div className="flex items-center justify-between">
                                 <span>
@@ -664,7 +708,7 @@ const handleImageUpload = (e) => {
                     )}
                   </div>
                 </Tabs.Item>
-                <Tabs.Item
+                {/* <Tabs.Item
                   active={activeTab === 1}
                   title={
                     <div className="flex items-center gap-2">
@@ -674,7 +718,7 @@ const handleImageUpload = (e) => {
                   }
                   onClick={() => setActiveTab(1)}
                 >
-                  {/* Price Tier Content */}
+                
                   <div>
                     <div className="flex items-center justify-between mb-4">
                       <h2 className="text-xl font-semibold text-gray-800 flex items-center gap-2">
@@ -690,7 +734,7 @@ const handleImageUpload = (e) => {
                       </Button>
                     </div>
 
-                    {/* AG Grid Table */}
+                   
                     <div
                       className="ag-theme-alpine"
                       style={{ height: 400, width: "100%" }}
@@ -706,7 +750,7 @@ const handleImageUpload = (e) => {
                       />
                     </div>
                   </div>
-                </Tabs.Item>
+                </Tabs.Item> */}
               </Tabs>
             </div>
           </div>
@@ -726,15 +770,15 @@ const handleImageUpload = (e) => {
                   <FaPlus className="w-3 h-3" />
                   Add more images
                 </Button> */}
-             
+
 
               </div>
 
               {/* Primary Image */}
-              {hatData.images ? (
+              {hatImageGetData && hatImageGetData?.data?.length > 0 ? (
                 <div className="relative mb-4">
                   <img
-                    src={hatData.images}
+                    src={hatImageGetData?.data[hatImageGetData?.data?.length - 1]?.image_url}
                     alt={hatData.hatName || "Hat"}
                     className="w-full h-auto rounded-lg border border-gray-200 object-cover"
                     onError={(e) => {
@@ -762,10 +806,11 @@ const handleImageUpload = (e) => {
                   </div>
                 </div>
               )}
-                 <FileInput
-                 accept="image/*"
+              <FileInput
+              className={`${hideFileUpload}`}
+                accept="image/*"
                 onChange={handleImageUpload}
-                 />
+              />
 
               {/* Multi Images Grid */}
               {/* {hatData.hatImages && hatData.hatImages.length > 0 && (

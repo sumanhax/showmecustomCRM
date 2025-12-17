@@ -2,6 +2,7 @@ import { Modal, Select } from "flowbite-react";
 import { useForm } from "react-hook-form";
 import { useDispatch } from "react-redux";
 import { addInventory } from "../../../Reducer/AddInvetoryNewSlice";
+import { toast, ToastContainer } from "react-toastify";
 
 const AddVariantSizeInventoryModal=({
           openModal,
@@ -24,12 +25,21 @@ const AddVariantSizeInventoryModal=({
 const onSubmit=(data)=>{
     dispatch(addInventory({...data,hat_size_variant_id:variantSizeId})).then((res)=>{
         if(res?.payload?.status_code===201){
+            toast.success(res?.payload?.message)
              setOpenModal(false)
+        }else if(res?.payload?.status_code===400){
+            toast.error(res?.payload?.message)
+            setOpenModal(false)
         }
+    }).catch((err)=>{
+        toast.error(err)
+        console.log("inven error",err)
     })
+    
 }
     return(
         <>
+        <ToastContainer/>
         <Modal
                 show={openModal}
                 onClose={() => {

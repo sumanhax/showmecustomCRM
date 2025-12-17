@@ -99,6 +99,25 @@ export const brandSingle = createAsyncThunk(
         }
     }
 )
+export const brandDelete = createAsyncThunk(
+    'ecommerce/brandDelete',
+    async (id, { rejectWithValue }) => {
+        try {
+            const response = await apiUser.delete(`/postgresapi/admin/brand/delete/${id}`);
+            if (response?.data?.status_code === 201 || response?.data?.status_code === 200) {
+                return response.data;
+            } else {
+                if (response?.data?.errors) {
+                    return rejectWithValue(response.data.errors);
+                } else {
+                    return rejectWithValue('Something went wrong.');
+                }
+            }
+        } catch (err) {
+            return rejectWithValue(err);
+        }
+    }
+)
 // hat api's
 export const hatAdd = createAsyncThunk(
     'ecommerce/hatAdd',
@@ -143,6 +162,25 @@ export const hatSingle = createAsyncThunk(
     async (id, { rejectWithValue }) => {
         try {
             const response = await apiUser.get(`/postgresapi/admin/hat/list?id=${id}`);
+            if (response?.data?.status_code === 201 || response?.data?.status_code === 200) {
+                return response.data;
+            } else {
+                if (response?.data?.errors) {
+                    return rejectWithValue(response.data.errors);
+                } else {
+                    return rejectWithValue('Something went wrong.');
+                }
+            }
+        } catch (err) {
+            return rejectWithValue(err);
+        }
+    }
+)
+export const hatDelete = createAsyncThunk(
+    'ecommerce/hatDelete',
+    async (id, { rejectWithValue }) => {
+        try {
+            const response = await apiUser.delete(`/postgresapi/admin/hat/delete/${id}`);
             if (response?.data?.status_code === 201 || response?.data?.status_code === 200) {
                 return response.data;
             } else {

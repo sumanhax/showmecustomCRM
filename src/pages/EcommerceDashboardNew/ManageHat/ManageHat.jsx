@@ -11,7 +11,7 @@ import Loader from "../../../components/Loader";
 import AddHatModal from "./AddHatModal";
 import DeleteConfirmModal from "../../EcommerceDashboard/DeleteConfirmModal";
 import { FaSearch, FaTimes, FaEye, FaEdit, FaTrash } from "react-icons/fa";
-import { hatList, hatAdd, hatSingle, brandList  } from "../../../Reducer/EcommerceNewSlice";
+import { hatList, hatAdd, hatSingle, brandList, hatDelete  } from "../../../Reducer/EcommerceNewSlice";
 // import { hatAdd, hatList } from "../../../Reducer/EcommerceNewSlice";
 
 const ManageHat = () => {
