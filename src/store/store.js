@@ -44,6 +44,7 @@ import EcommerceSlice from '../Reducer/EcommerceSlice'
 import EcommerceNewSlice from '../Reducer/EcommerceNewSlice'
 import ManagePriceTireNewSlice from '../Reducer/ManagePriceTireNewSlice'
 import ManageWareHouseNewSlice from '../Reducer/ManageWareHouseNewSlice'
+import ManageDecorationNewSlice from '../Reducer/ManageDecorationNewSlice'
 import AddInvetoryNewSlice from '../Reducer/AddInvetoryNewSlice'
 const store = configureStore({
   reducer: {
@@ -92,7 +93,8 @@ const store = configureStore({
     newecom:EcommerceNewSlice,
     decoration:ManagePriceTireNewSlice,
     warehouse:ManageWareHouseNewSlice,
-    invent:AddInvetoryNewSlice
+    invent:AddInvetoryNewSlice,
+    decaddon:ManageDecorationNewSlice
   },
   devTools: import.meta.env.DEV,
 });

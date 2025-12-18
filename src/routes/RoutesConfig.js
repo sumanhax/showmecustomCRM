@@ -57,6 +57,10 @@ import ManageLogo from '../pages/EcommerceDashboard/ManageLogo.jsx';
 import ManagePriceTier from '../pages/EcommerceDashboard/ManagePriceTier.jsx';
 import ManagePriceTire from '../pages/EcommerceDashboardNew/PricingTire/ManagePriceTire.jsx';
 import ManageWareHouse from '../pages/EcommerceDashboardNew/WareHouse/ManageWareHouse.jsx';
+import ManageDecorationAddon from '../pages/EcommerceDashboardNew/DecorationAddon/ManageDecorationAddon.jsx';
+import DecorationAddonDetails from '../pages/EcommerceDashboardNew/DecorationAddon/DecorationAddonDetails.jsx';
+import ManageOrder from '../pages/EcommerceDashboardNew/Order/ManageOrder.jsx';
+import OrderDetails from '../pages/EcommerceDashboardNew/Order/OrderDetails.jsx';
 
 
 const allRoutes = [
@@ -544,12 +548,52 @@ const allRoutes = [
     ],  
   },
     {
+    path: '/decoration-addon',
+    element: <InsideLayout />,
+    children: [
+      {
+        index: true,
+        element: <ManageDecorationAddon />,
+      },
+    ],  
+  },
+    {
+    path: '/decoration-details/:id',
+    element: <InsideLayout />,
+    children: [
+      {
+        index: true,
+        element: <DecorationAddonDetails />,
+      },
+    ],  
+  },
+    {
     path: '/warehouse',
     element: <InsideLayout />,
     children: [
       {
         index: true,
         element: <ManageWareHouse />,
+      },
+    ],  
+  },
+    {
+    path: '/order',
+    element: <InsideLayout />,
+    children: [
+      {
+        index: true,
+        element: <ManageOrder />,
+      },
+    ],  
+  },
+    {
+    path: '/order/:customerId',
+    element: <InsideLayout />,
+    children: [
+      {
+        index: true,
+        element: <OrderDetails />,
       },
     ],  
   },

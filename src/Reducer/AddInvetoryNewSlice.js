@@ -1,13 +1,11 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import apiUser from "../store/ApiUser";
 
-
-
 export const inventoryList = createAsyncThunk(
     'inventoryList',
-    async ({page,limit}, { rejectWithValue }) => {
+    async (_, { rejectWithValue }) => {
         try {
-            const response = await apiUser.get(`/postgresapi/admin/inventory-item/list?page=${page}&limit=${limit}`);
+            const response = await apiUser.get(`/postgresapi/admin/inventory-item/list?page=${1}&limit=${1000}`);
             if (response?.data?.status_code === 201 || response?.data?.status_code === 200) {
                 return response.data;
             } else {

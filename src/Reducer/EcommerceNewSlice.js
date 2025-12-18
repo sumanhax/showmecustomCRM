@@ -312,6 +312,45 @@ export const hatSizeSingle = createAsyncThunk(
     }
 )
 
+// orders's API
+export const orderList = createAsyncThunk(
+    'ecommerce/orderList',
+    async ({page,limit}, { rejectWithValue }) => {
+        try {
+            const response = await apiUser.get(`/postgresapi/admin/order/list?page=${page}&limit=${limit}`);
+            if (response?.data?.status_code === 201 || response?.data?.status_code === 200) {
+                return response.data;
+            } else {
+                if (response?.data?.errors) {
+                    return rejectWithValue(response.data.errors);
+                } else {
+                    return rejectWithValue('Something went wrong.');
+                }
+            }
+        } catch (err) {
+            return rejectWithValue(err);
+        }
+    }
+)
+export const orderSingle = createAsyncThunk(
+    'ecommerce/orderSingle',
+    async ({page,limit,id}, { rejectWithValue }) => {
+        try {
+            const response = await apiUser.get(`/postgresapi/admin/order/list?page=${page}&limit=${limit}&id=${id}`);
+            if (response?.data?.status_code === 201 || response?.data?.status_code === 200) {
+                return response.data;
+            } else {
+                if (response?.data?.errors) {
+                    return rejectWithValue(response.data.errors);
+                } else {
+                    return rejectWithValue('Something went wrong.');
+                }
+            }
+        } catch (err) {
+            return rejectWithValue(err);
+        }
+    }
+)
 const initialState = {
     error: null,
     loading: false,
@@ -323,7 +362,9 @@ const initialState = {
     hatColorSingleData:{},
     hatSizeListData:{},
     hatSizeSingleData:{},
-    hatImageGetData:{}
+    hatImageGetData:{},
+    orderListData:{},
+    orderSingleData:{},
 }
 
 //slice part
@@ -528,6 +569,34 @@ const AddSlice = createSlice(
                 state.hatImageGetData=payload
             })
             .addCase(hatImageGet.rejected, (state, { payload }) => {
+                state.loading = false;
+                state.error = payload;
+            })
+            .addCase(orderList.pending, (state) => {
+                state.message = null
+                state.loading = true;
+                state.error = null
+            })
+            .addCase(orderList.fulfilled, (state, { payload }) => {
+                state.loading = false;
+                state.message = payload;
+                state.orderListData=payload
+            })
+            .addCase(orderList.rejected, (state, { payload }) => {
+                state.loading = false;
+                state.error = payload;
+            })
+            .addCase(orderSingle.pending, (state) => {
+                state.message = null
+                state.loading = true;
+                state.error = null
+            })
+            .addCase(orderSingle.fulfilled, (state, { payload }) => {
+                state.loading = false;
+                state.message = payload;
+                state.orderSingleData=payload
+            })
+            .addCase(orderSingle.rejected, (state, { payload }) => {
                 state.loading = false;
                 state.error = payload;
             })

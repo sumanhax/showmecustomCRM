@@ -457,6 +457,17 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                             </li>
                               <li>
                                <NavLink
+                                to="/decoration-addon"
+                                className={`group relative flex items-center gap-2 rounded-sm px-4 py-2 justify-start font-normal text-sm text-gray-600 duration-300 ease-in-out hover:bg-graydark mb-2 ${pathname.includes('pricing-tire') &&
+                                  'bg-graydark dark:bg-meta-4'
+                                  }`}
+                              >
+                                <MdStorefront className='text-xl' />
+                                Decorat Add-On
+                              </NavLink>
+                            </li>
+                              <li>
+                               <NavLink
                                 to="/warehouse"
                                 className={`group relative flex items-center gap-2 rounded-sm px-4 py-2 justify-start font-normal text-sm text-gray-600 duration-300 ease-in-out hover:bg-graydark mb-2 ${pathname.includes('pricing-tire') &&
                                   'bg-graydark dark:bg-meta-4'
@@ -464,6 +475,17 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                               >
                                 <MdStorefront className='text-xl' />
                                 Warehouse
+                              </NavLink>
+                            </li>
+                              <li>
+                               <NavLink
+                                to="/order"
+                                className={`group relative flex items-center gap-2 rounded-sm px-4 py-2 justify-start font-normal text-sm text-gray-600 duration-300 ease-in-out hover:bg-graydark mb-2 ${pathname.includes('pricing-tire') &&
+                                  'bg-graydark dark:bg-meta-4'
+                                  }`}
+                              >
+                                <MdStorefront className='text-xl' />
+                                Orders
                               </NavLink>
                             </li>
                           </ul>
