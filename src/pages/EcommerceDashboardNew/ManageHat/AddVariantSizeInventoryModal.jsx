@@ -47,7 +47,7 @@ const onSubmit=(data)=>{
                 }}
                 size="md"
                 >
-                <Modal.Header>{isEdit ? "Edit Hat" : "Add New Inventory"}</Modal.Header>
+                <Modal.Header>{isEdit ? "Edit Inventory" : "Add New Inventory"}</Modal.Header>
                 <Modal.Body>
                 <form 
                  onSubmit={handleSubmit(onSubmit)}
