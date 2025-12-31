@@ -91,7 +91,8 @@ const Login = () => {
       dispatch(login(data)).then((res) => {
         console.log("Res admin: ", res);
         if (res?.payload?.status_code === 200) {
-          navigate("/crm-dashboard");
+         // navigate("/crm-dashboard");
+         navigate("/brand")
         }else if(res?.payload?.response?.data?.status_code === 422){
           toast.error(res?.payload?.response?.data?.message);
         }else {

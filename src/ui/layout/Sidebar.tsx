@@ -229,7 +229,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                         {open && !sidebarOpen && (
                           <ul className="mb-2 mt-1 flex flex-col gap-0.5 pl-4">
                             {/* Leads - Only visible to manager and admin */}
-                            {(userRole === 'manager' || userRole === 'admin') && (
+                            {/* {(userRole === 'manager' || userRole === 'admin') && (
                               <li>
                                 <NavLink
                                   to="/crm-dashboard"
@@ -241,9 +241,9 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                                   Dashboard
                                 </NavLink>
                               </li>
-                            )}
+                            )} */}
                             {/* Leads - Only visible to manager and admin */}
-                            {(userRole === 'manager' || userRole === 'admin') && (
+                            {/* {(userRole === 'manager' || userRole === 'admin') && (
                               <li>
                                 <NavLink
                                   to="/leads"
@@ -255,10 +255,10 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                                   Leads
                                 </NavLink>
                               </li>
-                            )}
+                            )} */}
 
                             {/* Reps - Only visible to manager and admin */}
-                            {(userRole === 'manager' || userRole === 'admin') && (
+                            {/* {(userRole === 'manager' || userRole === 'admin') && (
                               <li>
                                 <NavLink
                                   to="/reps"
@@ -270,10 +270,10 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                                   Reps
                                 </NavLink>
                               </li>
-                            )}
+                            )} */}
 
                             {/* Partner - Only visible to admin */}
-                            {(userRole === 'admin') && (
+                            {/* {(userRole === 'admin') && (
                               <li>
                                 <NavLink
                                   to="/partner"
@@ -285,10 +285,10 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                                   Partner
                                 </NavLink>
                               </li>
-                            )}
+                            )} */}
 
                             {/* Admin Mailbox - Only visible to admin */}
-                            {userRole === 'admin' && (
+                            {/* {userRole === 'admin' && (
                               <li>
                                 <NavLink
                                   to="/admin-mailbox"
@@ -300,10 +300,10 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                                   Mailbox
                                 </NavLink>
                               </li>
-                            )}
+                            )} */}
 
                             {/* Kanban Sample - Only visible to manager and admin */}
-                            {(userRole === 'manager' || userRole === 'admin') && (
+                            {/* {(userRole === 'manager' || userRole === 'admin') && (
                               <li>
                                 <NavLink
                                   to="/kanban-sample"
@@ -315,10 +315,10 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                                   Kanban Sample
                                 </NavLink>
                               </li>
-                            )}
+                            )} */}
 
                             {/* Kanban Bulk Order - Only visible to manager and admin */}
-                            {(userRole === 'manager' || userRole === 'admin') && (
+                            {/* {(userRole === 'manager' || userRole === 'admin') && (
                               <li>
                                 <NavLink
                                   to="/kanban-bulk"
@@ -330,7 +330,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                                   Kanban Bulk Order
                                 </NavLink>
                               </li>
-                            )}
+                            )} */}
                           </ul>
                         )}
                       </>
@@ -497,7 +497,8 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
               )}
 
               {/* Rep Dashboard - Only visible to rep */}
-              {userRole === 'rep' && (
+
+              {/* {userRole === 'rep' && (
                 <li>
                   <NavLink
                     to="/rep-dashboard"
@@ -539,8 +540,12 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                   </NavLink>
                 </li>
               )}
+               */}
               
               {/* Kanban - Only visible to rep (outside of CRM dashboard) */}
+
+
+{/*               
               {userRole === 'rep' && (
                 <li>
                   <NavLink
@@ -582,7 +587,21 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                     }
                   </NavLink>
                 </li>
-              )}
+              )} */}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
                  {/* <li>
                 <NavLink
