@@ -1,17 +1,17 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import api from "../store/Api";
+import bulkUploadApi from "../store/BulkUploadApi";
 
 
 export const bulkUpload = createAsyncThunk(
   "bulkUpload/upload",
   async (formData, { rejectWithValue }) => {
     try {
-      const response = await api.post(
+      const response = await bulkUploadApi.post(
         "/api/bulkupload/upload",
         formData
       );
 
-      if (response?.data?.status_code === 200) {
+      if (response?.data?.success === true) {
         return response.data;
       } else {
         return rejectWithValue(response.data);

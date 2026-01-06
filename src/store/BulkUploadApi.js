@@ -1,8 +1,8 @@
 import axios from 'axios';
-const api = axios.create({ baseURL: import.meta.env.VITE_API_BASE_URL });
+const bulkUploadApi = axios.create({ baseURL: import.meta.env.VITE_API_BASE_URL_BULK });
 let domain = window.location.origin
-const formDataURL = ['/api/admin/hat/hat-images','/api/admin/hat/hat-images-update'];
-api.interceptors.request.use((req) => {
+const formDataURL = ['/api/bulkupload/upload'];
+bulkUploadApi.interceptors.request.use((req) => {
   let userTokenData;
   try {
     userTokenData = JSON.parse(sessionStorage.getItem('crm_login_token'));
@@ -28,7 +28,7 @@ api.interceptors.request.use((req) => {
   return req;
 });
 
-api.interceptors.response.use(
+bulkUploadApi.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response && [401, 403].includes(error.response.status)) {
@@ -38,4 +38,4 @@ api.interceptors.response.use(
   }
 );
 
-export default api;
+export default bulkUploadApi;

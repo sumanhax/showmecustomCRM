@@ -96,7 +96,7 @@ const store = configureStore({
     warehouse:ManageWareHouseNewSlice,
     invent:AddInvetoryNewSlice,
     decaddon:ManageDecorationNewSlice,
-    BulkUpload:BulkUploadSlice
+    bulkUpload:BulkUploadSlice
   },
   devTools: import.meta.env.DEV,
 });

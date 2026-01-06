@@ -45,13 +45,13 @@ import AdminMailbox from '../pages/AdminMailbox/AdminMailbox.jsx';
 import MyProfile from '../pages/MyProfile/myProfile.jsx';
 import SingleLead from '../pages/ManageLeads/SingleLead.jsx';
 import ManageKanbanBulkOrder from '../pages/Kanban/ManageKanbanBulkOrder.jsx';
-import  ManageSupplier  from '../pages/EcommerceDashboard/ManageSupplier.jsx';
+import ManageSupplier from '../pages/EcommerceDashboard/ManageSupplier.jsx';
 // import ManageHat from '../pages/EcommerceDashboard/ManageHat.jsx';
 import ManageHat from '../pages/EcommerceDashboardNew/ManageHat/ManageHat.jsx';
 import ManageBrand from '../pages/EcommerceDashboardNew/ManageBrand/ManageBrand.jsx';
-import  ManageInventory  from '../pages/EcommerceDashboard/ManageInventory.jsx';
+import ManageInventory from '../pages/EcommerceDashboard/ManageInventory.jsx';
 // import { HatDetails } from '../pages/EcommerceDashboard/HatDetails.jsx';
-import  {HatDetails}  from '../pages/EcommerceDashboardNew/ManageHat/HatDetails.jsx';
+import { HatDetails } from '../pages/EcommerceDashboardNew/ManageHat/HatDetails.jsx';
 import ManageDecoration from '../pages/EcommerceDashboard/ManageDecoration.jsx';
 import ManageLogo from '../pages/EcommerceDashboard/ManageLogo.jsx';
 import ManagePriceTier from '../pages/EcommerceDashboard/ManagePriceTier.jsx';
@@ -61,6 +61,7 @@ import ManageDecorationAddon from '../pages/EcommerceDashboardNew/DecorationAddo
 import DecorationAddonDetails from '../pages/EcommerceDashboardNew/DecorationAddon/DecorationAddonDetails.jsx';
 import ManageOrder from '../pages/EcommerceDashboardNew/Order/ManageOrder.jsx';
 import OrderDetails from '../pages/EcommerceDashboardNew/Order/OrderDetails.jsx';
+import BulkUpload from '../pages/BulkUpload/BulkUpload.jsx';
 
 
 const allRoutes = [
@@ -168,7 +169,7 @@ const allRoutes = [
       },
     ],
   },
- 
+
   {
     path: '/manage-question',
     element: <InsideLayout />,
@@ -191,7 +192,7 @@ const allRoutes = [
     ],
   },
 
-    {
+  {
     path: '/manage-mood-equilizer',
     element: <InsideLayout />,
     children: [
@@ -299,7 +300,7 @@ const allRoutes = [
     ],
   },
 
-    {
+  {
     path: '/task-manager',
     element: <InsideLayout />,
     children: [
@@ -309,7 +310,7 @@ const allRoutes = [
       },
     ],
   },
-    {
+  {
     path: '/rep-dashboard',
     element: <InsideLayout />,
     children: [
@@ -319,7 +320,7 @@ const allRoutes = [
       },
     ],
   },
-    {
+  {
     path: '/rep-mailbox',
     element: <InsideLayout />,
     children: [
@@ -339,7 +340,7 @@ const allRoutes = [
       },
     ],
   },
-   {
+  {
     path: '/profile',
     element: <InsideLayout />,
     children: [
@@ -393,7 +394,7 @@ const allRoutes = [
         index: true,
         element: <ManageKanban />,
       },
-    ],  
+    ],
   },
   {
     path: '/kanban-bulk',
@@ -403,7 +404,7 @@ const allRoutes = [
         index: true,
         element: <ManageKanbanBulkOrder />,
       },
-    ],  
+    ],
   },
   {
     path: '/leads',
@@ -413,7 +414,7 @@ const allRoutes = [
         index: true,
         element: <ManageLeads />,
       },
-    ],  
+    ],
   },
   {
     path: '/partner',
@@ -423,7 +424,7 @@ const allRoutes = [
         index: true,
         element: <ManagePartner />,
       },
-    ],  
+    ],
   },
   {
     path: '/reps',
@@ -433,7 +434,7 @@ const allRoutes = [
         index: true,
         element: <ManageReps />,
       },
-    ],  
+    ],
   },
   {
     path: '/crm-dashboard',
@@ -443,7 +444,7 @@ const allRoutes = [
         index: true,
         element: <CRMdashboard />,
       },
-    ],  
+    ],
   },
   {
     path: '/lead-details/:id',
@@ -453,7 +454,7 @@ const allRoutes = [
         index: true,
         element: <SingleLead />,
       },
-    ],  
+    ],
   },
   {
     path: '/supplier',
@@ -463,7 +464,7 @@ const allRoutes = [
         index: true,
         element: <ManageSupplier />,
       },
-    ],  
+    ],
   },
 
   {
@@ -474,7 +475,7 @@ const allRoutes = [
         index: true,
         element: <HatDetails />,
       },
-    ],  
+    ],
   },
   {
     path: '/inventory',
@@ -484,7 +485,7 @@ const allRoutes = [
         index: true,
         element: <ManageInventory />,
       },
-    ],  
+    ],
   },
   {
     path: '/decoration',
@@ -494,7 +495,7 @@ const allRoutes = [
         index: true,
         element: <ManageDecoration />,
       },
-    ],  
+    ],
   },
   {
     path: '/logo',
@@ -504,7 +505,7 @@ const allRoutes = [
         index: true,
         element: <ManageLogo />,
       },
-    ],  
+    ],
   },
   {
     path: '/pricetier',
@@ -514,7 +515,7 @@ const allRoutes = [
         index: true,
         element: <ManagePriceTier />,
       },
-    ],  
+    ],
   },
   {
     path: '/hat',
@@ -524,7 +525,7 @@ const allRoutes = [
         index: true,
         element: <ManageHat />,
       },
-    ],  
+    ],
   },
   {
     path: '/brand',
@@ -534,10 +535,10 @@ const allRoutes = [
         index: true,
         element: <ManageBrand />,
       },
-    ],  
+    ],
   },
 
-    {
+  {
     path: '/pricing-tire',
     element: <InsideLayout />,
     children: [
@@ -545,9 +546,9 @@ const allRoutes = [
         index: true,
         element: <ManagePriceTire />,
       },
-    ],  
+    ],
   },
-    {
+  {
     path: '/decoration-addon',
     element: <InsideLayout />,
     children: [
@@ -555,9 +556,9 @@ const allRoutes = [
         index: true,
         element: <ManageDecorationAddon />,
       },
-    ],  
+    ],
   },
-    {
+  {
     path: '/decoration-details/:id',
     element: <InsideLayout />,
     children: [
@@ -565,9 +566,9 @@ const allRoutes = [
         index: true,
         element: <DecorationAddonDetails />,
       },
-    ],  
+    ],
   },
-    {
+  {
     path: '/warehouse',
     element: <InsideLayout />,
     children: [
@@ -575,9 +576,9 @@ const allRoutes = [
         index: true,
         element: <ManageWareHouse />,
       },
-    ],  
+    ],
   },
-    {
+  {
     path: '/order',
     element: <InsideLayout />,
     children: [
@@ -585,9 +586,9 @@ const allRoutes = [
         index: true,
         element: <ManageOrder />,
       },
-    ],  
+    ],
   },
-    {
+  {
     path: '/order/:customerId',
     element: <InsideLayout />,
     children: [
@@ -595,7 +596,17 @@ const allRoutes = [
         index: true,
         element: <OrderDetails />,
       },
-    ],  
+    ],
+  },
+  {
+    path: '/bulk-upload',
+    element: <InsideLayout />,
+    children: [
+      {
+        index: true,
+        element: <BulkUpload />,
+      },
+    ],
   },
 
   {

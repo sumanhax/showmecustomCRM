@@ -7,7 +7,7 @@ import { logo, showme, smallLogo } from '../../assets/images/images';
 
 import { AiFillSetting, AiFillTag, AiFillTags, AiOutlineDashboard, AiOutlineLogout, AiOutlineNotification, AiOutlineUser, BiLineChart, BiLineChartDown, BsPersonWorkspace, BsViewStacked, FiHome, MdManageAccounts, MdOutlineShoppingCartCheckout, MdSpaceDashboard, MdViewStream, PiClipboardTextBold, RiCoupon2Fill, RiCouponLine, RxDashboard, TfiMenuAlt } from "../../assets/icons/index";
 import { FaCircle, FaFirstOrderAlt } from 'react-icons/fa';
-import { MdSportsKabaddi, MdFamilyRestroom, MdSchool,MdOutlineMail , MdAdminPanelSettings, MdOutlineSubscriptions, MdSubscriptions, MdTopic, MdPayment, MdClass, MdCategory, MdOutlineDashboard, MdStorefront, MdKeyboardArrowDown } from 'react-icons/md';
+import { MdSportsKabaddi, MdFamilyRestroom, MdSchool, MdOutlineMail, MdAdminPanelSettings, MdOutlineSubscriptions, MdSubscriptions, MdTopic, MdPayment, MdClass, MdCategory, MdOutlineDashboard, MdStorefront, MdKeyboardArrowDown } from 'react-icons/md';
 import userRoles from '../../pages/utils/userRoles';
 import { SiLevelsdotfyi } from "react-icons/si";
 import { RiSoundModuleFill, RiUserFollowFill } from 'react-icons/ri';
@@ -41,9 +41,9 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
     storedSidebarExpanded === null ? false : storedSidebarExpanded === 'true'
   );
 
-  const {authData} = useSelector((state:any)=>state.auth);
+  const { authData } = useSelector((state: any) => state.auth);
   const userRole = localStorage.getItem('user_role');
-  console.log("userRole",userRole);
+  console.log("userRole", userRole);
   // close on click outside
   useEffect(() => {
     const clickHandler = ({ target }: MouseEvent) => {
@@ -104,7 +104,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
       {/* <!-- SIDEBAR HEADER --> */}
       <div className="flex items-center justify-between gap-2 px-4 py-5 lg:py-[23px]">
         <NavLink className="text-center w-full" to="/">
-   
+
           {sidebarOpen ?
             <>
               <div className="text-center mb-8">
@@ -210,8 +210,8 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                             handleClick();
                           }}
                           className={`group relative flex items-center gap-2 rounded-sm px-4 py-2 ${sidebarOpen ? 'justify-center' : 'justify-start'} font-normal text-sm text-gray-600 duration-300 ease-in-out hover:bg-graydark mb-2 ${(pathname.includes('crm-dashboard') || pathname.includes('leads') || pathname.includes('reps') || pathname.includes('partner') || pathname.includes('admin-mailbox') || pathname.includes('kanban-sample') || pathname.includes('kanban-bulk')) &&
-                          'bg-graydark dark:bg-meta-4'
-                          }`}
+                            'bg-graydark dark:bg-meta-4'
+                            }`}
                         >
                           {sidebarOpen ?
                             <>
@@ -395,7 +395,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                           //       Hat
                           //     </NavLink>
                           //   </li>
-                            
+
                           //   { <li>
                           //     <NavLink
                           //       to="/decoration"
@@ -407,7 +407,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                           //       Decoration
                           //     </NavLink>
                           //   </li> }
-                            
+
                           //   { <li>
                           //     <NavLink
                           //       to="/logo"
@@ -421,9 +421,9 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                           //   </li> }
                           // </ul>
                           <ul className="mb-2 mt-1 flex flex-col gap-0.5 pl-4">
-                             
+
                             <li>
-                               <NavLink
+                              <NavLink
                                 to="/brand"
                                 className={`group relative flex items-center gap-2 rounded-sm px-4 py-2 justify-start font-normal text-sm text-gray-600 duration-300 ease-in-out hover:bg-graydark mb-2 ${pathname.includes('supplier') &&
                                   'bg-graydark dark:bg-meta-4'
@@ -434,7 +434,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                               </NavLink>
                             </li>
                             <li>
-                               <NavLink
+                              <NavLink
                                 to="/hat"
                                 className={`group relative flex items-center gap-2 rounded-sm px-4 py-2 justify-start font-normal text-sm text-gray-600 duration-300 ease-in-out hover:bg-graydark mb-2 ${pathname.includes('supplier') &&
                                   'bg-graydark dark:bg-meta-4'
@@ -444,8 +444,8 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                                 Hat
                               </NavLink>
                             </li>
-                              <li>
-                               <NavLink
+                            <li>
+                              <NavLink
                                 to="/pricing-tire"
                                 className={`group relative flex items-center gap-2 rounded-sm px-4 py-2 justify-start font-normal text-sm text-gray-600 duration-300 ease-in-out hover:bg-graydark mb-2 ${pathname.includes('pricing-tire') &&
                                   'bg-graydark dark:bg-meta-4'
@@ -455,8 +455,8 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                                 Price Tire
                               </NavLink>
                             </li>
-                              <li>
-                               <NavLink
+                            <li>
+                              <NavLink
                                 to="/decoration-addon"
                                 className={`group relative flex items-center gap-2 rounded-sm px-4 py-2 justify-start font-normal text-sm text-gray-600 duration-300 ease-in-out hover:bg-graydark mb-2 ${pathname.includes('pricing-tire') &&
                                   'bg-graydark dark:bg-meta-4'
@@ -466,8 +466,8 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                                 Decorat Add-On
                               </NavLink>
                             </li>
-                              <li>
-                               <NavLink
+                            <li>
+                              <NavLink
                                 to="/warehouse"
                                 className={`group relative flex items-center gap-2 rounded-sm px-4 py-2 justify-start font-normal text-sm text-gray-600 duration-300 ease-in-out hover:bg-graydark mb-2 ${pathname.includes('pricing-tire') &&
                                   'bg-graydark dark:bg-meta-4'
@@ -477,8 +477,8 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                                 Warehouse
                               </NavLink>
                             </li>
-                              <li>
-                               <NavLink
+                            <li>
+                              <NavLink
                                 to="/order"
                                 className={`group relative flex items-center gap-2 rounded-sm px-4 py-2 justify-start font-normal text-sm text-gray-600 duration-300 ease-in-out hover:bg-graydark mb-2 ${pathname.includes('pricing-tire') &&
                                   'bg-graydark dark:bg-meta-4'
@@ -486,6 +486,17 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                               >
                                 <MdStorefront className='text-xl' />
                                 Orders
+                              </NavLink>
+                            </li>
+                            <li>
+                              <NavLink
+                                to="/bulk-upload"
+                                className={`group relative flex items-center gap-2 rounded-sm px-4 py-2 justify-start font-normal text-sm text-gray-600 duration-300 ease-in-out hover:bg-graydark mb-2 ${pathname.includes('pricing-tire') &&
+                                  'bg-graydark dark:bg-meta-4'
+                                  }`}
+                              >
+                                <MdStorefront className='text-xl' />
+                                Bulk Upload
                               </NavLink>
                             </li>
                           </ul>
@@ -541,11 +552,11 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                 </li>
               )}
                */}
-              
+
               {/* Kanban - Only visible to rep (outside of CRM dashboard) */}
 
 
-{/*               
+              {/*               
               {userRole === 'rep' && (
                 <li>
                   <NavLink
@@ -603,7 +614,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
 
 
 
-                 {/* <li>
+              {/* <li>
                 <NavLink
                   to="/task-manager"
                   className={`group relative flex items-center gap-2 rounded-sm px-4 py-2 ${sidebarOpen ? 'justify-center' : 'justify-start'} font-normal text-sm text-gray-600 duration-300 ease-in-out hover:bg-graydark mb-2 ${pathname.includes('manage-mood-masters') &&
@@ -623,7 +634,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                 </NavLink>
               </li> */}
 
-               {/* <li>
+              {/* <li>
                 <NavLink
                   to="/manage-question"
                   className={`group relative flex items-center gap-2 rounded-sm px-4 py-2 ${sidebarOpen ? 'justify-center' : 'justify-start'} font-normal text-sm text-gray-600 duration-300 ease-in-out hover:bg-graydark mb-2 ${pathname.includes('manage-question') &&
@@ -642,7 +653,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                   }
                 </NavLink>
               </li> */}
-               {/* <li>
+              {/* <li>
                 <NavLink
                   to="/manage-answer"
                   className={`group relative flex items-center gap-2 rounded-sm px-4 py-2 ${sidebarOpen ? 'justify-center' : 'justify-start'} font-normal text-sm text-gray-600 duration-300 ease-in-out hover:bg-graydark mb-2 ${pathname.includes('manage-answer') &&
@@ -662,7 +673,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                 </NavLink>
               </li> */}
 
-               {/* <li>
+              {/* <li>
                 <NavLink
                   to="/manage-blog"
                   className={`group relative flex items-center gap-2 rounded-sm px-4 py-2 ${sidebarOpen ? 'justify-center' : 'justify-start'} font-normal text-sm text-gray-600 duration-300 ease-in-out hover:bg-graydark mb-2 ${pathname.includes('manage-blog') &&
@@ -682,7 +693,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                 </NavLink>
               </li> */}
 
-{/* 
+              {/* 
                   <li>
                 <NavLink
                   to="/manage-mood-equilizer"
@@ -702,7 +713,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                   }
                 </NavLink>
               </li> */}
-                
+
               {/* {
                 currentUserRole==='SA'&&(
                   <>
