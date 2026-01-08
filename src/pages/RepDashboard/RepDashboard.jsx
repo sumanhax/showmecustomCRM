@@ -120,7 +120,7 @@ const RepDashboard = () => {
   const handleActionStatusChange = (actionId, newStatus) => {
     console.log("Updating action status:", { actionId, newStatus });
     
-    axios.post("https://n8nnode.bestworks.cloud/webhook/action-status-update", {
+    axios.post("https://n8n.bestworks.cloud/webhook/action-status-update", {
       id: actionId,
       status: newStatus
     })
@@ -143,7 +143,7 @@ const RepDashboard = () => {
   useEffect(() => {
     setIsLoadingLeads(true);
     axios
-      .get("https://n8nnode.bestworks.cloud/webhook/airtable-lead-fetch")
+      .get("https://n8n.bestworks.cloud/webhook/airtable-lead-fetch")
       .then((res) => {
         console.log("All leads fetched:", res.data);
         // Filter leads by current rep ID
@@ -189,7 +189,7 @@ const RepDashboard = () => {
   // Handle marking notification as read
   const handleMarkAsRead = (noteId) => {
     console.log("Marking note as read:", noteId);
-    axios.post('https://n8nnode.bestworks.cloud/webhook/notes-isread', {
+    axios.post('https://n8n.bestworks.cloud/webhook/notes-isread', {
       id: noteId,
       isRead: true
     })

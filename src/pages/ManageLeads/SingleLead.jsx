@@ -45,7 +45,7 @@ const SingleLead = () => {
   const [isCallSending, setIsCallSending] = useState(false);
   const [openNoteModal, setOpenNoteModal] = useState(false);
 
-  const api = "https://n8nnode.bestworks.cloud/webhook/fetch-single-lead";
+  const api = "https://n8n.bestworks.cloud/webhook/fetch-single-lead";
 
 
 
@@ -130,7 +130,7 @@ const SingleLead = () => {
       replyBody: emailForm.message,
     };
 
-    axios.post('https://n8nnode.bestworks.cloud/webhook/email-sender', payload)
+    axios.post('https://n8n.bestworks.cloud/webhook/email-sender', payload)
       .then(res => {
         if (res.status === 200) {
           toast.success('Email Sent Successfully!');
@@ -241,7 +241,7 @@ return (
               </button>
               <div>
                 <h1 className="text-3xl font-bold text-gray-900">
-                  {leadData["Lead Name"] || "Lead Details"}
+                  {leadData?.name || "Lead Details"}
                 </h1>
                 <p className="text-gray-600">Lead ID: {leadData.id}</p>
               </div>
@@ -267,7 +267,7 @@ return (
                 <div>
                   <p className="text-sm font-medium text-gray-600">Profit</p>
                   <p className="text-2xl font-bold text-green-600">
-                    {formatCurrency(leadData["Profit 2"])}
+                    {formatCurrency(leadData?.profit)}
                   </p>
                 </div>
                 <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
@@ -337,21 +337,21 @@ return (
                     <FaEnvelope className="w-4 h-4 text-gray-400" />
                     <div>
                       <p className="text-sm text-gray-600">Email</p>
-                      <p className="font-medium">{leadData["Email"] || "N/A"}</p>
+                      <p className="font-medium">{leadData?.email || "N/A"}</p>
                     </div>
                   </div>
                   <div className="flex items-center space-x-3">
                     <FaPhone className="w-4 h-4 text-gray-400" />
                     <div>
                       <p className="text-sm text-gray-600">Phone</p>
-                      <p className="font-medium">{leadData["Phone"] || leadData["Phone Number"] || "N/A"}</p>
+                      <p className="font-medium">{leadData?.phone|| leadData["Phone Number"] || "N/A"}</p>
                     </div>
                   </div>
                   <div className="flex items-center space-x-3">
                     <FaBuilding className="w-4 h-4 text-gray-400" />
                     <div>
                       <p className="text-sm text-gray-600">Company</p>
-                      <p className="font-medium">{leadData["Company Name"] || "N/A"}</p>
+                      <p className="font-medium">{leadData?.company_name || "N/A"}</p>
                     </div>
                   </div>
                   <div className="flex items-center space-x-3">

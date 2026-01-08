@@ -16,7 +16,7 @@ const ManageKanbanBulkOrder = () => {
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
 
-  const api = "https://n8nnode.bestworks.cloud/webhook/get-kanbanbukorder";
+  const api = "https://n8n.bestworks.cloud/webhook/get-kanbanbukorder";
 
   const fetchOrders = () => {
     setIsLoadingStats(true);

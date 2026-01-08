@@ -229,7 +229,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                         {open && !sidebarOpen && (
                           <ul className="mb-2 mt-1 flex flex-col gap-0.5 pl-4">
                             {/* Leads - Only visible to manager and admin */}
-                            {/* {(userRole === 'manager' || userRole === 'admin') && (
+                            {(userRole === 'manager' || userRole === 'admin') && (
                               <li>
                                 <NavLink
                                   to="/crm-dashboard"
@@ -241,9 +241,9 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                                   Dashboard
                                 </NavLink>
                               </li>
-                            )} */}
+                            )}
                             {/* Leads - Only visible to manager and admin */}
-                            {/* {(userRole === 'manager' || userRole === 'admin') && (
+                            {(userRole === 'manager' || userRole === 'admin') && (
                               <li>
                                 <NavLink
                                   to="/leads"
@@ -255,7 +255,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                                   Leads
                                 </NavLink>
                               </li>
-                            )} */}
+                            )}
 
                             {/* Reps - Only visible to manager and admin */}
                             {/* {(userRole === 'manager' || userRole === 'admin') && (

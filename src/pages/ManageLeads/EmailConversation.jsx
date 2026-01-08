@@ -17,7 +17,7 @@ const EmailConversation = ({ leadEmail, leadName }) => {
     if (!currentUserEmail || !leadEmail) return;
     setIsLoading(true);
     try {
-      const res = await axios.post('https://n8nnode.bestworks.cloud/webhook/email-log-fetch-admin-singlepage', { 
+      const res = await axios.post('https://n8n.bestworks.cloud/webhook/email-log-fetch-admin-singlepage', { 
         email: currentUserEmail, 
         leadEmail 
       });
@@ -79,7 +79,7 @@ const EmailConversation = ({ leadEmail, leadName }) => {
       subject: subject,
     };
 
-    axios.post('https://n8nnode.bestworks.cloud/webhook/email-sender', payload)
+    axios.post('https://n8n.bestworks.cloud/webhook/email-sender', payload)
       .then(res => {
         if (res.status === 200) {
           toast.success('Reply sent successfully!');

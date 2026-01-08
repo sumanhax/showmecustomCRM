@@ -25,10 +25,10 @@ import AddProjectModal from "../../pages/ManageLeads/AddProjectModal";
 
 export function KanbanBoardBulkOrder({ onRefresh }: { onRefresh?: () => void }) {
   const navigate = useNavigate();
-  const api = "https://n8nnode.bestworks.cloud/webhook/get-kanbanbukorder";
-  const api2 = "https://n8nnode.bestworks.cloud/webhook/post-kanbanbukorder";
-  const api3="https://n8nnode.bestworks.cloud/webhook/react-dashboard";
-  const api4="https://n8nnode.bestworks.cloud/webhook/bulkorder-addproject"
+  const api = "https://n8n.bestworks.cloud/webhook/get-kanbanbukorder";
+  const api2 = "https://n8n.bestworks.cloud/webhook/post-kanbanbukorder";
+  const api3="https://n8n.bestworks.cloud/webhook/react-dashboard";
+  const api4="https://n8n.bestworks.cloud/webhook/bulkorder-addproject"
 
   const[allLeadData,setAllLeadData]=useState<any[]>([])
   const [leadData, setLeadData] = useState<any[]>([]);
@@ -177,7 +177,7 @@ const handleEmailSend = () => {
     replyBody: emailForm.message,
   };
 
-  axios.post('https://n8nnode.bestworks.cloud/webhook/email-sender', payload)
+  axios.post('https://n8n.bestworks.cloud/webhook/email-sender', payload)
     .then(res => {
       if (res.status === 200) {
         toast.success('Email Sent Successfully!');

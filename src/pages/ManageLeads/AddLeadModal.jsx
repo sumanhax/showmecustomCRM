@@ -11,7 +11,7 @@ const AddLeadModal = ({ openAddLeadModal, setOpenAddLeadModal, onLeadAdded }) =>
     setIsSubmitting(true);
     try {
       const response = await axios.post(
-        "https://n8nnode.bestworks.cloud/webhook/add-new-lead",
+        "https://n8n.bestworks.cloud/webhook/add-new-lead",
         data
       );
       

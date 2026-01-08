@@ -37,7 +37,7 @@ const TaskManager = () => {
       toast.success(res?.payload?.message);
       reset();
       setOpenMoodMasterModal(false);
-      axios.get("https://n8nnode.bestworks.cloud/webhook/airtable-rep-fetch")
+      axios.get("https://n8n.bestworks.cloud/webhook/airtable-rep-fetch")
     })
     .catch((err) => {
       console.log("err", err);
@@ -47,7 +47,7 @@ const TaskManager = () => {
 
   useEffect(() => {
     setIsLoading(true);
-    axios.get("https://n8nnode.bestworks.cloud/webhook/airtable-rep-fetch")
+    axios.get("https://n8n.bestworks.cloud/webhook/airtable-rep-fetch")
       .then((res) => {
         console.log("res", res.data);
         setRepData(res.data);

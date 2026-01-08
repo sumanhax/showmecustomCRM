@@ -20,7 +20,7 @@ export default function EmailIndividual({ onBack, currentUserEmail, otherPartyEm
         if (!currentUserEmail || !otherPartyEmail) return;
         setIsLoading(true);
         try {
-            const res = await axios.post('https://n8nnode.bestworks.cloud/webhook/email-log-fetch', { email: currentUserEmail });
+            const res = await axios.post('https://n8n.bestworks.cloud/webhook/email-log-fetch', { email: currentUserEmail });
             const allEmails = res.data || [];
 
             const conversationEmails = allEmails
@@ -82,7 +82,7 @@ export default function EmailIndividual({ onBack, currentUserEmail, otherPartyEm
             subject: subject,
         };
 
-        axios.post('https://n8nnode.bestworks.cloud/webhook/email-sender', payload)
+        axios.post('https://n8n.bestworks.cloud/webhook/email-sender', payload)
             .then(res => {
                 if (res.status === 200) {
                     setReplyText('');

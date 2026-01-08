@@ -56,7 +56,7 @@ const ManageReps = () => {
   const fetchReps = () => {
     console.log("fetchReps called - refreshing reps data");
     setIsLoading(true);
-    axios.get("https://n8nnode.bestworks.cloud/webhook/airtable-rep-fetch")
+    axios.get("https://n8n.bestworks.cloud/webhook/airtable-rep-fetch")
       .then((res) => {
         console.log("Reps data refreshed:", res.data);
         setRepData(res.data);

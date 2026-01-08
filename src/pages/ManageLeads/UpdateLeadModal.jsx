@@ -32,7 +32,7 @@ const UpdateLeadModal = ({ openUpdateLeadModal, setOpenUpdateLeadModal, leadData
       };
 
       const response = await axios.post(
-        "https://n8nnode.bestworks.cloud/webhook/update-lead",
+        "https://n8n.bestworks.cloud/webhook/update-lead",
         updateData
       );
       

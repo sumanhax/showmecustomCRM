@@ -36,7 +36,7 @@ const ManageLeads = () => {
   const [partnerFilter, setPartnerFilter] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
 
-  const api2 = "https://n8nnode.bestworks.cloud/webhook/lead-status-update";
+  const api2 = "https://n8n.bestworks.cloud/webhook/lead-status-update";
   const partnerOptions = ["Whale", "Tuna", "Shrimp"];
 
   const getPartnerStyle = (option) => {
@@ -93,7 +93,7 @@ const ManageLeads = () => {
     console.log("fetchLeads called - refreshing leads data");
     setIsLoading(true);
     axios
-      .get("https://n8nnode.bestworks.cloud/webhook/airtable-lead-fetch")
+      .get("https://n8n.bestworks.cloud/webhook/airtable-lead-fetch")
       .then((res) => {
         console.log("Leads data refreshed:", res.data);
         setLeadData(res.data);
@@ -292,7 +292,7 @@ const ManageLeads = () => {
       try {
         console.log("Deleting lead:", leadId);
         
-        const response = await axios.post("https://n8nnode.bestworks.cloud/webhook/delete-lead", {
+        const response = await axios.post("https://n8n.bestworks.cloud/webhook/delete-lead", {
           id: leadId
         });
         
@@ -340,14 +340,14 @@ const ManageLeads = () => {
 
   const columnDefs = [
     {
-      field: "Lead Name",
+      field: "name",
       headerName: "Lead Name",
       sortable: true,
       filter: true,
       cellRenderer: LeadNameRenderer,
     },
     {
-      field: "Email",
+      field: "email",
       headerName: "Email",
       sortable: true,
       filter: true,

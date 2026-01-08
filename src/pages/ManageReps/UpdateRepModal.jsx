@@ -24,7 +24,7 @@ const UpdateRepModal = ({ openUpdateRepModal, setOpenUpdateRepModal, repData, on
       };
 
       const response = await axios.post(
-        "https://n8nnode.bestworks.cloud/webhook/update-rep",
+        "https://n8n.bestworks.cloud/webhook/update-rep",
         updateData
       );
       

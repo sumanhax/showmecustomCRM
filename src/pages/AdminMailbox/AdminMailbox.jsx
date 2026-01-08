@@ -24,7 +24,7 @@ const NewEmailModal = ({ isOpen, onClose, currentUserEmail, onEmailSent }) => {
             subject: subject,
             replyBody: body,
         };
-        axios.post('https://n8nnode.bestworks.cloud/webhook/email-sender', payload)
+        axios.post('https://n8n.bestworks.cloud/webhook/email-sender', payload)
             .then(res => {
                 if (res.status === 200) {
                     // alert('Email Sent Successfully!');
@@ -122,7 +122,7 @@ export default function AdminMailbox() {
         
          console.log("Fetching admin emails for:", emailAdmin);
          setIsLoading(true);
-         axios.post('https://n8nnode.bestworks.cloud/webhook/email-log-fetch-admin', { emailAdmin })
+         axios.post('https://n8n.bestworks.cloud/webhook/email-log-fetch-admin', { emailAdmin })
             .then((res) => { 
                 console.log("Admin emails fetched successfully:", res.data);
                 setEmailData(res.data || []); 
@@ -144,7 +144,7 @@ export default function AdminMailbox() {
 
     const handleIsRead = (emailId) => {
         console.log("Marking email as read:", emailId);
-        axios.post('https://n8nnode.bestworks.cloud/webhook/email-isread', {id: emailId, isRead: true} )
+        axios.post('https://n8n.bestworks.cloud/webhook/email-isread', {id: emailId, isRead: true} )
             .then(res => {
                 console.log("Email marked as read successfully:", res.data);
                 // Optionally refresh emails to get updated status

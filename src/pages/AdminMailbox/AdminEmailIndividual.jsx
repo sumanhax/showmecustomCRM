@@ -21,7 +21,7 @@ export default function AdminEmailIndividual({ onBack, currentUserEmail, otherPa
         setIsLoading(true);
         try {
             // Use admin-specific API endpoint
-            const res = await axios.post('https://n8nnode.bestworks.cloud/webhook/email-log-fetch-admin', { 
+            const res = await axios.post('https://n8n.bestworks.cloud/webhook/email-log-fetch-admin', { 
                 emailAdmin: 'team@showmecustomapparel.com' 
             });
             const allEmails = res.data || [];
@@ -82,7 +82,7 @@ export default function AdminEmailIndividual({ onBack, currentUserEmail, otherPa
             subject: subject,
         };
 
-        axios.post('https://n8nnode.bestworks.cloud/webhook/email-sender', payload)
+        axios.post('https://n8n.bestworks.cloud/webhook/email-sender', payload)
             .then(res => {
                 if (res.status === 200) {
                     setReplyText('');

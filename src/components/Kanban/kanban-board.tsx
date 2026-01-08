@@ -23,8 +23,8 @@ import { useNavigate } from "react-router-dom";
 
 export function KanbanBoard() {
   const navigate = useNavigate();
-  const api = "https://n8nnode.bestworks.cloud/webhook/react-dashboard";
-  const api2 = "https://n8nnode.bestworks.cloud/webhook/lead-status-update";
+  const api = "https://n8n.bestworks.cloud/webhook/react-dashboard";
+  const api2 = "https://n8n.bestworks.cloud/webhook/lead-status-update";
 
   const [leadData, setLeadData] = useState<any[]>([]);
   const [reload, setReload] = useState<any[]>([]);
@@ -132,7 +132,7 @@ const handleEmailSend = () => {
     replyBody: emailForm.message,
   };
 
-  axios.post('https://n8nnode.bestworks.cloud/webhook/email-sender', payload)
+  axios.post('https://n8n.bestworks.cloud/webhook/email-sender', payload)
     .then(res => {
       if (res.status === 200) {
         toast.success('Email Sent Successfully!');

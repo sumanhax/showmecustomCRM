@@ -15,7 +15,7 @@ const ManagePartner = () => {
   const fetchLeads = () => {
     setIsLoading(true);
     axios
-      .get("https://n8nnode.bestworks.cloud/webhook/airtable-lead-fetch")
+      .get("https://n8n.bestworks.cloud/webhook/airtable-lead-fetch")
       .then((res) => {
         // Filter only leads with Orders and Orders length > 0
         const withOrders = (res.data || []).filter((lead) => Array.isArray(lead?.Orders) && lead.Orders.length > 0);
