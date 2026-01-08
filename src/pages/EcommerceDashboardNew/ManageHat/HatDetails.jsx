@@ -82,7 +82,7 @@ export const HatDetails = () => {
     const formData = new FormData();
     formData.append("image", file);
     formData.append("hat_style_id", id);
-    formData.append("image_type", "png");
+    formData.append("image_type", "hat");
     formData.append("alt_text", "Cap Image");
     formData.append("is_primary", 1);
 
