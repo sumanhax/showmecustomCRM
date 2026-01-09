@@ -43,30 +43,59 @@ const ManageOrder = () => {
     fetchOrders(page, limit);
   }, [fetchOrders, page, limit]);
 
+  // const rowData = useMemo(() => {
+  //   const data = orderListData?.data;
+  //   if (!Array.isArray(data)) return [];
+
+  //   return data.map((c) => {
+  //     const orders = Array.isArray(c?.orders) ? c.orders : [];
+  //     const latest = orders?.[0];
+
+  //     return {
+  //       id: c?.id,
+  //       first_name: c?.customer?.first_name || "",
+  //       last_name: c?.customer?.last_name || "",
+  //       email: c?.customer?.email || "",
+  //       phone: c?.customer?.phone || "",
+  //       company_name: c?.customer?.company_name || "",
+  //       orders_count: orders.length,
+  //       latest_order_number: latest?.order_number || "-",
+  //       latest_status: latest?.status || "-",
+  //       latest_payment_status: latest?.payment_status || "-",
+  //       created_at: c?.created_at,
+  //       is_active: c?.is_active === 1 || c?.is_active === true,
+  //     };
+  //   });
+  // }, [orderListData]);
+
   const rowData = useMemo(() => {
-    const data = orderListData?.data;
-    if (!Array.isArray(data)) return [];
+  const data = orderListData?.data;
+  if (!Array.isArray(data)) return [];
 
-    return data.map((c) => {
-      const orders = Array.isArray(c?.orders) ? c.orders : [];
-      const latest = orders?.[0];
+  return data.map((c, index) => {
+    const customer = c?.customer || {};
+    const orders = Array.isArray(c?.orders) ? c.orders : [];
+    const latestOrder = orders[0] || {};
 
-      return {
-        id: c?.id,
-        first_name: c?.first_name || "",
-        last_name: c?.last_name || "",
-        email: c?.email || "",
-        phone: c?.phone || "",
-        company_name: c?.company_name || "",
-        orders_count: orders.length,
-        latest_order_number: latest?.order_number || "-",
-        latest_status: latest?.status || "-",
-        latest_payment_status: latest?.payment_status || "-",
-        created_at: c?.created_at,
-        is_active: c?.is_active === 1 || c?.is_active === true,
-      };
-    });
-  }, [orderListData]);
+    return {
+      id: customer?.id || index,
+      first_name: customer?.first_name || "",
+      last_name: customer?.last_name || "",
+      email: customer?.email || c?.email || "",
+      phone: customer?.phone || "",
+      company_name: customer?.company_name || "",
+
+      orders_count: orders.length,
+
+      latest_order_number: latestOrder?.order_number || "-",
+      latest_status: latestOrder?.status || "-",
+      latest_payment_status: latestOrder?.payment_status || "-",
+      created_at: latestOrder?.created_at || null,
+      is_active: latestOrder?.is_active === 1,
+    };
+  });
+}, [orderListData]);
+
 
   // local filtering (within current page)
   const filteredRows = useMemo(() => {
