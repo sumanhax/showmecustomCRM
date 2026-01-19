@@ -167,6 +167,26 @@ export const updatePartnerClassification = createAsyncThunk(
         }
     }
 )
+// Add lead to 
+export const addLead = createAsyncThunk(
+    'add/addLead',
+    async (userInput, { rejectWithValue }) => {
+        try {
+            const response = await api.post('/postgresapi/admin/lead-manage/add', userInput);
+            if (response?.data?.status_code === 200 || response?.data?.status_code === 201) {
+                return response.data;
+            } else {
+                if (response?.data?.errors) {
+                    return rejectWithValue(response.data.errors);
+                } else {
+                    return rejectWithValue('Something went wrong.');
+                }
+            }
+        } catch (err) {
+            return rejectWithValue(err);
+        }
+    }
+)
 
 
 const initialState = {
@@ -298,6 +318,19 @@ const AddSlice = createSlice(
                         state.updatePartnerClassificationResponse = payload;
                     })
                     .addCase(updatePartnerClassification.rejected, (state, { payload }) => {
+                        state.loading = false;
+                        state.error = payload;
+                    })
+                    .addCase(addLead.pending, (state) => {
+                        state.message = null
+                        state.loading = true;
+                        state.error = null
+                    })
+                    .addCase(addLead.fulfilled, (state, { payload }) => {
+                        state.loading = false;
+                        state.message = payload;
+                    })
+                    .addCase(addLead.rejected, (state, { payload }) => {
                         state.loading = false;
                         state.error = payload;
                     })
