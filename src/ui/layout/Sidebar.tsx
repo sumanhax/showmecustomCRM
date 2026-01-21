@@ -258,7 +258,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                             )}
 
                             {/* Reps - Only visible to manager and admin */}
-                            {/* {(userRole === 'manager' || userRole === 'admin') && (
+                            {(userRole === 'manager' || userRole === 'admin') && (
                               <li>
                                 <NavLink
                                   to="/reps"
@@ -270,7 +270,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                                   Reps
                                 </NavLink>
                               </li>
-                            )} */}
+                            )}
 
                             {/* Partner - Only visible to admin */}
                             {/* {(userRole === 'admin') && (
@@ -303,7 +303,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                             )} */}
 
                             {/* Kanban Sample - Only visible to manager and admin */}
-                            {/* {(userRole === 'manager' || userRole === 'admin') && (
+                             {(userRole === 'manager' || userRole === 'admin') && (
                               <li>
                                 <NavLink
                                   to="/kanban-sample"
@@ -315,10 +315,10 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                                   Kanban Sample
                                 </NavLink>
                               </li>
-                            )} */}
+                            )} 
 
                             {/* Kanban Bulk Order - Only visible to manager and admin */}
-                            {/* {(userRole === 'manager' || userRole === 'admin') && (
+                            {(userRole === 'manager' || userRole === 'admin') && (
                               <li>
                                 <NavLink
                                   to="/kanban-bulk"
@@ -330,7 +330,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                                   Kanban Bulk Order
                                 </NavLink>
                               </li>
-                            )} */}
+                            )}
                           </ul>
                         )}
                       </>

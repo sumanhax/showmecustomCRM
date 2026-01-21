@@ -5,7 +5,7 @@ import {
   changeStatus,
   getMoodMaster
 } from "../../Reducer/MoodMasterSlice";
-import { addRep } from "../../Reducer/AddSlice";
+import { addRep, repList } from "../../Reducer/AddSlice";
 import { AgGridReact } from "ag-grid-react";
 import { ToastContainer, toast } from "react-toastify";
 import { Button } from "flowbite-react";
@@ -17,68 +17,86 @@ import { FaSearch, FaTimes } from "react-icons/fa";
 
 
 const ManageReps = () => {
-  // const { moodsList, singleMoodMaster } = useSelector(
-  //   (state) => state?.moodMastersData
-  // );
+  const { repListData } = useSelector(
+    (state) => state?.add
+  );
   const dispatch = useDispatch();
   const [openMoodMasterModal, setOpenMoodMasterModal] = useState(false);
   const [mood_masterId, setMoodMasterId] = useState();
   const [openUpdateMoodMasterModal, setOpenUpdateMoodMasterModal] =
     useState(false);
 
-    const [repData, setRepData] = useState([]);
-    const [isLoading, setIsLoading] = useState(true);
-    const [openUpdateRepModal, setOpenUpdateRepModal] = useState(false);
-    const [selectedRepData, setSelectedRepData] = useState(null);
-    const [searchTerm, setSearchTerm] = useState("");
+  const [repData, setRepData] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [openUpdateRepModal, setOpenUpdateRepModal] = useState(false);
+  const [selectedRepData, setSelectedRepData] = useState(null);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(10);
+
 
   // React Hook Form setup
   const { register, handleSubmit, reset, formState: { errors } } = useForm();
-  const {loading} = useSelector((state)=>state.add);
+  const { loading } = useSelector((state) => state.add);
   // Form submission handler
-  const onSubmit = (data)=>{
+  const onSubmit = (data) => {
     dispatch(addRep(data))
-    .then((res) => {
-      console.log("res", res);
-      toast.success(res?.payload?.message);
-      reset();
-      setOpenMoodMasterModal(false);
-      // Refresh the reps data
-      fetchReps();
-    })
-    .catch((err) => {
-      console.log("err", err);
-      toast.error(res?.payload?.message);
-    });
+      .then((res) => {
+        console.log("res", res);
+        toast.success(res?.payload?.message);
+        reset();
+        setOpenMoodMasterModal(false);
+        // Refresh the reps data
+        fetchReps();
+      })
+      .catch((err) => {
+        console.log("err", err);
+        toast.error(res?.payload?.message);
+      });
   }
 
   // Function to fetch reps data
+  // const fetchReps = () => {
+  //   console.log("fetchReps called - refreshing reps data");
+  //   setIsLoading(true);
+  //   axios.get("https://n8n.bestworks.cloud/webhook/airtable-rep-fetch")
+  //     .then((res) => {
+  //       console.log("Reps data refreshed:", res.data);
+  //       setRepData(res.data);
+  //     })
+  //     .catch((error) => {
+  //       console.error("Error fetching reps:", error);
+  //       setRepData([]);
+  //     })
+  //     .finally(() => {
+  //       setIsLoading(false);
+  //     });
+  // };
   const fetchReps = () => {
-    console.log("fetchReps called - refreshing reps data");
-    setIsLoading(true);
-    axios.get("https://n8n.bestworks.cloud/webhook/airtable-rep-fetch")
+    dispatch(repList({page:page,limit:limit}))
       .then((res) => {
-        console.log("Reps data refreshed:", res.data);
-        setRepData(res.data);
+        setRepData(res?.payload?.data?.list || []); // Added fallback here too
+        setIsLoading(false);
+        setPage(res?.payload?.data?.page);
+        setLimit(res?.payload?.data?.limit);
       })
-      .catch((error) => {
-        console.error("Error fetching reps:", error);
-        setRepData([]);
-      })
-      .finally(() => {
+      .catch((err) => {
+        console.log("err", err);
+        toast.error(err?.message || "Failed to fetch reps"); // Changed 'res' to 'err'
+      }).finally(() => {
         setIsLoading(false);
       });
   };
 
   useEffect(() => {
     fetchReps();
-  }, []);
+  }, [openMoodMasterModal]);
   console.log("repData", repData);
 
   // Filter reps based on search term
   const filteredRepData = repData.filter((rep) => {
     if (!searchTerm) return true;
-    
+
     const searchLower = searchTerm.toLowerCase();
     return (
       (rep["Rep Name"] && rep["Rep Name"].toLowerCase().includes(searchLower)) ||
@@ -102,24 +120,24 @@ const ManageReps = () => {
     }
   };
 
-//   const rowData = useMemo(() => {
-//     return (
-//       moodsList?.data?.map((tags) => ({
-//         id: tags?.id,
-//         mood_master_name: tags?.mood_master_name,
-//         mood_master_description: tags?.mood_master_description,
-//         mood_master_color_code: tags?.mood_master_color_code,
-//         mood_master_icon:
-//           "https://goodmoodapi.bestworks.cloud/" + tags?.mood_master_icon,
-//         status: tags.status,
-//       })) || []
-//     );
-//   }, [moodsList?.data]);
+  //   const rowData = useMemo(() => {
+  //     return (
+  //       moodsList?.data?.map((tags) => ({
+  //         id: tags?.id,
+  //         mood_master_name: tags?.mood_master_name,
+  //         mood_master_description: tags?.mood_master_description,
+  //         mood_master_color_code: tags?.mood_master_color_code,
+  //         mood_master_icon:
+  //           "https://goodmoodapi.bestworks.cloud/" + tags?.mood_master_icon,
+  //         status: tags.status,
+  //       })) || []
+  //     );
+  //   }, [moodsList?.data]);
 
   // Custom cell renderer for Lead Status
   const StatusRenderer = (params) => {
     const status = params.value;
-    
+
     // Define vibrant colors for each status with white text
     const getStatusStyle = (status) => {
       const statusStyles = {
@@ -152,7 +170,7 @@ const ManageReps = () => {
           color: "#FFFFFF"
         }
       };
-      
+
       return statusStyles[status] || {
         backgroundColor: "#6B7280", // Default gray
         color: "#FFFFFF"
@@ -186,7 +204,7 @@ const ManageReps = () => {
   // Custom cell renderer for Assigned Leads array
   const AssignedLeadsRenderer = (params) => {
     const assignedLeads = params.value;
-    
+
     // Check if it's an array
     if (!Array.isArray(assignedLeads)) {
       return <div>No leads assigned</div>;
@@ -230,19 +248,19 @@ const ManageReps = () => {
   const columnDefs = useMemo(
     () => [
       {
-        field: "Rep Name",
+        field: "name",
         headerName: "Rep Name",
         sortable: true,
         filter: true,
       },
       {
-        field: "Email Address",
+        field: "email",
         headerName: "Email Address",
         sortable: true,
         filter: true,
       },
       {
-        field: "Phone Number",
+        field: "phone",
         headerName: "Phone Number",
         sortable: true,
         filter: true,
@@ -255,12 +273,12 @@ const ManageReps = () => {
       //   cellRenderer: AssignedLeadsRenderer,
       //   width: 300,
       // },
-      {
-        field: "# of Assigned Leads",
-        headerName: "# of Assigned Leads",
-        sortable: true,
-        filter: true,
-      },
+      // {
+      //   field: "# of Assigned Leads",
+      //   headerName: "# of Assigned Leads",
+      //   sortable: true,
+      //   filter: true,
+      // },
       // {
       //   field: "Typeform Date",
       //   headerName: "Date",
@@ -321,39 +339,39 @@ const ManageReps = () => {
       //     );
       //   },
       // },
-      {
-        width: 400,
-        headerName: "Actions",
-        field: "actions",
-        cellRenderer: (params) => {
-          return (
-            <div className="flex gap-2">
-              <button
-                onClick={() => handleUpdateRep(params?.data?.id)}
-                className="bg-[#10B981] hover:bg-black px-4 py-1 text-white text-base flex justify-center items-center rounded-full"
-              >
-                Update
-              </button>
+      // {
+      //   width: 400,
+      //   headerName: "Actions",
+      //   field: "actions",
+      //   cellRenderer: (params) => {
+      //     return (
+      //       <div className="flex gap-2">
+      //         <button
+      //           onClick={() => handleUpdateRep(params?.data?.id)}
+      //           className="bg-[#10B981] hover:bg-black px-4 py-1 text-white text-base flex justify-center items-center rounded-full"
+      //         >
+      //           Update
+      //         </button>
 
-              {/* <button
-              // onClick={() => handleDeleteZone(params?.data?.id)}
-              >
-                <MdDelete size={20} color="red" />
-              </button> */}
-            </div>
-          );
-        },
-      },
+      //         {/* <button
+      //         // onClick={() => handleDeleteZone(params?.data?.id)}
+      //         >
+      //           <MdDelete size={20} color="red" />
+      //         </button> */}
+      //       </div>
+      //     );
+      //   },
+      // },
     ],
     [handleUpdateRep]
   );
 
-//   const handleUpdateMoodMaster = (id) => {
-//     console.log(id, "id");
-//     setOpenUpdateMoodMasterModal(true);
-//     setMoodMasterId(id);
-//     dispatch(getMoodMasterSingle({ user_input: id }));
-//   };
+  //   const handleUpdateMoodMaster = (id) => {
+  //     console.log(id, "id");
+  //     setOpenUpdateMoodMasterModal(true);
+  //     setMoodMasterId(id);
+  //     dispatch(getMoodMasterSingle({ user_input: id }));
+  //   };
 
   // Show loader while data is being fetched
   if (isLoading) {
@@ -368,13 +386,13 @@ const ManageReps = () => {
 
   return (
     <>
-       <>
+      <>
         <ToastContainer />
         <div className="wrapper_area my-0 mx-auto p-6 rounded-xl bg-white">
           <div className="h-full lg:h-screen">
             <div className="flex justify-between items-center mb-4 gap-4">
               <h2 className="text-2xl font-semibold">Reps</h2>
-              
+
               {/* Search Bar in the middle */}
               <div className="flex-1 max-w-md">
                 <div className="relative">
@@ -398,7 +416,7 @@ const ManageReps = () => {
                   )}
                 </div>
               </div>
-              
+
               <Button
                 onClick={() => setOpenMoodMasterModal(true)}
                 className="bg-[#f20c32] hover:bg-black px-4 py-1 text-white text-base font-semibold flex justify-center items-center rounded-md"
@@ -406,7 +424,7 @@ const ManageReps = () => {
                 Add New Rep
               </Button>
             </div>
-            
+
             {/* Search Results Counter */}
             {searchTerm && (
               <div className="mb-4">
@@ -508,7 +526,7 @@ const ManageReps = () => {
                     </label>
                     <input
                       type="text"
-                      {...register('rep_name', { required: 'Rep name is required' })}
+                      {...register('name', { required: 'Rep name is required' })}
                       style={{
                         width: '100%',
                         padding: '10px 12px',
@@ -519,9 +537,9 @@ const ManageReps = () => {
                         transition: 'border-color 0.2s'
                       }}
                     />
-                    {errors.rep_name && (
+                    {errors.name && (
                       <p style={{ color: '#ef4444', fontSize: '12px', marginTop: '4px' }}>
-                        {errors.rep_name.message}
+                        {errors.name.message}
                       </p>
                     )}
                   </div>
@@ -539,7 +557,7 @@ const ManageReps = () => {
                     </label>
                     <input
                       type="email"
-                      {...register('email', { 
+                      {...register('email', {
                         required: 'Email is required',
                         pattern: {
                           value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
@@ -576,7 +594,7 @@ const ManageReps = () => {
                     </label>
                     <input
                       type="tel"
-                      {...register('phone', { required: 'Phone number is required' })}
+                      {...register('phone', { required: 'Phone number is required',minLength: { value: 10, message: 'Phone number must be at least 10 digits' },maxLength: { value: 10, message: 'Phone number must be at most 10 digits' } })}
                       style={{
                         width: '100%',
                         padding: '10px 12px',
@@ -595,7 +613,7 @@ const ManageReps = () => {
                   </div>
 
                   {/* Rep Address Field */}
-                  <div>
+                  {/* <div>
                     <label style={{
                       display: 'block',
                       fontSize: '14px',
@@ -619,7 +637,7 @@ const ManageReps = () => {
                         transition: 'border-color 0.2s'
                       }}
                     />
-                  </div>
+                  </div> */}
 
                   {/* Action Buttons */}
                   <div style={{
@@ -663,14 +681,14 @@ const ManageReps = () => {
                         transition: 'all 0.2s'
                       }}
                     >
-                      {loading?"Processing...":"Add Rep"}
+                      {loading ? "Processing..." : "Add Rep"}
                     </button>
                   </div>
                 </form>
               </div>
             </div>
           )}
-          
+
           {/* Update Rep Modal */}
           {openUpdateRepModal && selectedRepData && (
             <UpdateRepModal
@@ -681,8 +699,8 @@ const ManageReps = () => {
             />
           )}
         </div>
-      </> 
-    
+      </>
+
     </>
   );
 };

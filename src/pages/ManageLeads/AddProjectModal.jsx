@@ -1,15 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
-import axios from 'axios';
 import { toast } from 'react-toastify';
+import { useDispatch, useSelector } from 'react-redux';
+import { leadListSearch } from '../../Reducer/AddSlice';
 import AddLeadModal from './AddLeadModal';
 
 const AddProjectModal = ({ 
   isOpen, 
   onClose, 
-  allLeadData, 
   onProjectAdded 
 }) => {
+  const dispatch = useDispatch();
+  const { leadListSearchData } = useSelector((state) => state.add);
+
   const [projectType, setProjectType] = useState('existing');
   const [showNewLeadModal, setShowNewLeadModal] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
@@ -51,18 +54,29 @@ const AddProjectModal = ({
     setShowDropdown(false);
   };
 
-  // Filter leads based on search term
+  // Trigger lead search from redux when user types
   useEffect(() => {
-    if (searchTerm && allLeadData) {
-      const filtered = allLeadData.filter(lead => 
-        (lead["Lead Name"] && lead["Lead Name"].toLowerCase().includes(searchTerm.toLowerCase())) ||
-        (lead["Email"] && lead["Email"].toLowerCase().includes(searchTerm.toLowerCase()))
-      );
-      setFilteredLeads(filtered.slice(0, 10)); // Limit to 10 results
+    if (searchTerm && searchTerm.trim().length >= 2) {
+      dispatch(leadListSearch(searchTerm.trim()));
     } else {
       setFilteredLeads([]);
     }
-  }, [searchTerm, allLeadData]);
+  }, [dispatch, searchTerm]);
+
+  // Map search results to dropdown options
+  useEffect(() => {
+    const list = leadListSearchData?.data || [];
+    if (Array.isArray(list) && list.length > 0) {
+      const mapped = list.map((lead) => ({
+        id: lead.id,
+        LeadName: lead.name,
+        Email: lead.email
+      }));
+      setFilteredLeads(mapped.slice(0, 10));
+    } else {
+      setFilteredLeads([]);
+    }
+  }, [leadListSearchData]);
 
   // Handle search term changes - clear selected lead if search is cleared
   useEffect(() => {
@@ -87,7 +101,7 @@ const AddProjectModal = ({
   const handleLeadSelect = (lead) => {
     setSelectedLead(lead);
     setValue('leadId', lead.id);
-    setSearchTerm(lead["Lead Name"]);
+    setSearchTerm(lead?.LeadName || '');
     setShowDropdown(false);
   };
 
@@ -95,21 +109,11 @@ const AddProjectModal = ({
   const handleNewLeadCreated = (newLead) => {
     console.log("New lead created:", newLead);
     
-    // Extract lead data from the response structure
-    // The response has the structure: [{ id: "...", fields: { "Lead Name": "...", ... } }]
+    // Normalize lead payload keys
     const leadData = {
-      id: newLead.id,
-      "Lead Name": newLead.fields?.["Lead Name"] || newLead["Lead Name"],
-      "Company Name": newLead.fields?.["Company Name"] || newLead["Company Name"],
-      "Email": newLead.fields?.Email || newLead.Email,
-      "Phone": newLead.fields?.Phone || newLead.Phone,
-      "Phone Number": newLead.fields?.["Phone Number"] || newLead["Phone Number"],
-      "Address": newLead.fields?.Address || newLead.Address,
-      "City": newLead.fields?.City || newLead.City,
-      "State": newLead.fields?.State || newLead.State,
-      "Zip Code": newLead.fields?.["Zip Code"] || newLead["Zip Code"],
-      "Country": newLead.fields?.Country || newLead.Country,
-      "Lead Status": newLead.fields?.["Lead Status"] || newLead["Lead Status"]
+      id: newLead?.lead_id || newLead?.id,
+      LeadName: newLead?.lead_name || newLead?.name,
+      Email: newLead?.lead_email || newLead?.email
     };
     
     console.log("Processed lead data:", leadData);
@@ -117,7 +121,7 @@ const AddProjectModal = ({
     setNewLeadId(leadData.id);
     setSelectedLead(leadData);
     setValue('leadId', leadData.id);
-    setSearchTerm(leadData["Lead Name"]);
+    setSearchTerm(leadData.LeadName || '');
     setShowNewLeadModal(false);
     // toast.success('Lead created successfully!');
   };
@@ -149,7 +153,7 @@ const AddProjectModal = ({
     // Prepare project data
     const projectData = {
       leadId: data.leadId,
-      leadName: selectedLead?.["Lead Name"],
+      leadName: selectedLead?.LeadName,
       leadEmail: selectedLead?.Email,
       orderTypes: data.orderTypes,
       orderAmount: parseFloat(data.orderAmount),
@@ -249,7 +253,7 @@ const AddProjectModal = ({
                           onClick={() => handleLeadSelect(lead)}
                           className="px-3 py-2 hover:bg-gray-100 cursor-pointer border-b border-gray-100"
                         >
-                          <div className="font-medium text-sm">{lead["Lead Name"]}</div>
+                          <div className="font-medium text-sm">{lead?.LeadName}</div>
                           <div className="text-xs text-gray-500">{lead.Email}</div>
                         </div>
                       ))}
@@ -278,7 +282,7 @@ const AddProjectModal = ({
                 {selectedLead && (
                   <div className="mt-2 p-2 bg-green-50 border border-green-200 rounded-md">
                     <p className="text-sm text-green-700">
-                      Selected: {selectedLead["Lead Name"]} ({selectedLead.Email})
+                      Selected: {selectedLead?.LeadName} ({selectedLead?.Email})
                     </p>
                   </div>
                 )}

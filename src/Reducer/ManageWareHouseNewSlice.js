@@ -1,12 +1,12 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import apiUser from "../store/ApiUser";
+import api from "../store/Api";
 
 
 export const warehouseList = createAsyncThunk(
     'warehouseList',
     async (_, { rejectWithValue }) => {
         try {
-            const response = await apiUser.get(`/postgresapi/admin/warehouse/list`);
+            const response = await api.get(`/postgresapi/admin/warehouse/list`);
             if (response?.data?.status_code === 201 || response?.data?.status_code === 200) {
                 return response.data;
             } else {
@@ -26,7 +26,7 @@ export const warehouseAdd = createAsyncThunk(
     'warehouseAdd',
     async (userInput, { rejectWithValue }) => {
         try {
-            const response = await apiUser.post(`/postgresapi/admin/warehouse/save`,userInput);
+            const response = await api.post(`/postgresapi/admin/warehouse/save`,userInput);
             if (response?.data?.status_code === 201 || response?.data?.status_code === 200) {
                 return response.data;
             } else {

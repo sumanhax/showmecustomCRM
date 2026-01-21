@@ -16,18 +16,19 @@ import "@syncfusion/ej2-react-kanban/styles/material.css";
 import { IoDocumentTextOutline } from "react-icons/io5";
 import { TbEyeShare  } from "react-icons/tb";
 import React from "react";
-import axios from "axios";
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { kanbanList, kanbanDragnDrop } from "../../Reducer/AddSlice";
+import axios from "axios";
 
 export function KanbanBoard() {
   const navigate = useNavigate();
-  const api = "https://n8n.bestworks.cloud/webhook/react-dashboard";
-  const api2 = "https://n8n.bestworks.cloud/webhook/lead-status-update";
+  const dispatch = useDispatch();
+  const { kanbanListData, loading } = useSelector((state: any) => state.add);
 
   const [leadData, setLeadData] = useState<any[]>([]);
-  const [reload, setReload] = useState<any[]>([]);
   const [kanbanWidth, setkanbanWidth] = useState<number>(0);
   const [emailModal, setEmailModal] = useState<{isOpen: boolean, leadEmail: string, leadName: string}>({
     isOpen: false,
@@ -51,34 +52,67 @@ export function KanbanBoard() {
   const [isEmailSending, setIsEmailSending] = useState(false);
   const [isCallSending, setIsCallSending] = useState(false);
 
-  // Fetch lead data
+  // Fetch lead data using Redux
   useEffect(() => {
-    axios
-      .get(api)
-      .then((res: any) => {
-        console.log("res", res.data);
-        // Transform Airtable-style schema → Kanban format
-        const transformed = res.data.map((lead: any) => ({
-          Id: lead.id,
-          Title: lead["Lead Name"],
-          Status: lead["Lead Status"] || "New Lead",
-          Summary:
-            lead.Notes ||
-            (lead["Lead Summary (AI)"]?.value ?? "No summary available"),
-          Company: lead["Company Name"],
-          Email: lead.Email,
-          Phone: lead.Phone,
-          Industry: lead.Industry,
-          Assignee: lead.Rep?.[0] || "Unassigned",
-        }));
-        setLeadData(transformed);
-        // Set minimum width for proper column spacing
-        setkanbanWidth(columns.length * 350)
-      })
-      .catch((err) => {
-        console.error("err", err);
-      });
-  }, [reload]);
+    dispatch(kanbanList() as any);
+  }, [dispatch]);
+
+  // Transform kanbanListData to Kanban format
+  const [statusNameToId, setStatusNameToId] = useState({});
+
+  useEffect(() => {
+    const cols = kanbanListData?.data?.columns;
+    if (!Array.isArray(cols)) return;
+  
+    // statusName -> statusId map
+    const statusMap = cols.reduce((acc, col) => {
+      const name = col?.status?.name;
+      const id = col?.status?.id;
+      if (name && id) acc[name] = Number(id);
+      return acc;
+    }, {});
+    setStatusNameToId(statusMap);
+  
+    // helper for array/object/string
+    const normalizeMulti = (val, key) => {
+      if (!val) return "";
+      if (Array.isArray(val)) {
+        return val.map(x => (x && typeof x === "object" ? x[key] : x)).filter(Boolean).join(", ");
+      }
+      if (typeof val === "object") return val[key] || "";
+      return String(val);
+    };
+  
+    // Flatten all leads across columns
+    const cards = cols.flatMap((col) => {
+      const statusName = col?.status?.name || "New Lead";
+      const statusId = col?.status?.id ? Number(col.status.id) : null;
+      const leads = Array.isArray(col?.leads) ? col.leads : [];
+  
+      return leads.map((lead) => ({
+        Id: String(lead?.id ?? ""),
+        Title: lead?.name || "Untitled",
+        Status: statusName,                 // MUST match ColumnDirective keyField
+        Summary: lead?.notes || "No summary available",
+  
+        Company: lead?.company_name || "No Company",
+        Email: lead?.email || "",
+        Phone: lead?.phone || "",
+        Industry: lead?.industry || "",
+        Assignee: lead?.rep?.name || "Unassigned",
+  
+        // store current status id (useful if needed later)
+        LeadStatusId: statusId ?? Number(lead?.lead_status_id ?? 0),
+  
+        HatsUsage: normalizeMulti(lead?.hats_usage, "hats_usage"),
+        PastIssues: normalizeMulti(lead?.past_headwear_issues, "past_headwear_issues"),
+        MostImportant: normalizeMulti(lead?.what_most_important, "what_most_important"),
+      }));
+    });
+  
+    setLeadData(cards);
+  }, [kanbanListData]);
+  
 
   // Remove license error
   useEffect(() => {
@@ -90,15 +124,20 @@ export function KanbanBoard() {
   }, []);
   
 
-const handleStatusUpdate = (leadInfo: { id: string; email: string; status: string }) => {
-  console.log("trigger",leadInfo)
-  axios.post(api2, { id: leadInfo.id, email: leadInfo.email, status: leadInfo.status })
-    .then(() => {
-      toast.success("Status updated successfully");
-      setReload([1])
-      console.log("Status updated successfully");
+const handleStatusUpdate = (leadInfo: { id: string; lead_status_id: number }) => {
+  console.log("trigger", leadInfo);
+  const payload: any = { 
+    lead_id: leadInfo.id, 
+    lead_status_id: leadInfo.lead_status_id 
+  };
+  (dispatch as any)(kanbanDragnDrop(payload))
+    .unwrap()
+    .then((res:any) => {
+      toast.success(res.message);
+      // Refresh kanban list after successful update
+      (dispatch as any)(kanbanList());
     })
-    .catch((error) => {
+    .catch((error: any) => {
       console.error("Error updating status", error);
       toast.error("Failed to update status. Please try again.");
     });
@@ -204,29 +243,41 @@ const handleViewLead = (leadId: string) => {
   //   }
   // }
 
-function onDragStop(args: any) {
-  // let cardData = Array.isArray(args.data) ? args.data : args.data;
- const cardData = Array.isArray(args.data) ? args.data[0] : args.data;
-console.log('args',args)
-  // If cardData.Status is already the target column status after drop
-
-  if (!cardData) return;
-
-  // Now call handleStatusUpdate with the updated status
-  console.log('leadData.id',leadData)
-  const find=leadData.find(x=>x.Id==args?.data[0]?.Id)
-  console.log("find",find)
-  if(find.Status != args?.data[0]?.Status){
-    handleStatusUpdate({
-    id: cardData.Id,
-    email: cardData.Email,
-    status: cardData.Status, // This is the new column after drop
-  });
+  function onDragStop(args: any) {
+    const cardData = Array.isArray(args.data) ? args.data[0] : args.data;
+    if (!cardData) return;
+  
+    const originalLead = leadData.find((x) => String(x.Id) === String(cardData.Id));
+    if (!originalLead) return;
+  
+    // status changed?
+    if (originalLead.Status !== cardData.Status) {
+      const newStatusId = statusNameToId?.[cardData.Status];
+  
+      if (!newStatusId) {
+        toast.error(`No status id found for: ${cardData.Status}`);
+        return;
+      }
+  
+      // ✅ YOUR REQUIRED PAYLOAD FORMAT
+      const payload = {
+        lead_id: String(cardData.Id),
+        lead_status_id: Number(newStatusId),
+      };
+  
+      (dispatch as any)(kanbanDragnDrop(payload as any))
+        .unwrap()
+        .then((res:any) => {
+          toast.success(res.message);
+          (dispatch as any)(kanbanList());
+        })
+        .catch((err:any) => {
+          console.error(err);
+          toast.error("Failed to update status");
+        });
+    }
   }
-
-  // Optional: Log to confirm
-  console.log("DragDrop Status Update Triggered:", cardData);
-}
+  
 
 
 
@@ -391,19 +442,24 @@ console.log('args',args)
   
   
 
-  const columns = [
-  { headerText: "🆕 Sample Submitted", keyField: "Sample Submitted" },
-  { headerText: "🎨Sample Art Approved", keyField: "Sample Art Approved" },
-  // { headerText: "👌Artwork Submitted", keyField: "Artwork Submitted" },
-  // { headerText: "📦 Sample Submitted", keyField: "Sample Sent" },
-  { headerText: "🚚 Sample Shipped", keyField: "Sample Shipped" },
-  { headerText: "🎁 Sample Delivered", keyField: "Sample Delivered" },
-  { headerText: "🔥 Warm Lead", keyField: "Warm Lead" },
-  { headerText: "❄️ Cold Lead", keyField: "Cold Lead" }
-  // { headerText: "📦 Bulk Order", keyField: "Bulk Order" },
+//   const columns = [
+//   { headerText: "🆕 Sample Submitted", keyField: "Sample Submitted" },
+//   { headerText: "🎨Sample Art Approved", keyField: "Sample Art Approved" },
+//   // { headerText: "👌Artwork Submitted", keyField: "Artwork Submitted" },
+//   // { headerText: "📦 Sample Submitted", keyField: "Sample Sent" },
+//   { headerText: "🚚 Sample Shipped", keyField: "Sample Shipped" },
+//   { headerText: "🎁 Sample Delivered", keyField: "Sample Delivered" },
+//   { headerText: "🔥 Warm Lead", keyField: "Warm Lead" },
+//   { headerText: "❄️ Cold Lead", keyField: "Cold Lead" }
+//   // { headerText: "📦 Bulk Order", keyField: "Bulk Order" },
 
-];
+// ];
 
+const columns =
+  kanbanListData?.data?.columns?.map((c) => ({
+    headerText: c?.status?.name || "Unnamed",
+    keyField: c?.status?.name || "Unnamed",
+  })) || [];
 
 
   return (

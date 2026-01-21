@@ -37,7 +37,7 @@ const TaskManager = () => {
       toast.success(res?.payload?.message);
       reset();
       setOpenMoodMasterModal(false);
-      axios.get("https://n8n.bestworks.cloud/webhook/airtable-rep-fetch")
+      // axios.get("https://n8n.bestworks.cloud/webhook/airtable-rep-fetch")
     })
     .catch((err) => {
       console.log("err", err);
@@ -434,7 +434,7 @@ const TaskManager = () => {
                     </label>
                     <input
                       type="text"
-                      {...register('rep_name', { required: 'Rep name is required' })}
+                      {...register('name', { required: 'Rep name is required' })}
                       style={{
                         width: '100%',
                         padding: '10px 12px',
@@ -521,7 +521,7 @@ const TaskManager = () => {
                   </div>
 
                   {/* Rep Address Field */}
-                  <div>
+                  {/* <div>
                     <label style={{
                       display: 'block',
                       fontSize: '14px',
@@ -545,7 +545,7 @@ const TaskManager = () => {
                         transition: 'border-color 0.2s'
                       }}
                     />
-                  </div>
+                  </div> */}
 
                   {/* Action Buttons */}
                   <div style={{

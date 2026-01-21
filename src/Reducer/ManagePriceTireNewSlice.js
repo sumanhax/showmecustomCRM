@@ -1,12 +1,12 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import apiUser from "../store/ApiUser";
+import api from "../store/Api";
 
 
 export const primaryDecorationList = createAsyncThunk(
     'primaryDecorationList',
     async ({page,limit}, { rejectWithValue }) => {
         try {
-            const response = await apiUser.get(`/postgresapi/admin/primary-decoration/list?page=${page}&limit=${limit}`);
+            const response = await api.get(`/postgresapi/admin/primary-decoration/list?page=${page}&limit=${limit}`);
             if (response?.data?.status_code === 201 || response?.data?.status_code === 200) {
                 return response.data;
             } else {
@@ -27,7 +27,7 @@ export const priceTierList = createAsyncThunk(
     'priceTierList',
     async ({page,limit}, { rejectWithValue }) => {
         try {
-            const response = await apiUser.get(`/postgresapi/admin/decoration-price-tier/list?page=${page}&limit=${limit}`);
+            const response = await api.get(`/postgresapi/admin/decoration-price-tier/list?page=${page}&limit=${limit}`);
             if (response?.data?.status_code === 201 || response?.data?.status_code === 200) {
                 return response.data;
             } else {
@@ -47,7 +47,7 @@ export const addPriceTire = createAsyncThunk(
     'addPriceTire',
     async (userInput, { rejectWithValue }) => {
         try {
-            const response = await apiUser.post(`/postgresapi/admin/decoration-price-tier/add`,userInput);
+            const response = await api.post(`/postgresapi/admin/decoration-price-tier/add`,userInput);
             if (response?.data?.status_code === 201 || response?.data?.status_code === 200) {
                 return response.data;
             } else {

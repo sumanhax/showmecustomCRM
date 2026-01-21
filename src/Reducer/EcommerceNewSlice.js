@@ -1,5 +1,5 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import apiUser from "../store/ApiUser";
+import api from "../store/Api";
 import axios from "axios";
 
 // hat image
@@ -7,7 +7,7 @@ export const hatImageAdd = createAsyncThunk(
     'ecommerce/hatImageAdd',
     async (userInput, { rejectWithValue }) => {
         try {
-            const response = await apiUser.post(`/postgresapi/admin/hat/image/save`,userInput);
+            const response = await api.post(`/postgresapi/admin/hat/image/save`,userInput);
             if (response?.data?.status_code === 201 || response?.data?.status_code === 200) {
                 return response.data;
             } else {
@@ -26,7 +26,7 @@ export const hatImageGet = createAsyncThunk(
     'ecommerce/hatImageGet',
     async (id, { rejectWithValue }) => {
         try {
-            const response = await apiUser.get(`/postgresapi/admin/hat/image/list?hat_style_id=${id}`);
+            const response = await api.get(`/postgresapi/admin/hat/image/list?hat_style_id=${id}`);
             if (response?.data?.status_code === 201 || response?.data?.status_code === 200) {
                 return response.data;
             } else {
@@ -46,7 +46,7 @@ export const brandAdd = createAsyncThunk(
     'ecommerce/brandAdd',
     async (userInput, { rejectWithValue }) => {
         try {
-            const response = await apiUser.post(`/postgresapi/admin/brand/save`,userInput);
+            const response = await api.post(`/postgresapi/admin/brand/save`,userInput);
             if (response?.data?.status_code === 201 || response?.data?.status_code === 200) {
                 return response.data;
             } else {
@@ -65,7 +65,7 @@ export const brandList = createAsyncThunk(
     'ecommerce/brandList',
     async (_, { rejectWithValue }) => {
         try {
-            const response = await apiUser.get(`/postgresapi/admin/brand/list`);
+            const response = await api.get(`/postgresapi/admin/brand/list`);
             if (response?.data?.status_code === 201 || response?.data?.status_code === 200) {
                 return response.data;
             } else {
@@ -84,7 +84,7 @@ export const brandSingle = createAsyncThunk(
     'ecommerce/brandSingle',
     async (id, { rejectWithValue }) => {
         try {
-            const response = await apiUser.get(`/postgresapi/admin/brand/list?id=${id}`);
+            const response = await api.get(`/postgresapi/admin/brand/list?id=${id}`);
             if (response?.data?.status_code === 201 || response?.data?.status_code === 200) {
                 return response.data;
             } else {
@@ -103,7 +103,7 @@ export const brandDelete = createAsyncThunk(
     'ecommerce/brandDelete',
     async (id, { rejectWithValue }) => {
         try {
-            const response = await apiUser.delete(`/postgresapi/admin/brand/delete/${id}`);
+            const response = await api.delete(`/postgresapi/admin/brand/delete/${id}`);
             if (response?.data?.status_code === 201 || response?.data?.status_code === 200) {
                 return response.data;
             } else {
@@ -123,7 +123,7 @@ export const hatAdd = createAsyncThunk(
     'ecommerce/hatAdd',
     async (userInput, { rejectWithValue }) => {
         try {
-            const response = await apiUser.post(`/postgresapi/admin/hat/save`,userInput);
+            const response = await api.post(`/postgresapi/admin/hat/save`,userInput);
             if (response?.data?.status_code === 201 || response?.data?.status_code === 200) {
                 return response.data;
             } else {
@@ -142,7 +142,7 @@ export const hatList = createAsyncThunk(
     'ecommerce/hatList',
     async (_, { rejectWithValue }) => {
         try {
-            const response = await apiUser.get(`/postgresapi/admin/hat/list`);
+            const response = await api.get(`/postgresapi/admin/hat/list`);
             if (response?.data?.status_code === 201 || response?.data?.status_code === 200) {
                 return response.data;
             } else {
@@ -161,7 +161,7 @@ export const hatSingle = createAsyncThunk(
     'ecommerce/hatSingle',
     async (id, { rejectWithValue }) => {
         try {
-            const response = await apiUser.get(`/postgresapi/admin/hat/list?id=${id}`);
+            const response = await api.get(`/postgresapi/admin/hat/list?id=${id}`);
             if (response?.data?.status_code === 201 || response?.data?.status_code === 200) {
                 return response.data;
             } else {
@@ -180,7 +180,7 @@ export const hatDelete = createAsyncThunk(
     'ecommerce/hatDelete',
     async (id, { rejectWithValue }) => {
         try {
-            const response = await apiUser.delete(`/postgresapi/admin/hat/delete/${id}`);
+            const response = await api.delete(`/postgresapi/admin/hat/delete/${id}`);
             if (response?.data?.status_code === 201 || response?.data?.status_code === 200) {
                 return response.data;
             } else {
@@ -200,7 +200,7 @@ export const hatColorAdd = createAsyncThunk(
     'ecommerce/hatColorAdd',
     async (userInput, { rejectWithValue }) => {
         try {
-            const response = await apiUser.post(`/postgresapi/admin/hat/color/save`,userInput);
+            const response = await api.post(`/postgresapi/admin/hat/color/save`,userInput);
             if (response?.data?.status_code === 201 || response?.data?.status_code === 200) {
                 return response.data;
             } else {
@@ -219,7 +219,7 @@ export const hatColorList = createAsyncThunk(
     'ecommerce/hatColorList',
     async (_, { rejectWithValue }) => {
         try {
-            const response = await apiUser.get(`/postgresapi/admin/hat/color/list`);
+            const response = await api.get(`/postgresapi/admin/hat/color/list`);
             if (response?.data?.status_code === 201 || response?.data?.status_code === 200) {
                 return response.data;
             } else {
@@ -238,7 +238,7 @@ export const hatColorSingle = createAsyncThunk(
     'ecommerce/hatColorSingle',
     async (id, { rejectWithValue }) => {
         try {
-            const response = await apiUser.get(`/postgresapi/admin/hat/color/list?hat_style_id=${id}`);
+            const response = await api.get(`/postgresapi/admin/hat/color/list?hat_style_id=${id}`);
             if (response?.data?.status_code === 201 || response?.data?.status_code === 200) {
                 return response.data;
             } else {
@@ -258,7 +258,7 @@ export const hatSizeAdd = createAsyncThunk(
     'ecommerce/hatSizeAdd',
     async (userInput, { rejectWithValue }) => {
         try {
-            const response = await apiUser.post(`/postgresapi/admin/hat/size/save`,userInput);
+            const response = await api.post(`/postgresapi/admin/hat/size/save`,userInput);
             if (response?.data?.status_code === 201 || response?.data?.status_code === 200) {
                 return response.data;
             } else {
@@ -277,7 +277,7 @@ export const hatSizeList = createAsyncThunk(
     'ecommerce/hatSizeList',
     async ({hat_color_id}, { rejectWithValue }) => {
         try {
-            const response = await apiUser.get(`/postgresapi/admin/hat/size/list?${hat_color_id}`);
+            const response = await api.get(`/postgresapi/admin/hat/size/list?${hat_color_id}`);
             if (response?.data?.status_code === 201 || response?.data?.status_code === 200) {
                 return response.data;
             } else {
@@ -296,7 +296,7 @@ export const hatSizeSingle = createAsyncThunk(
     'ecommerce/hatSizeSingle',
     async (id, { rejectWithValue }) => {
         try {
-            const response = await apiUser.get(`/postgresapi/admin/hat/size/list?hat_color_id=${id}`);
+            const response = await api.get(`/postgresapi/admin/hat/size/list?hat_color_id=${id}`);
             if (response?.data?.status_code === 201 || response?.data?.status_code === 200) {
                 return response.data;
             } else {
@@ -317,7 +317,7 @@ export const orderList = createAsyncThunk(
     'ecommerce/orderList',
     async ({page,limit}, { rejectWithValue }) => {
         try {
-            const response = await apiUser.get(`/postgresapi/admin/order/list?page=${page}&limit=${limit}`);
+            const response = await api.get(`/postgresapi/admin/order/list?page=${page}&limit=${limit}`);
             if (response?.data?.status_code === 201 || response?.data?.status_code === 200) {
                 return response.data;
             } else {
@@ -336,7 +336,7 @@ export const orderSingle = createAsyncThunk(
     'ecommerce/orderSingle',
     async ({page,limit,id}, { rejectWithValue }) => {
         try {
-            const response = await apiUser.get(`/postgresapi/admin/order/list?page=${page}&limit=${limit}&id=${id}`);
+            const response = await api.get(`/postgresapi/admin/order/list?page=${page}&limit=${limit}&id=${id}`);
             if (response?.data?.status_code === 201 || response?.data?.status_code === 200) {
                 return response.data;
             } else {

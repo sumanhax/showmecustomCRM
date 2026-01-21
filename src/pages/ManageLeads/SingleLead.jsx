@@ -4,6 +4,8 @@ import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
 import Loader from "../../components/Loader";
 import AddNoteModal from "./AddNoteModal";
+import { useDispatch, useSelector } from "react-redux";
+import { leadSingle } from "../../Reducer/AddSlice";
 import { 
   FaDollarSign, 
   FaChartLine, 
@@ -27,6 +29,8 @@ import EmailConversation from "./EmailConversation";
 const SingleLead = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const { leadSingleData, loading } = useSelector((state) => state.add);
   const [leadData, setLeadData] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -45,32 +49,36 @@ const SingleLead = () => {
   const [isCallSending, setIsCallSending] = useState(false);
   const [openNoteModal, setOpenNoteModal] = useState(false);
 
-  const api = "https://n8n.bestworks.cloud/webhook/fetch-single-lead";
-
-
-
-  const fetchLeadData = useCallback(async () => {
-    try {
+  const fetchLeadData = useCallback(() => {
+    if (id) {
       setIsLoading(true);
       setError(null);
-      const response = await axios.post(api, { id });
-      console.log("Lead data fetched:", response.data);
-      setLeadData(response.data[0]);
-    } catch (error) {
-      console.error("Error fetching lead data:", error);
-      setError("Failed to fetch lead data");
-      toast.error("Failed to fetch lead data");
-    } finally {
-      setIsLoading(false);
+      dispatch(leadSingle(id));
     }
-  }, [id]);
-
+  }, [id, dispatch]);
 
   useEffect(() => {
-    if (id) {
-      fetchLeadData();
+    fetchLeadData();
+  }, [fetchLeadData]);
+
+  // Update local state when Redux data changes
+  useEffect(() => {
+    if (leadSingleData?.data) {
+      console.log("Lead single data from Redux:", leadSingleData.data);
+      setLeadData(leadSingleData.data);
+      setIsLoading(false);
+      setError(null);
     }
-  }, [id, fetchLeadData]);
+    if (leadSingleData?.error) {
+      setError("Failed to fetch lead data");
+      toast.error("Failed to fetch lead data");
+      setIsLoading(false);
+    }
+  }, [leadSingleData]);
+
+  useEffect(() => {
+    setIsLoading(loading);
+  }, [loading]);
 
 
   const formatCurrency = (value) => {
@@ -100,6 +108,19 @@ const SingleLead = () => {
       "Cold Lead": "bg-pink-100 text-pink-800 border-pink-200",
     };
     return statusColors[status] || "bg-gray-100 text-gray-800 border-gray-200";
+  };
+
+  const formatAddress = (address) => {
+    if (!address) return "N/A";
+    const parts = [
+      address.line1,
+      address.line2,
+      address.city,
+      address.state,
+      address.postal_code,
+      address.country
+    ].filter(Boolean);
+    return parts.join(", ") || "N/A";
   };
 
   // Email handler functions
@@ -243,7 +264,7 @@ return (
                 <h1 className="text-3xl font-bold text-gray-900">
                   {leadData?.name || "Lead Details"}
                 </h1>
-                <p className="text-gray-600">Lead ID: {leadData.id}</p>
+                <p className="text-gray-600">Lead ID: {leadData?.id}</p>
               </div>
             </div>
             <div className="flex items-center gap-4">
@@ -253,8 +274,8 @@ return (
               >
                 Add Note
               </button>
-              <div className={`px-4 py-2 rounded-full border ${getStatusColor(leadData["Lead Status"])}`}>
-                <span className="font-semibold">{leadData["Lead Status"] || "Unknown Status"}</span>
+              <div className={`px-4 py-2 rounded-full border ${getStatusColor(leadData?.lead_status?.name)}`}>
+                <span className="font-semibold">{leadData?.lead_status?.name || "Unknown Status"}</span>
               </div>
             </div>
           </div>
@@ -267,7 +288,7 @@ return (
                 <div>
                   <p className="text-sm font-medium text-gray-600">Profit</p>
                   <p className="text-2xl font-bold text-green-600">
-                    {formatCurrency(leadData?.profit)}
+                    {formatCurrency(parseFloat(leadData?.profit || 0))}
                   </p>
                 </div>
                 <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
@@ -282,7 +303,7 @@ return (
                 <div>
                   <p className="text-sm font-medium text-gray-600">Total Orders</p>
                   <p className="text-2xl font-bold text-blue-600">
-                    {leadData["Total Orders"] || 0}
+                    {leadData?.total_orders || 0}
                   </p>
                 </div>
                 <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
@@ -295,9 +316,9 @@ return (
             <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-gray-600">Total Order Value</p>
+                  <p className="text-sm font-medium text-gray-600">Total Revenue</p>
                   <p className="text-2xl font-bold text-purple-600">
-                    {formatCurrency(leadData["Total Order Value"])}
+                    {formatCurrency(parseFloat(leadData?.revenue || 0))}
                   </p>
                 </div>
                 <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
@@ -312,7 +333,7 @@ return (
                 <div>
                   <p className="text-sm font-medium text-gray-600">Conversion Rate</p>
                   <p className="text-2xl font-bold text-orange-600">
-                    {leadData["Conversion Rate 2"] || "0%"}
+                    {parseFloat(leadData?.conversion_rate || 0).toFixed(1)}%
                   </p>
                 </div>
                 <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
@@ -337,30 +358,30 @@ return (
                     <FaEnvelope className="w-4 h-4 text-gray-400" />
                     <div>
                       <p className="text-sm text-gray-600">Email</p>
-                      <p className="font-medium">{leadData?.email || "N/A"}</p>
-                    </div>
+                    <p className="font-medium">{leadData?.email || "N/A"}</p>
                   </div>
-                  <div className="flex items-center space-x-3">
-                    <FaPhone className="w-4 h-4 text-gray-400" />
-                    <div>
-                      <p className="text-sm text-gray-600">Phone</p>
-                      <p className="font-medium">{leadData?.phone|| leadData["Phone Number"] || "N/A"}</p>
-                    </div>
+                </div>
+                <div className="flex items-center space-x-3">
+                  <FaPhone className="w-4 h-4 text-gray-400" />
+                  <div>
+                    <p className="text-sm text-gray-600">Phone</p>
+                    <p className="font-medium">{leadData?.phone || "N/A"}</p>
                   </div>
-                  <div className="flex items-center space-x-3">
-                    <FaBuilding className="w-4 h-4 text-gray-400" />
-                    <div>
-                      <p className="text-sm text-gray-600">Company</p>
-                      <p className="font-medium">{leadData?.company_name || "N/A"}</p>
-                    </div>
+                </div>
+                <div className="flex items-center space-x-3">
+                  <FaBuilding className="w-4 h-4 text-gray-400" />
+                  <div>
+                    <p className="text-sm text-gray-600">Company</p>
+                    <p className="font-medium">{leadData?.company_name || "N/A"}</p>
                   </div>
-                  <div className="flex items-center space-x-3">
-                    <FaMapMarkerAlt className="w-4 h-4 text-gray-400" />
-                    <div>
-                      <p className="text-sm text-gray-600">Address</p>
-                      <p className="font-medium">{leadData["Address"] || "N/A"}</p>
-                    </div>
+                </div>
+                <div className="flex items-center space-x-3">
+                  <FaMapMarkerAlt className="w-4 h-4 text-gray-400" />
+                  <div>
+                    <p className="text-sm text-gray-600">Primary Address</p>
+                    <p className="font-medium">{formatAddress(leadData?.primary_address)}</p>
                   </div>
+                </div>
                 </div>
               </div>
 
@@ -372,48 +393,101 @@ return (
                 </h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <p className="text-sm text-gray-600">First Name</p>
-                    <p className="font-medium">{leadData["First Name"] || "N/A"}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-gray-600">Last Name</p>
-                    <p className="font-medium">{leadData["Last Name"] || "N/A"}</p>
-                  </div>
-                  <div>
                     <p className="text-sm text-gray-600">Role in Company</p>
-                    <p className="font-medium">
-                      {Array.isArray(leadData["Role in Company"]) 
-                        ? leadData["Role in Company"].join(", ") 
-                        : leadData["Role in Company"] || "N/A"}
-                    </p>
+                    <p className="font-medium">{leadData?.role_in_company || "N/A"}</p>
                   </div>
                   <div>
                     <p className="text-sm text-gray-600">Annual Merchandise Spend</p>
-                    <p className="font-medium">{leadData["Annual Merchandise Spend"] || "N/A"}</p>
+                    <p className="font-medium">{leadData?.annual_merchandise_spend || "N/A"}</p>
                   </div>
                   <div>
-                    <p className="text-sm text-gray-600">City</p>
-                    <p className="font-medium">{leadData["City"] || "N/A"}</p>
+                    <p className="text-sm text-gray-600">Industry</p>
+                    <p className="font-medium">{leadData?.industry || "N/A"}</p>
                   </div>
                   <div>
-                    <p className="text-sm text-gray-600">State</p>
-                    <p className="font-medium">{leadData["State"] || "N/A"}</p>
+                    <p className="text-sm text-gray-600">Region Tag</p>
+                    <p className="font-medium">{leadData?.region_tag || "N/A"}</p>
                   </div>
                   <div>
-                    <p className="text-sm text-gray-600">Country</p>
-                    <p className="font-medium">{leadData["Country"] || "N/A"}</p>
+                    <p className="text-sm text-gray-600">Source</p>
+                    <p className="font-medium">{leadData?.source || "N/A"}</p>
                   </div>
                   <div>
-                    <p className="text-sm text-gray-600">Zip Code</p>
-                    <p className="font-medium">{leadData["Zip Code"] || "N/A"}</p>
+                    <p className="text-sm text-gray-600">Marketing Consent</p>
+                    <p className="font-medium">{leadData?.marketing_consent ? "Yes" : "No"}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-600">Lead Quality Score</p>
+                    <p className="font-medium">{leadData?.lead_quality_score || "N/A"}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-600">Assigned Rep</p>
+                    <p className="font-medium">{leadData?.rep?.name || "Unassigned"}</p>
                   </div>
                 </div>
               </div>
- {/* Email Conversation */}
- <EmailConversation 
-                leadEmail={leadData["Email"]} 
-                leadName={leadData["Lead Name"]} 
-              />
+              {/* Address Details */}
+              <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
+                <h2 className="text-xl font-semibold text-gray-900 mb-4 flex items-center">
+                  <FaMapMarkerAlt className="w-5 h-5 mr-2 text-[#f20c32]" />
+                  Address Information
+                </h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <h3 className="text-sm font-semibold text-gray-700 mb-3">Primary Address</h3>
+                    {leadData?.primary_address ? (
+                      <div className="space-y-2">
+                        <p className="text-sm text-gray-600">{leadData.primary_address.line1}</p>
+                        {leadData.primary_address.line2 && (
+                          <p className="text-sm text-gray-600">{leadData.primary_address.line2}</p>
+                        )}
+                        <p className="text-sm text-gray-600">
+                          {[leadData.primary_address.city, leadData.primary_address.state, leadData.primary_address.postal_code].filter(Boolean).join(", ")}
+                        </p>
+                        <p className="text-sm text-gray-600">{leadData.primary_address.country}</p>
+                      </div>
+                    ) : (
+                      <p className="text-gray-500">N/A</p>
+                    )}
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-semibold text-gray-700 mb-3">Shipping Address</h3>
+                    {leadData?.shipping_address ? (
+                      <div className="space-y-2">
+                        <p className="text-sm text-gray-600">{leadData.shipping_address.line1}</p>
+                        {leadData.shipping_address.line2 && (
+                          <p className="text-sm text-gray-600">{leadData.shipping_address.line2}</p>
+                        )}
+                        <p className="text-sm text-gray-600">
+                          {[leadData.shipping_address.city, leadData.shipping_address.state, leadData.shipping_address.postal_code].filter(Boolean).join(", ")}
+                        </p>
+                        <p className="text-sm text-gray-600">{leadData.shipping_address.country}</p>
+                      </div>
+                    ) : (
+                      <p className="text-gray-500">N/A</p>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Notes */}
+              {leadData?.notes && (
+                <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
+                  <h2 className="text-xl font-semibold text-gray-900 mb-4 flex items-center">
+                    <IoDocumentTextOutline className="w-5 h-5 mr-2 text-[#f20c32]" />
+                    Notes
+                  </h2>
+                  <div className="bg-gray-50 rounded-lg p-4">
+                    <p className="text-gray-700 whitespace-pre-wrap">{leadData.notes}</p>
+                  </div>
+                </div>
+              )}
+
+              {/* Email Conversation */}
+              {/* <EmailConversation 
+                leadEmail={leadData?.email} 
+                leadName={leadData?.name} 
+              /> */}
               {/* Hat Usage and Preferences */}
               <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
                 <h2 className="text-xl font-semibold text-gray-900 mb-4 flex items-center">
@@ -424,10 +498,10 @@ return (
                   <div>
                     <p className="text-sm text-gray-600 mb-2">Hat Usage</p>
                     <div className="flex flex-wrap gap-2">
-                      {Array.isArray(leadData["Hat Usage"]) ? 
-                        leadData["Hat Usage"].map((usage, index) => (
+                      {Array.isArray(leadData?.hats_usage) && leadData.hats_usage.length > 0 ? 
+                        leadData.hats_usage.map((item, index) => (
                           <span key={index} className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm">
-                            {usage}
+                            {typeof item === 'object' ? item.hats_usage : item}
                           </span>
                         )) : 
                         <span className="text-gray-500">N/A</span>
@@ -437,10 +511,10 @@ return (
                   <div>
                     <p className="text-sm text-gray-600 mb-2">Past Headwear Issues</p>
                     <div className="flex flex-wrap gap-2">
-                      {Array.isArray(leadData["Past Headwear Issues"]) ? 
-                        leadData["Past Headwear Issues"].map((issue, index) => (
+                      {Array.isArray(leadData?.past_headwear_issues) && leadData.past_headwear_issues.length > 0 ? 
+                        leadData.past_headwear_issues.map((item, index) => (
                           <span key={index} className="px-3 py-1 bg-red-100 text-red-800 rounded-full text-sm">
-                            {issue}
+                            {typeof item === 'object' ? item.past_headwear_issues : item}
                           </span>
                         )) : 
                         <span className="text-gray-500">N/A</span>
@@ -450,23 +524,10 @@ return (
                   <div>
                     <p className="text-sm text-gray-600 mb-2">What&apos;s Most Important</p>
                     <div className="flex flex-wrap gap-2">
-                      {Array.isArray(leadData["What's Most Important"]) ? 
-                        leadData["What's Most Important"].map((item, index) => (
+                      {Array.isArray(leadData?.what_most_important) && leadData.what_most_important.length > 0 ? 
+                        leadData.what_most_important.map((item, index) => (
                           <span key={index} className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm">
-                            {item}
-                          </span>
-                        )) : 
-                        <span className="text-gray-500">N/A</span>
-                      }
-                    </div>
-                  </div>
-                  <div>
-                    <p className="text-sm text-gray-600 mb-2">Selected Hats</p>
-                    <div className="flex flex-wrap gap-2">
-                      {Array.isArray(leadData["Selected Hats"]) ? 
-                        leadData["Selected Hats"].map((hat, index) => (
-                          <span key={index} className="px-3 py-1 bg-purple-100 text-purple-800 rounded-full text-sm">
-                            {hat}
+                            {typeof item === 'object' ? item.what_most_important : item}
                           </span>
                         )) : 
                         <span className="text-gray-500">N/A</span>
@@ -502,7 +563,7 @@ return (
                 </h2>
                 <div className="flex gap-3">
                   <button
-                    onClick={() => handleEmailClick(leadData["Email"], leadData["Lead Name"])}
+                    onClick={() => handleEmailClick(leadData?.email, leadData?.name)}
                     style={{
                       background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
                       color: 'white',
@@ -533,7 +594,7 @@ return (
                   </button>
                   
                   <button
-                    onClick={() => handleCallClick(leadData["Phone"] || leadData["Phone Number"], leadData["Lead Name"])}
+                    onClick={() => handleCallClick(leadData?.phone, leadData?.name)}
                     style={{
                       background: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
                       color: 'white',
@@ -574,61 +635,58 @@ return (
                 </h2>
                 <div className="space-y-4">
                   <div className="flex items-center space-x-3">
-                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                    <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
                     <div>
-                      <p className="text-sm font-medium">First Contact</p>
-                      <p className="text-xs text-gray-600">{formatDate(leadData["First Contact Date"])}</p>
+                      <p className="text-sm font-medium">Typeform Date</p>
+                      <p className="text-xs text-gray-600">{formatDate(leadData?.typeform_date)}</p>
                     </div>
                   </div>
                   <div className="flex items-center space-x-3">
                     <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
                     <div>
-                      <p className="text-sm font-medium">Last Contact</p>
-                      <p className="text-xs text-gray-600">{formatDate(leadData["Last Contact Date"])}</p>
+                      <p className="text-sm font-medium">Created At</p>
+                      <p className="text-xs text-gray-600">{formatDate(leadData?.created_at)}</p>
                     </div>
                   </div>
                   <div className="flex items-center space-x-3">
-                    <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
+                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
                     <div>
-                      <p className="text-sm font-medium">Typeform Date</p>
-                      <p className="text-xs text-gray-600">{formatDate(leadData["Typeform Date"])}</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center space-x-3">
-                    <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
-                    <div>
-                      <p className="text-sm font-medium">Sample Entry Date</p>
-                      <p className="text-xs text-gray-600">{formatDate(leadData["Sample Entry Date"])}</p>
+                      <p className="text-sm font-medium">Last Updated</p>
+                      <p className="text-xs text-gray-600">{formatDate(leadData?.updated_at)}</p>
                     </div>
                   </div>
                 </div>
               </div>
 
-              {/* Email Statistics */}
-              <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
-                <h2 className="text-xl font-semibold text-gray-900 mb-4 flex items-center">
-                  <FaEnvelope className="w-5 h-5 mr-2 text-[#f20c32]" />
-                  Email Statistics
-                </h2>
-                <div className="space-y-3">
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-gray-600">Open Email Count</span>
-                    <span className="font-semibold text-blue-600">{leadData["Open Email Count"] || 0}</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-gray-600">Reply Email Count</span>
-                    <span className="font-semibold text-green-600">{leadData["Reply Email Count"] || 0}</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-gray-600">Samples Sent Count</span>
-                    <span className="font-semibold text-purple-600">{leadData["Samples Sent Count"] || 0}</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-gray-600">Sample Ordered</span>
-                    <span className="font-semibold text-orange-600">{leadData["Sample Ordered"] || 0}</span>
+              {/* Rep Information */}
+              {leadData?.rep && (
+                <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
+                  <h2 className="text-xl font-semibold text-gray-900 mb-4 flex items-center">
+                    <FaUser className="w-5 h-5 mr-2 text-[#f20c32]" />
+                    Assigned Representative
+                  </h2>
+                  <div className="space-y-3">
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-gray-600">Name</span>
+                      <span className="font-semibold text-blue-600">{leadData.rep.name}</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-gray-600">Email</span>
+                      <span className="font-semibold text-green-600">{leadData.rep.email}</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-gray-600">Phone</span>
+                      <span className="font-semibold text-purple-600">{leadData.rep.phone}</span>
+                    </div>
+                    {leadData.rep.address && (
+                      <div>
+                        <span className="text-sm text-gray-600">Address</span>
+                        <p className="font-medium text-sm mt-1">{formatAddress(leadData.rep.address)}</p>
+                      </div>
+                    )}
                   </div>
                 </div>
-              </div>
+              )}
 
               {/* Financial Summary */}
               <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
@@ -639,39 +697,23 @@ return (
                 <div className="space-y-3">
                   <div className="flex justify-between items-center">
                     <span className="text-sm text-gray-600">Revenue</span>
-                    <span className="font-semibold text-green-600">{formatCurrency(leadData["Revenue"])}</span>
+                    <span className="font-semibold text-green-600">{formatCurrency(parseFloat(leadData?.revenue || 0))}</span>
                   </div>
                   <div className="flex justify-between items-center">
                     <span className="text-sm text-gray-600">Expenses</span>
-                    <span className="font-semibold text-red-600">{formatCurrency(leadData["Expenses"])}</span>
+                    <span className="font-semibold text-red-600">{formatCurrency(parseFloat(leadData?.expenses || 0))}</span>
                   </div>
                   <div className="flex justify-between items-center">
                     <span className="text-sm text-gray-600">Profit</span>
-                    <span className="font-semibold text-blue-600">{formatCurrency(leadData["Profit"])}</span>
+                    <span className="font-semibold text-blue-600">{formatCurrency(parseFloat(leadData?.profit || 0))}</span>
                   </div>
                   <div className="flex justify-between items-center">
                     <span className="text-sm text-gray-600">Conversion Rate</span>
-                    <span className="font-semibold text-purple-600">{leadData["Conversion Rate"] || "0%"}</span>
+                    <span className="font-semibold text-purple-600">{parseFloat(leadData?.conversion_rate || 0).toFixed(1)}%</span>
                   </div>
                 </div>
               </div>
 
-              {/* Logo Display */}
-              {leadData["Logo Upload"] && leadData["Logo Upload"].length > 0 && (
-                <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
-                  <h2 className="text-xl font-semibold text-gray-900 mb-4 flex items-center">
-                    <FaImage className="w-5 h-5 mr-2 text-[#f20c32]" />
-                    Company Logo
-                  </h2>
-                  <div className="flex justify-center">
-                    <img
-                      src={leadData["Logo Upload"][0].url}
-                      alt="Company Logo"
-                      className="max-w-full h-32 object-contain rounded-lg border border-gray-200"
-                    />
-                  </div>
-                </div>
-              )}
             </div>
           </div>
         </div>
@@ -1073,7 +1115,7 @@ return (
       )}
 
       {/* Add Note Modal */}
-      {openNoteModal && (
+      {openNoteModal && leadData && (
         <AddNoteModal
           leadsId={leadData.id}
           openNoteModal={openNoteModal}

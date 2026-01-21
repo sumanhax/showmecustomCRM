@@ -9,8 +9,8 @@ import AddLeadModal from "./AddLeadModal";
 import UpdateLeadModal from "./UpdateLeadModal";
 import AddNoteModal from "./AddNoteModal";
 import { useNavigate } from "react-router-dom";
-import { useDispatch } from "react-redux";
-import { updatePartnerClassification } from "../../Reducer/AddSlice";
+import { useDispatch, useSelector } from "react-redux";
+import { updatePartnerClassification, leadList } from "../../Reducer/AddSlice";
 import { FaSearch, FaTimes } from "react-icons/fa";
 
 const ManageLeads = () => {
@@ -18,6 +18,7 @@ const ManageLeads = () => {
   //   (state) => state?.moodMastersData
   // );
   const dispatch = useDispatch();
+  const { leadListData, loading } = useSelector((state) => state.add);
   // const [openMoodMasterModal, setOpenMoodMasterModal] = useState(false);
   // const [mood_masterId, setMoodMasterId] = useState();
   // const [openUpdateMoodMasterModal, setOpenUpdateMoodMasterModal] =
@@ -25,7 +26,7 @@ const ManageLeads = () => {
   const navigate = useNavigate();
   const [leadsId,setLeadsId]=useState()
   const [leadData, setLeadData] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
   const [opentaskModal,setOpenTaskModal]=useState(false)
   const [openNoteModal, setOpenNoteModal] = useState(false);
   const [openAddLeadModal, setOpenAddLeadModal] = useState(false);
@@ -91,25 +92,41 @@ const ManageLeads = () => {
 
   const fetchLeads = () => {
     console.log("fetchLeads called - refreshing leads data");
-    setIsLoading(true);
-    axios
-      .get("https://n8n.bestworks.cloud/webhook/airtable-lead-fetch")
-      .then((res) => {
-        console.log("Leads data refreshed:", res.data);
-        setLeadData(res.data);
-      })
-      .catch((error) => {
-        console.error("Error fetching leads:", error);
-        setLeadData([]);
-      })
-      .finally(() => {
-        setIsLoading(false);
-      });
+    dispatch(leadList());
   };
 
   useEffect(() => {
     fetchLeads();
-  }, []);
+  }, [dispatch]);
+
+  // Transform leadListData to match the expected format
+  useEffect(() => {
+    if (leadListData?.data) {
+      console.log("Lead list data from Redux:", leadListData.data);
+      // Transform API response to match existing format
+      const transformed = leadListData.data.map((lead) => ({
+        id: lead.id,
+        name: lead.name,
+        email: lead.email,
+        phone: lead.phone,
+        company_name: lead.company_name,
+        "Lead Name": lead.name,
+        "Company Name": lead.company_name,
+        "Email": lead.email,
+        "Phone": lead.phone,
+        "Lead Status": lead.lead_status?.name || "Unknown",
+        "Typeform Date": lead.typeform_date ? new Date(lead.typeform_date).toLocaleDateString() : "",
+        "Partner Classification": lead.partner_classification || "",
+        "Orders": lead.orders || [],
+      }));
+      setLeadData(transformed);
+    }
+  }, [leadListData]);
+
+  useEffect(() => {
+    setIsLoading(loading);
+  }, [loading]);
+
   console.log("leadData", leadData);
 
   // Filter leads based on search term + partner + lead status
@@ -242,7 +259,8 @@ const ManageLeads = () => {
   }
 
   const handleStatusChange = (leadId, newStatus) => {
-    // Find the lead data to get the email
+    // TODO: Implement status update using kanbanDragnDrop or a new action
+    // For now, keeping the existing API call until a proper Redux action is created
     const lead = leadData.find(l => l.id === leadId);
     if (!lead) {
       console.error("Lead not found");

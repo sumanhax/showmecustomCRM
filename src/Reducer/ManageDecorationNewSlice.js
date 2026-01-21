@@ -1,12 +1,12 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import apiUser from "../store/ApiUser";
+import api from "../store/Api";
 
 
 export const decorationaddonList = createAsyncThunk(
     'decorationaddonList',
     async (_, { rejectWithValue }) => {
         try {
-            const response = await apiUser.get(`/postgresapi/admin/decoration/add/on/list`);
+            const response = await api.get(`/postgresapi/admin/decoration/add/on/list`);
             if (response?.data?.status_code === 201 || response?.data?.status_code === 200) {
                 return response.data;
             } else {
@@ -25,7 +25,7 @@ export const decorationaddonSingle = createAsyncThunk(
     'decorationaddonSingle',
     async (id, { rejectWithValue }) => {
         try {
-            const response = await apiUser.get(`/postgresapi/admin/decoration/add/on/list?id=${id}`);
+            const response = await api.get(`/postgresapi/admin/decoration/add/on/list?id=${id}`);
             if (response?.data?.status_code === 201 || response?.data?.status_code === 200) {
                 return response.data;
             } else {
@@ -44,7 +44,7 @@ export const decorationaddonAdd = createAsyncThunk(
     'decorationaddonAdd',
     async (userInput, { rejectWithValue }) => {
         try {
-            const response = await apiUser.post(`/postgresapi/admin/decoration/add/on/save`,userInput);
+            const response = await api.post(`/postgresapi/admin/decoration/add/on/save`,userInput);
             if (response?.data?.status_code === 201 || response?.data?.status_code === 200) {
                 return response.data;
             } else {
@@ -63,7 +63,7 @@ export const decorationaddonPriceList = createAsyncThunk(
     'decorationaddonPriceList',
     async (_, { rejectWithValue }) => {
         try {
-            const response = await apiUser.get(`/postgresapi/admin/decoration/add/on/price/list`);
+            const response = await api.get(`/postgresapi/admin/decoration/add/on/price/list`);
             if (response?.data?.status_code === 201 || response?.data?.status_code === 200) {
                 return response.data;
             } else {
@@ -82,7 +82,7 @@ export const decorationaddonPriceSingle = createAsyncThunk(
     'decorationaddonPriceSingle',
     async (id, { rejectWithValue }) => {
         try {
-            const response = await apiUser.get(`/postgresapi/admin/decoration/add/on/price/list?decoration_addon_id=${id}`);
+            const response = await api.get(`/postgresapi/admin/decoration/add/on/price/list?decoration_addon_id=${id}`);
             if (response?.data?.status_code === 201 || response?.data?.status_code === 200) {
                 return response.data;
             } else {
@@ -101,7 +101,7 @@ export const decorationaddonPriceAdd = createAsyncThunk(
     'decorationaddonPriceAdd',
     async (userInput, { rejectWithValue }) => {
         try {
-            const response = await apiUser.post(`/postgresapi/admin/decoration/add/on/price/save`,userInput);
+            const response = await api.post(`/postgresapi/admin/decoration/add/on/price/save`,userInput);
             if (response?.data?.status_code === 201 || response?.data?.status_code === 200) {
                 return response.data;
             } else {

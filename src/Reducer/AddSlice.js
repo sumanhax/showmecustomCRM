@@ -2,25 +2,25 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import api from "../store/Api";
 import axios from "axios";
 
-export const addRep = createAsyncThunk(
-    'add/addRep',
-    async (userInput, { rejectWithValue }) => {
-        try {
-            const response = await api.post('/api/admin/dashboard/add-rep', userInput);
-            if (response?.data?.status_code === 201) {
-                return response.data;
-            } else {
-                if (response?.data?.errors) {
-                    return rejectWithValue(response.data.errors);
-                } else {
-                    return rejectWithValue('Something went wrong.');
-                }
-            }
-        } catch (err) {
-            return rejectWithValue(err);
-        }
-    }
-)
+// export const addRep = createAsyncThunk(
+//     'add/addRep',
+//     async (userInput, { rejectWithValue }) => {
+//         try {
+//             const response = await api.post('/api/admin/dashboard/add-rep', userInput);
+//             if (response?.data?.status_code === 201) {
+//                 return response.data;
+//             } else {
+//                 if (response?.data?.errors) {
+//                     return rejectWithValue(response.data.errors);
+//                 } else {
+//                     return rejectWithValue('Something went wrong.');
+//                 }
+//             }
+//         } catch (err) {
+//             return rejectWithValue(err);
+//         }
+//     }
+// )
 export const addManager = createAsyncThunk(
     'add/addManager',
     async (userInput, { rejectWithValue }) => {
@@ -167,7 +167,8 @@ export const updatePartnerClassification = createAsyncThunk(
         }
     }
 )
-// Add lead to 
+
+//  lead
 export const addLead = createAsyncThunk(
     'add/addLead',
     async (userInput, { rejectWithValue }) => {
@@ -187,12 +188,149 @@ export const addLead = createAsyncThunk(
         }
     }
 )
+export const leadList = createAsyncThunk(
+    'add/leadList',
+    async (_, { rejectWithValue }) => {
+        try {
+            const response = await api.get('/postgresapi/admin/lead-manage/list');
+            if (response?.data?.status_code === 200 || response?.data?.status_code === 201) {
+                return response.data;
+            } else {
+                if (response?.data?.errors) {
+                    return rejectWithValue(response.data.errors);
+                } else {
+                    return rejectWithValue('Something went wrong.');
+                }
+            }
+        } catch (err) {
+            return rejectWithValue(err);
+        }
+    }
+)
+export const leadListSearch = createAsyncThunk(
+    'add/leadListSearch',
+    async (searchInput, { rejectWithValue }) => {
+        try {
+            const response = await api.get(`/postgresapi/admin/lead-manage/list?q=${searchInput}`);
+            if (response?.data?.status_code === 200 || response?.data?.status_code === 201) {
+                return response.data;
+            } else {
+                if (response?.data?.errors) {
+                    return rejectWithValue(response.data.errors);
+                } else {
+                    return rejectWithValue('Something went wrong.');
+                }
+            }
+        } catch (err) {
+            return rejectWithValue(err);
+        }
+    }
+)
+export const leadSingle = createAsyncThunk(
+    'add/leadSingle',
+    async (id, { rejectWithValue }) => {
+        try {
+            const response = await api.get(`/postgresapi/admin/lead-manage/${id}`);
+            if (response?.data?.status_code === 200 || response?.data?.status_code === 201) {
+                return response.data;
+            } else {
+                if (response?.data?.errors) {
+                    return rejectWithValue(response.data.errors);
+                } else {
+                    return rejectWithValue('Something went wrong.');
+                }
+            }
+        } catch (err) {
+            return rejectWithValue(err);
+        }
+    }
+)
+// rep
+export const addRep = createAsyncThunk(
+    'add/addRep',
+    async (userInput, { rejectWithValue }) => {
+        try {
+            const response = await api.post('/postgresapi/admin/reps-manage/add', userInput);
+            if (response?.data?.status_code === 200 || response?.data?.status_code === 201) {
+                return response.data;
+            } else {
+                if (response?.data?.errors) {
+                    return rejectWithValue(response.data.errors);
+                } else {
+                    return rejectWithValue('Something went wrong.');
+                }
+            }
+        } catch (err) {
+            return rejectWithValue(err);
+        }
+    }
+)
+export const repList = createAsyncThunk(
+    'add/repList',
+    async ({ page, limit }, { rejectWithValue }) => {
+        try {
+            const response = await api.get(`/postgresapi/admin/reps-manage/reps-list?page=${page}&limit=${limit}`);
+            if (response?.data?.status_code === 200 || response?.data?.status_code === 201) {
+                return response.data;
+            } else {
+                if (response?.data?.errors) {
+                    return rejectWithValue(response.data.errors);
+                } else {
+                    return rejectWithValue('Something went wrong.');
+                }
+            }
+        } catch (err) {
+            return rejectWithValue(err);
+        }
+    }
+)
 
+// kanban
+export const kanbanList = createAsyncThunk(
+    'add/kanbanList',
+    async (_, { rejectWithValue }) => {
+        try {
+            const response = await api.get(`/postgresapi/admin/lead-manage/kanban/list`);
+            if (response?.data?.status_code === 200 || response?.data?.status_code === 201) {
+                return response.data;
+            } else {
+                if (response?.data?.errors) {
+                    return rejectWithValue(response.data.errors);
+                } else {
+                    return rejectWithValue('Something went wrong.');
+                }
+            }
+        } catch (err) {
+            return rejectWithValue(err);
+        }
+    }
+)
+export const kanbanDragnDrop = createAsyncThunk(
+    'add/kanbanDragnDrop',
+    async ({ lead_id, lead_status_id }, { rejectWithValue }) => {
+        try {
+            const response = await api.patch(`/postgresapi/admin/lead-manage/kanban/${lead_id}/change_status`, {
+                lead_status_id
+            });
+            if (response?.data?.status_code === 200 || response?.data?.status_code === 201) {
+                return response.data;
+            } else {
+                if (response?.data?.errors) {
+                    return rejectWithValue(response.data.errors);
+                } else {
+                    return rejectWithValue('Something went wrong.');
+                }
+            }
+        } catch (err) {
+            return rejectWithValue(err);
+        }
+    }
+)
 
 const initialState = {
     error: null,
     loading: false, 
-    repDataResponse:{},
+    repListData:{},
     ManagerDataResponse:{},
     actionListData:{},
     repDashboardData:{},
@@ -200,6 +338,10 @@ const initialState = {
     getLeadNoteData:{},
     getLeadNoteAdminData:{},
     updatePartnerClassificationResponse:{},
+    kanbanListData:{},
+    leadListData:{},
+    leadSingleData:{},
+    leadListSearchData:{}
 }
 
 //slice part
@@ -217,7 +359,7 @@ const AddSlice = createSlice(
                 .addCase(addRep.fulfilled, (state, { payload }) => {
                     state.loading = false;
                     state.message = payload;
-                    state.repDataResponse=payload
+                    
                 })
                 .addCase(addRep.rejected, (state, { payload }) => {
                     state.loading = false;
@@ -321,6 +463,7 @@ const AddSlice = createSlice(
                         state.loading = false;
                         state.error = payload;
                     })
+                    // lead
                     .addCase(addLead.pending, (state) => {
                         state.message = null
                         state.loading = true;
@@ -334,6 +477,92 @@ const AddSlice = createSlice(
                         state.loading = false;
                         state.error = payload;
                     })
+                    .addCase(leadList.pending, (state) => {
+                        state.message = null
+                        state.loading = true;
+                        state.error = null
+                    })
+                    .addCase(leadList.fulfilled, (state, { payload }) => {
+                        state.loading = false;
+                        state.message = payload;
+                        state.leadListData=payload
+                    })
+                    .addCase(leadList.rejected, (state, { payload }) => {
+                        state.loading = false;
+                        state.error = payload;
+                    })
+                    .addCase(leadSingle.pending, (state) => {
+                        state.message = null
+                        state.loading = true;
+                        state.error = null
+                    })
+                    .addCase(leadSingle.fulfilled, (state, { payload }) => {
+                        state.loading = false;
+                        state.message = payload;
+                        state.leadSingleData=payload
+                    })
+                    .addCase(leadSingle.rejected, (state, { payload }) => {
+                        state.loading = false;
+                        state.error = payload;
+                    })
+                    // rep
+                    .addCase(repList.pending, (state) => {
+                        state.message = null
+                        state.loading = true;
+                        state.error = null
+                    })
+                    .addCase(repList.fulfilled, (state, { payload }) => {
+                        state.loading = false;
+                        state.message = payload;
+                        state.repListData=payload
+                    })
+                    .addCase(repList.rejected, (state, { payload }) => {
+                        state.loading = false;
+                        state.error = payload;
+                    })
+                    // kanban
+                    .addCase(kanbanList.pending, (state) => {
+                        state.message = null
+                        state.loading = true;
+                        state.error = null
+                    })
+                    .addCase(kanbanList.fulfilled, (state, { payload }) => {
+                        state.loading = false;
+                        state.message = payload;
+                        state.kanbanListData=payload
+                    })
+                    .addCase(kanbanList.rejected, (state, { payload }) => {
+                        state.loading = false;
+                        state.error = payload;
+                    })
+                    .addCase(kanbanDragnDrop.pending, (state) => {
+                        state.message = null
+                        state.loading = true;
+                        state.error = null
+                    })
+                    .addCase(kanbanDragnDrop.fulfilled, (state, { payload }) => {
+                        state.loading = false;
+                        state.message = payload;
+                    })
+                    .addCase(kanbanDragnDrop.rejected, (state, { payload }) => {
+                        state.loading = false;
+                        state.error = payload;
+                    })
+                    .addCase(leadListSearch.pending, (state) => {
+                        state.message = null
+                        state.loading = true;
+                        state.error = null
+                    })
+                    .addCase(leadListSearch.fulfilled, (state, { payload }) => {
+                        state.loading = false;
+                        state.message = payload;
+                        state.leadListSearchData=payload
+                    })
+                    .addCase(leadListSearch.rejected, (state, { payload }) => {
+                        state.loading = false;
+                        state.error = payload;
+                    })
+
         }
     }
 )
