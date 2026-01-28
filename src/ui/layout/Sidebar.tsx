@@ -452,7 +452,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                                   }`}
                               >
                                 <MdStorefront className='text-xl' />
-                                Price Tire
+                                Price Tier
                               </NavLink>
                             </li>
                             <li>
@@ -463,7 +463,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                                   }`}
                               >
                                 <MdStorefront className='text-xl' />
-                                Decorat Add-On
+                                Decoration Addon
                               </NavLink>
                             </li>
                             <li>

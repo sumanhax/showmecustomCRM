@@ -27,7 +27,7 @@ const ManageOrder = () => {
 
   const fetchOrders = useCallback(
     (p = page, l = limit) => {
-      
+
       dispatch(orderList({ page: p, limit: l }))
         .unwrap?.()
         .catch((err) => {
@@ -69,32 +69,32 @@ const ManageOrder = () => {
   // }, [orderListData]);
 
   const rowData = useMemo(() => {
-  const data = orderListData?.data;
-  if (!Array.isArray(data)) return [];
+    const data = orderListData?.data;
+    if (!Array.isArray(data)) return [];
 
-  return data.map((c, index) => {
-    const customer = c?.customer || {};
-    const orders = Array.isArray(c?.orders) ? c.orders : [];
-    const latestOrder = orders[0] || {};
+    return data.map((c, index) => {
+      const customer = c?.customer || {};
+      const orders = Array.isArray(c?.orders) ? c.orders : [];
+      const latestOrder = orders[0] || {};
 
-    return {
-      id: customer?.id || index,
-      first_name: customer?.first_name || "",
-      last_name: customer?.last_name || "",
-      email: customer?.email || c?.email || "",
-      phone: customer?.phone || "",
-      company_name: customer?.company_name || "",
+      return {
+        id: customer?.id || index,
+        first_name: customer?.first_name || "",
+        last_name: customer?.last_name || "",
+        email: customer?.email || c?.email || "",
+        phone: customer?.phone || "",
+        company_name: customer?.company_name || "",
 
-      orders_count: orders.length,
+        orders_count: orders.length,
 
-      latest_order_number: latestOrder?.order_number || "-",
-      latest_status: latestOrder?.status || "-",
-      latest_payment_status: latestOrder?.payment_status || "-",
-      created_at: latestOrder?.created_at || null,
-      is_active: latestOrder?.is_active === 1,
-    };
-  });
-}, [orderListData]);
+        latest_order_number: latestOrder?.order_number || "-",
+        latest_status: latestOrder?.status || "-",
+        latest_payment_status: latestOrder?.payment_status || "-",
+        created_at: latestOrder?.created_at || null,
+        is_active: latestOrder?.is_active === 1,
+      };
+    });
+  }, [orderListData]);
 
 
   // local filtering (within current page)
@@ -131,9 +131,8 @@ const ManageOrder = () => {
     const isActive = params.value === true;
     return (
       <span
-        className={`px-3 py-1 rounded-full text-white text-xs font-semibold ${
-          isActive ? "bg-green-500" : "bg-gray-400"
-        }`}
+        className={`px-3 py-1 rounded-full text-white text-xs font-semibold ${isActive ? "bg-green-500" : "bg-gray-400"
+          }`}
       >
         {isActive ? "Active" : "Inactive"}
       </span>
@@ -147,25 +146,28 @@ const ManageOrder = () => {
       valueGetter: (p) => `${p.data.first_name || ""} ${p.data.last_name || ""}`.trim(),
       sortable: true,
       filter: true,
+      minWidth: 120,
     },
-    { field: "email", headerName: "Email", flex: 1.4, sortable: true, filter: true },
-    { field: "phone", headerName: "Phone", flex: 1, sortable: true, filter: true },
-    { field: "company_name", headerName: "Company", flex: 1, sortable: true, filter: true },
-    { field: "orders_count", headerName: "Orders", width: 110, sortable: true, filter: true },
+    { field: "email", headerName: "Email", flex: 1.4, sortable: true, filter: true, minWidth: 160, },
+    { field: "phone", headerName: "Phone", flex: 1, sortable: true, filter: true, minWidth: 120 },
+    { field: "company_name", headerName: "Company", flex: 1, sortable: true, filter: true, minWidth: 160 },
+    { field: "orders_count", headerName: "Orders", width: 110, sortable: true, filter: true, minWidth: 100, },
     {
       field: "latest_order_number",
       headerName: "Latest Order #",
       flex: 1.4,
       sortable: true,
       filter: true,
+      minWidth: 160,
     },
-    { field: "latest_status", headerName: "Status", flex: 1, sortable: true, filter: true },
+    { field: "latest_status", headerName: "Status", flex: 1, sortable: true, filter: true, minWidth: 160 },
     {
       field: "latest_payment_status",
       headerName: "Payment",
       flex: 1,
       sortable: true,
       filter: true,
+      minWidth: 120,
     },
     { field: "is_active", headerName: "Account", width: 120, cellRenderer: StatusRenderer },
     { headerName: "Actions", width: 110, pinned: "right", cellRenderer: ActionsRenderer },
