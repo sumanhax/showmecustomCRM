@@ -70,77 +70,54 @@ const CRMdashboard = () => {
   // Custom cell renderer for Status with dropdown
   const StatusRenderer = (params) => {
     const status = params.value;
-    const actionId = params.data.id;
-    
-    // Define colors for each status
+  
     const getStatusStyle = (status) => {
       const statusStyles = {
-        "Pending": {
-          backgroundColor: "#FEF3C7", // Light orange background
-          color: "#D97706", // Dark orange text
-          borderColor: "#F59E0B"
-        },
-        "Completed": {
-          backgroundColor: "#D1FAE5", // Light green background
-          color: "#059669", // Dark green text
-          borderColor: "#10B981"
-        },
-        "Overdue": {
-          backgroundColor: "#FEE2E2", // Light red background
-          color: "#DC2626", // Dark red text
-          borderColor: "#EF4444"
-        },
+        PENDING: { backgroundColor: "#FEF3C7", color: "#D97706", borderColor: "#F59E0B" },
+        COMPLETED: { backgroundColor: "#D1FAE5", color: "#059669", borderColor: "#10B981" },
+        OVERDUE: { backgroundColor: "#FEE2E2", color: "#DC2626", borderColor: "#EF4444" },
       };
-      return statusStyles[status] || {
-        backgroundColor: "#F3F4F6", // Default light gray
-        color: "#6B7280", // Default gray text
-        borderColor: "#D1D5DB"
-      };
+  
+      return (
+        statusStyles?.[String(status || "").toUpperCase()] || {
+          backgroundColor: "#F3F4F6",
+          color: "#6B7280",
+          borderColor: "#D1D5DB",
+        }
+      );
     };
-
+  
     const style = getStatusStyle(status);
-
-    const handleDropdownChange = (event) => {
-      const newStatus = event.target.value;
-      handleActionStatusChange(actionId, newStatus);
-    };
-
+  
     return (
-      <select
-        value={status}
-        onChange={handleDropdownChange}
-        style={{
-          padding: "4px 8px",
-          borderRadius: "4px",
-          border: `1px solid ${style.borderColor}`,
-          fontSize: "12px",
-          fontWeight: "500",
-          textAlign: "center",
-          minWidth: "100px",
-          cursor: "pointer",
-          backgroundColor: style.backgroundColor,
-          color: style.color
-        }}
-      >
-        {actionStatusOptions.map((option) => {
-          const optionStyle = getStatusStyle(option);
-          return (
-            <option 
-              key={option} 
-              value={option}
-              style={{ 
-                backgroundColor: optionStyle.backgroundColor, 
-                color: optionStyle.color,
-                fontWeight: "500"
-              }}
-            >
-              {option}
-            </option>
-          );
-        })}
-      </select>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "center", width: "100%" }}>
+        <span
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            justifyContent: "center",
+            padding: "2px 6px",        // ✅ smaller
+            borderRadius: "8px",       // ✅ smaller pill
+            fontSize: "10px",          // ✅ smaller text
+            fontWeight: 600,
+            lineHeight: "14px",
+            border: `1px solid ${style.borderColor}`,
+            backgroundColor: style.backgroundColor,
+            color: style.color,
+            maxWidth: "100%",          // ✅ never overflow cell
+            whiteSpace: "nowrap",
+            overflow: "hidden",
+            textOverflow: "ellipsis",
+          }}
+          title={status || ""}
+        >
+          {(status || "-").toString().toUpperCase()}
+        </span>
+      </div>
     );
   };
+  
+  
 
   // Handler for action status change
   const handleActionStatusChange = (actionId, newStatus) => {
