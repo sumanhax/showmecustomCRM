@@ -509,7 +509,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
 
               {/* Rep Dashboard - Only visible to rep */}
 
-              {/* {userRole === 'rep' && (
+               {userRole === 'rep' && (
                 <li>
                   <NavLink
                     to="/rep-dashboard"
@@ -551,7 +551,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                   </NavLink>
                 </li>
               )}
-               */}
+               
 
               {/* Kanban - Only visible to rep (outside of CRM dashboard) */}
 

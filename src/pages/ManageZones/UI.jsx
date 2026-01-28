@@ -41,15 +41,15 @@ const ManageCoaches = () => {
     const handleDateChange = (update) => {
       setDateRange(update);
       // Update the row data
-      const updatedData = rowData.map((row) => {
-        if (row.id === props.data.id) {
-          return {
-            ...row,
-            dateRange: update,
-          };
-        }
-        return row;
-      });
+      // const updatedData = rowData.map((row) => {
+      //   if (row.id === props.data.id) {
+      //     return {
+      //       ...row,
+      //       dateRange: update,
+      //     };
+      //   }
+      //   return row;
+      // });
       setRowData(updatedData);
     };
 

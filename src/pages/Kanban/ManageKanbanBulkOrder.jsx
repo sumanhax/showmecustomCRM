@@ -2,32 +2,29 @@ import React, { useEffect, useMemo, useState } from "react";
 import { ToastContainer } from "react-toastify";
 import { KanbanBoard } from "../../components/Kanban/kanban-board";
 import { Button } from "flowbite-react";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { KanbanBoardBulkOrder } from "../../components/Kanban/kanban-board-bulkOrder";
-import axios from "axios";
 import { FaCheckCircle, FaDollarSign } from "react-icons/fa";
+import { kanbanBulkOrderList } from "../../Reducer/AddSlice";
 
 const ManageKanbanBulkOrder = () => {
   const sidebarOpen = useSelector((state) => state.sidebar.isOpen);
-  console.log("sidebarOpen", sidebarOpen);
+  const { kanbanBulkOrderListData, loading } = useSelector((state) => state.add);
+  const dispatch = useDispatch();
+
   const [orders, setOrders] = useState([]);
   const [isLoadingStats, setIsLoadingStats] = useState(true);
   const [period, setPeriod] = useState("all"); // all | day | week | month | quarter | year | custom
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
-
-  const api = "https://n8n.bestworks.cloud/webhook/get-kanbanbukorder";
+  const [activeSource, setActiveSource] = useState("ONLINE"); // ONLINE | OFFLINE
 
   const fetchOrders = () => {
     setIsLoadingStats(true);
-    axios
-      .get(api)
-      .then((res) => {
-        setOrders(Array.isArray(res.data) ? res.data : []);
-      })
+    dispatch(kanbanBulkOrderList())
+      .unwrap()
       .catch((err) => {
         console.log("Error fetching kanban orders", err);
-        setOrders([]);
       })
       .finally(() => setIsLoadingStats(false));
   };
@@ -35,6 +32,51 @@ const ManageKanbanBulkOrder = () => {
   useEffect(() => {
     fetchOrders();
   }, []);
+
+  // Flatten API response to a unified orders array for stats
+  useEffect(() => {
+    if (!kanbanBulkOrderListData || !kanbanBulkOrderListData.data) {
+      setOrders([]);
+      return;
+    }
+
+    const { online_columns = [], offline_columns = [] } =
+      kanbanBulkOrderListData.data || {};
+
+    const flattened = [];
+
+    online_columns.forEach((col) => {
+      const stageName = col?.stage?.name;
+      col?.orders?.forEach((order) => {
+        flattened.push({
+          id: order.id,
+          source: "ONLINE",
+          stageName,
+          createdAt: order.created_at,
+          orderAmount: Number(order.order_amount || 0),
+          profit: 0,
+          expense: 0,
+        });
+      });
+    });
+
+    offline_columns.forEach((col) => {
+      const stageName = col?.stage?.name;
+      col?.orders?.forEach((order) => {
+        flattened.push({
+          id: order.id,
+          source: "OFFLINE",
+          stageName,
+          createdAt: order.start_date,
+          orderAmount: Number(order.order_amount || 0),
+          profit: Number(order.profit || 0),
+          expense: Number(order.expense || 0),
+        });
+      });
+    });
+
+    setOrders(flattened);
+  }, [kanbanBulkOrderListData]);
 
   const getDateRange = () => {
     const now = new Date();
@@ -93,19 +135,31 @@ const ManageKanbanBulkOrder = () => {
     return true;
   };
 
-  const { completedCount, totalRevenue, totalProfit, totalExpense } = useMemo(() => {
-    const delivered = (orders || []).filter(
-      (o) => o?.["Order Stage"] === "Order delivered" && isInRange(o?.["Order Date"] || o?.createdTime)
-    );
-    const sum = (arr, key) =>
-      arr.reduce((acc, item) => acc + (Number(item?.[key]) || 0), 0);
-    return {
-      completedCount: delivered.length,
-      totalRevenue: sum(delivered, "Order Amount"),
-      totalProfit: sum(delivered, "Profit"),
-      totalExpense: sum(delivered, "Order Expense"),
-    };
-  }, [orders, period, fromDate, toDate]);
+  const { completedCount, totalRevenue, totalProfit, totalExpense } =
+    useMemo(() => {
+      const filtered = (orders || []).filter(
+        (o) =>
+          o.source === activeSource &&
+          o.stageName === "Order delivered" &&
+          isInRange(o.createdAt)
+      );
+
+      const sum = (arr, key) =>
+        arr.reduce((acc, item) => acc + (Number(item?.[key]) || 0), 0);
+
+      return {
+        completedCount: filtered.length,
+        totalRevenue: sum(filtered, "orderAmount"),
+        totalProfit: sum(filtered, "profit"),
+        totalExpense: sum(filtered, "expense"),
+      };
+    }, [orders, period, fromDate, toDate, activeSource]);
+
+  const onlineColumns =
+    kanbanBulkOrderListData?.data?.online_columns || [];
+  const offlineColumns =
+    kanbanBulkOrderListData?.data?.offline_columns || [];
+
   return (
     <>
       <ToastContainer />
@@ -212,12 +266,43 @@ const ManageKanbanBulkOrder = () => {
               </div>
             </div>
           </div>
+
+          {/* Online / Offline Tabs */}
+          <div className="flex items-center mb-4 gap-2">
+            <button
+              onClick={() => setActiveSource("ONLINE")}
+              className={`px-4 py-2 rounded-full text-sm font-medium border ${
+                activeSource === "ONLINE"
+                  ? "bg-[#f20c32] text-white border-[#f20c32]"
+                  : "bg-white text-gray-700 border-gray-300"
+              }`}
+            >
+              Online Orders
+            </button>
+            <button
+              onClick={() => setActiveSource("OFFLINE")}
+              className={`px-4 py-2 rounded-full text-sm font-medium border ${
+                activeSource === "OFFLINE"
+                  ? "bg-[#f20c32] text-white border-[#f20c32]"
+                  : "bg-white text-gray-700 border-gray-300"
+              }`}
+            >
+              Offline Orders
+            </button>
+          </div>
+
           <div
             className={`overflow-x-auto ${
               sidebarOpen ? "sidebarOpenWidth" : "sidebarCloseWidth"
             }`}
           >
-            <KanbanBoardBulkOrder onRefresh={fetchOrders} />
+            <KanbanBoardBulkOrder
+              onRefresh={fetchOrders}
+              columnsData={
+                activeSource === "ONLINE" ? onlineColumns : offlineColumns
+              }
+              source={activeSource}
+            />
           </div>
         </div>
       </div>

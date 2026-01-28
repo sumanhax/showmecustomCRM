@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'react-toastify';
 import { useDispatch, useSelector } from 'react-redux';
-import { leadListSearch } from '../../Reducer/AddSlice';
+import { leadListSearch, kanbanAddProject } from '../../Reducer/AddSlice';
 import AddLeadModal from './AddLeadModal';
 
 const AddProjectModal = ({ 
@@ -127,7 +127,7 @@ const AddProjectModal = ({
   };
 
   // Handle form submission
-  const onSubmit = (data) => {
+  const onSubmit = async (data) => {
     console.log('Project form data:', data);
     
     // Validate required fields
@@ -150,31 +150,34 @@ const AddProjectModal = ({
       return;
     }
 
-    // Prepare project data
-    const projectData = {
-      leadId: data.leadId,
-      leadName: selectedLead?.LeadName,
-      leadEmail: selectedLead?.Email,
-      orderTypes: data.orderTypes,
-      orderAmount: parseFloat(data.orderAmount),
+    // Prepare project data payload
+    const payload = {
+      lead_id: parseInt(data.leadId),
+      order_type: Array.isArray(data.orderTypes) ? data.orderTypes : [data.orderTypes],
+      order_origin: data.projectType === 'existing' ? 'CONVERTED_FROM_SAMPLE' : 'DIRECT_NEW_CUSTOMER',
+      order_amount: parseFloat(data.orderAmount),
       expense: data.expense === '' ? 0 : parseFloat(data.expense),
-      expectedCloseDate: data.expectedCloseDate || null,
-      projectType: data.projectType
+      expected_close_date: data.expectedCloseDate || null
     };
 
-    console.log('Submitting project:', projectData);
+    console.log('Submitting project payload:', payload);
     
-    // Here you would typically make an API call to save the project
-    // For now, we'll just show a success message
-    // toast.success('Project added successfully!');
-    
-    // Call the callback to refresh data
-    if (onProjectAdded) {
-      onProjectAdded(projectData);
+    try {
+      const result = await dispatch(kanbanAddProject(payload)).unwrap();
+      console.log('Project added successfully:', result);
+      toast.success('Project added successfully!');
+      
+      // Call the callback to refresh data
+      if (onProjectAdded) {
+        onProjectAdded(payload);
+      }
+      
+      // Close modal
+      onClose();
+    } catch (error) {
+      console.error('Error adding project:', error);
+      toast.error('Failed to add project. Please try again.');
     }
-    
-    // Close modal
-    onClose();
   };
 
   if (!isOpen) return null;
@@ -295,7 +298,7 @@ const AddProjectModal = ({
                 Order Types <span className="text-red-500">*</span>
               </label>
               <div className="space-y-2">
-                {['Headwear', 'Embroidery', 'Promo'].map((type) => (
+                {['HEADWEAR', 'SCREENPRINT', 'EMBROIDERY', 'PROMO'].map((type) => (
                   <label key={type} className="flex items-center">
                     <input
                       type="checkbox"

@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useSelector } from "react-redux";
 import { changeStatus, getMoodMaster } from "../../Reducer/MoodMasterSlice";
-import { actionList, addManager, getLeadNote, getLeadNoteAdmin } from "../../Reducer/AddSlice";
+import { actionList, addManager, getLeadNote, getLeadNoteAdmin, leadList, repList } from "../../Reducer/AddSlice";
 import { AgGridReact } from "ag-grid-react";
 import { ToastContainer, toast } from "react-toastify";
 import { Button } from "flowbite-react";
@@ -49,7 +49,7 @@ const CRMdashboard = () => {
     };
   }, [showNotificationDropdown]);
 
-  const {loading,actionListData,getLeadNoteAdminData} = useSelector((state)=>state.add);
+  const {loading,leadListData, actionListData,getLeadNoteAdminData} = useSelector((state)=>state.add);
   // React Hook Form setup
   const {
     register,
@@ -191,17 +191,17 @@ const CRMdashboard = () => {
   }, [])
 
   // Fetch lead notes
-  const fetchLeadNotes = () => {
-    dispatch(getLeadNoteAdmin()).then((res) => {
-      console.log("getLeadNote", res);
-    }).catch((err) => {
-      console.log("getLeadNote err", err);
-    });
-  };
+  // const fetchLeadNotes = () => {
+  //   dispatch(getLeadNoteAdmin()).then((res) => {
+  //     console.log("getLeadNote", res);
+  //   }).catch((err) => {
+  //     console.log("getLeadNote err", err);
+  //   });
+  // };
 
-  useEffect(() => {
-    fetchLeadNotes();
-  }, []);
+  // useEffect(() => {
+  //   fetchLeadNotes();
+  // }, []);
 
   // Handle marking notification as read
   const handleMarkAsRead = (noteId) => {
@@ -240,11 +240,10 @@ const CRMdashboard = () => {
   // Fetch data
   useEffect(() => {
     setIsLoadingLeads(true);
-    axios
-      .get("https://n8n.bestworks.cloud/webhook/airtable-lead-fetch")
+    dispatch(leadList())
       .then((res) => {
         console.log("res", res.data);
-        setLeadData(res.data);
+        setLeadData(res?.payload?.data || []);
       })
       .catch((error) => {
         console.error("Error fetching leads:", error);
@@ -257,11 +256,10 @@ const CRMdashboard = () => {
 
   useEffect(() => {
     setIsLoadingReps(true);
-    axios
-      .get("https://n8n.bestworks.cloud/webhook/airtable-rep-fetch")
+    dispatch(repList({page:1,limit:100}))
       .then((res) => {
-        console.log("res", res.data);
-        setRepData(res.data);
+        console.log("res", res?.data);
+        setRepData(res?.payload?.data?.list || []);
       })
       .catch((error) => {
         console.error("Error fetching reps:", error);
@@ -886,124 +884,106 @@ const CRMdashboard = () => {
 
           {/* Actions List Table */}
           <div className="bg-white rounded-xl p-6 shadow-sm mb-6">
-            <h2 className="text-xl font-semibold text-gray-900 mb-6">
-              Actions List
-            </h2>
-            <div className="ag-theme-alpine" style={{ height: 400, width: '100%' }}>
-              <AgGridReact
-                rowData={actionListData?.data || []}
-                columnDefs={[
-                  {
-                    headerName: "ID",
-                    field: "id",
-                    width: 150,
-                    sortable: true,
-                    filter: true
-                  },
-                  {
-                    headerName: "Action Description",
-                    field: "action_description",
-                    width: 250,
-                    sortable: true,
-                    filter: true,
-                    cellRenderer: (params) => {
-                      return params.value || "N/A";
-                    }
-                  },
-                  {
-                    headerName: "Due Date",
-                    field: "due_date",
-                    width: 120,
-                    sortable: true,
-                    filter: true,
-                    cellRenderer: (params) => {
-                      return params.value || "N/A";
-                    }
-                  },
-                  {
-                    headerName: "Status",
-                    field: "status",
-                    width: 120,
-                    sortable: true,
-                    filter: true,
-                    cellRenderer: StatusRenderer
-                  },
-                  {
-                    headerName: "Action Type",
-                    field: "action_type",
-                    width: 120,
-                    sortable: true,
-                    filter: true,
-                    cellRenderer: (params) => {
-                      return params.value || "N/A";
-                    }
-                  },
-                  {
-                    headerName: "Created By",
-                    field: "created_by",
-                    width: 120,
-                    sortable: true,
-                    filter: true
-                  },
-                  {
-                    headerName: "Created Date",
-                    field: "created_date",
-                    width: 150,
-                    sortable: true,
-                    filter: true,
-                    cellRenderer: (params) => {
-                      if (!params.value) return "N/A";
-                      return new Date(params.value).toLocaleDateString();
-                    }
-                  },
-                  {
-                    headerName: "Lead Name",
-                    field: "lead",
-                    width: 200,
-                    sortable: true,
-                    filter: true,
-                    cellRenderer: (params) => {
-                      if (!params.value || !Array.isArray(params.value)) return "N/A";
-                      
-                      const leadNames = params.value.map(leadId => {
-                        const lead = leadData.find(l => l.id === leadId);
-                        return lead ? lead["Lead Name"] || "Unknown Lead" : "Unknown Lead";
-                      });
-                      
-                      return leadNames.join(", ");
-                    }
-                  },
-                  {
-                    headerName: "Assigned To",
-                    field: "assigned_to",
-                    width: 200,
-                    sortable: true,
-                    filter: true,
-                    cellRenderer: (params) => {
-                      if (!params.value || !Array.isArray(params.value) || params.value.length === 0) return "Unassigned";
-                      
-                      const repNames = params.value.map(repId => {
-                        const rep = repData.find(r => r.id === repId);
-                        return rep ? rep["Rep Name"] || "Unknown Rep" : "Unknown Rep";
-                      });
-                      
-                      return repNames.join(", ");
-                    }
-                  }
-                ]}
-                defaultColDef={{
-                  resizable: true,
-                  sortable: true,
-                  filter: true
-                }}
-                pagination={true}
-                paginationPageSize={10}
-                suppressRowClickSelection={true}
-                rowSelection="multiple"
-                animateRows={true}
-              />
-            </div>
-          </div>
+  <h2 className="text-xl font-semibold text-gray-900 mb-6">
+    Actions List
+  </h2>
+  <div className="ag-theme-alpine" style={{ height: 400, width: '100%' }}>
+    <AgGridReact
+      // Matches your new response nesting: res.data.actions
+      rowData={actionListData?.data?.actions || []}
+      columnDefs={[
+        {
+          headerName: "ID",
+          field: "id",
+          width: 80,
+          sortable: true,
+          filter: true
+        },
+        {
+          headerName: "Title",
+          field: "title",
+          width: 150,
+          cellRenderer: (params) => params.value || "No Title"
+        },
+        {
+          headerName: "Description",
+          field: "description",
+          width: 250,
+          sortable: true,
+          filter: true,
+          cellRenderer: (params) => params.value || "N/A"
+        },
+        {
+          headerName: "Due Date",
+          field: "due_at", // Updated from due_date
+          width: 150,
+          sortable: true,
+          filter: true,
+          cellRenderer: (params) => {
+            return params.value ? new Date(params.value).toLocaleDateString() : "N/A";
+          }
+        },
+        {
+          headerName: "Status",
+          field: "action_status", // Updated from status
+          width: 120,
+          sortable: true,
+          filter: true,
+          cellRenderer: StatusRenderer
+        },
+        {
+          headerName: "Action Type",
+          field: "action_type",
+          width: 120,
+        },
+        {
+          headerName: "Priority",
+          field: "priority",
+          width: 120,
+          cellClassRules: {
+            'text-red-600 font-bold': params => params.value === 'HIGH',
+            'text-orange-500': params => params.value === 'MEDIUM',
+          }
+        },
+        {
+          headerName: "Created Date",
+          field: "created_at", // Updated from created_date
+          width: 150,
+          cellRenderer: (params) => {
+            if (!params.value) return "N/A";
+            return new Date(params.value).toLocaleDateString();
+          }
+        },
+        {
+          headerName: "Lead Name",
+          field: "lead.name", // Direct nested access
+          width: 180,
+          sortable: true,
+          filter: true,
+          valueGetter: (params) => params.data.lead?.name || "N/A"
+        },
+        {
+          headerName: "Assigned To",
+          field: "rep.name", // Direct nested access
+          width: 180,
+          sortable: true,
+          filter: true,
+          valueGetter: (params) => params.data.rep?.name || "Unassigned"
+        }
+      ]}
+      defaultColDef={{
+        resizable: true,
+        sortable: true,
+        filter: true
+      }}
+      pagination={true}
+      paginationPageSize={10}
+      suppressRowClickSelection={true}
+      rowSelection="multiple"
+      animateRows={true}
+    />
+  </div>
+</div>
 
           {/* Third Row - Rep Performance and Leads by State */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">

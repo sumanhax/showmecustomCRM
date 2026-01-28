@@ -88,7 +88,7 @@ export const repsLogin = createAsyncThunk(
     async (userInput, { rejectWithValue }) => {
 
         try {
-            const response = await api.post('/api/rep/login', {email: userInput?.username, password: userInput?.password});
+            const response = await api.post('/postgresapi/reps/auth/login', {email: userInput?.username, password: userInput?.password});
             if (response?.data?.status_code === 200) {
                 return response.data;
             } else {
@@ -305,7 +305,7 @@ const AuthSlice = createSlice(
                         JSON.stringify({ access_token: payload?.access_token, refresh_token: payload?.refresh_token })
                     )
                     localStorage.setItem('user_id', payload?.data?.id)
-                    localStorage.setItem('user_role', payload?.data?.role)
+                    localStorage.setItem('user_role', "manager")
                     localStorage.setItem('fullname', payload?.data?.fullname)
                     localStorage.setItem('user_email', payload?.data?.email)
                     // localStorage.setItem("user_short_name", payload?.role_short_name)
@@ -328,19 +328,19 @@ const AuthSlice = createSlice(
                 })
                 .addCase(repsLogin.fulfilled, (state, { payload }) => {
 
-                    console.log("Payload", payload);
+                    console.log("reps_Payload", payload);
                     state.authData = payload;
                     state.isLoggedIn = true;
                     state.message = payload?.message;
                     state.loadingLogin = false;
                     sessionStorage.setItem(
                         'crm_login_token',
-                        JSON.stringify({ access_token: payload?.access_token, refresh_token: payload?.refresh_token })
+                        JSON.stringify({ access_token: payload?.token, refresh_token: payload?.refresh_token })
                     )
                     localStorage.setItem('user_id', payload?.data?.id)
-                    localStorage.setItem('user_role', payload?.data?.role)
-                    localStorage.setItem('fullname', payload?.data?.fullname)
-                    localStorage.setItem('user_email', payload?.data?.email)
+                    localStorage.setItem('user_role', "rep")
+                    localStorage.setItem('name', payload?.data?.fullname)
+                    localStorage.setItem('email', payload?.data?.email)
                     // localStorage.setItem("user_short_name", payload?.role_short_name)
 
                 })

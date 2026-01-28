@@ -41,26 +41,26 @@ export const addManager = createAsyncThunk(
         }
     }
 )
-export const actionList = createAsyncThunk(
-    'add/actionList',
-    async (userInput, { rejectWithValue }) => {
-        try {
-            const response = await api.get('/api/admin/dashboard/actions/list');
-            console.log("response",response)
-            if (response?.data?.status_code === 200) {
-                return response.data;
-            } else {
-                if (response?.data?.errors) {
-                    return rejectWithValue(response.data.errors);
-                } else {
-                    return rejectWithValue('Something went wrong.');
-                }
-            }
-        } catch (err) {
-            return rejectWithValue(err);
-        }
-    }
-)
+// export const actionList = createAsyncThunk(
+//     'add/actionList',
+//     async (userInput, { rejectWithValue }) => {
+//         try {
+//             const response = await api.get('/api/admin/dashboard/actions/list');
+//             console.log("response",response)
+//             if (response?.data?.status_code === 200) {
+//                 return response.data;
+//             } else {
+//                 if (response?.data?.errors) {
+//                     return rejectWithValue(response.data.errors);
+//                 } else {
+//                     return rejectWithValue('Something went wrong.');
+//                 }
+//             }
+//         } catch (err) {
+//             return rejectWithValue(err);
+//         }
+//     }
+// )
 export const repDashboard = createAsyncThunk(
     'add/repDashboard',
     async (userInput, { rejectWithValue }) => {
@@ -326,6 +326,211 @@ export const kanbanDragnDrop = createAsyncThunk(
         }
     }
 )
+// kanban bulkorder
+export const kanbanAddProject = createAsyncThunk(
+    'add/kanbanAddProject',
+    async (userInput, { rejectWithValue }) => {
+        try {
+            const response = await api.post(`/postgresapi/admin/lead-manage/offline-orders/create`, userInput);
+            if (response?.data?.status_code === 200 || response?.data?.status_code === 201) {
+                return response.data;
+            } else {
+                if (response?.data?.errors) {
+                    return rejectWithValue(response.data.errors);
+                } else {
+                    return rejectWithValue('Something went wrong.');
+                }
+            }
+        } catch (err) {
+            return rejectWithValue(err);
+        }
+    }
+)
+export const kanbanBulkOrderList = createAsyncThunk(
+    'add/kanbanBulkOrderList',
+    async (_, { rejectWithValue }) => {
+        try {
+            const response = await api.get(`/postgresapi/admin/lead-manage/order-manage/kanban/list`);
+            if (response?.data?.status_code === 200 || response?.data?.status_code === 201) {
+                return response.data;
+            } else {
+                if (response?.data?.errors) {
+                    return rejectWithValue(response.data.errors);
+                } else {
+                    return rejectWithValue('Something went wrong.');
+                }
+            }
+        } catch (err) {
+            return rejectWithValue(err);
+        }
+    }
+)
+export const kanbanBulkOrderDragnDrop = createAsyncThunk(
+    'add/kanbanBulkOrderDragnDrop',
+    async ({ id, order_stage_id, source }, { rejectWithValue }) => {
+        try {
+            const response = await api.patch(
+                `/postgresapi/admin/lead-manage/order-manage/kanban/${id}/change_stage`,
+                {
+                    order_stage_id,
+                    source,
+                }
+            );
+            if (response?.data?.status_code === 200 || response?.data?.status_code === 201) {
+                return response.data;
+            } else {
+                if (response?.data?.errors) {
+                    return rejectWithValue(response.data.errors);
+                } else {
+                    return rejectWithValue('Something went wrong.');
+                }
+            }
+        } catch (err) {
+            return rejectWithValue(err);
+        }
+    }
+)
+
+
+// action
+export const addAction = createAsyncThunk(
+    'add/addAction',
+    async (userInput, { rejectWithValue }) => {
+        try {
+            const response = await api.post('/postgresapi/admin/lead-manage/create-action',userInput);
+            if (response?.data?.status_code === 200 || response?.data?.status_code === 201) {
+                return response.data;
+            } else {
+                if (response?.data?.errors) {
+                    return rejectWithValue(response.data.errors);
+                } else {
+                    return rejectWithValue('Something went wrong.');
+                }
+            }
+        } catch (err) {
+            return rejectWithValue(err);
+        }
+    }
+)
+export const actionList = createAsyncThunk(
+    'add/actionList',
+    async (userInput, { rejectWithValue }) => {
+        try {
+            const response = await api.get('/postgresapi/admin/lead-manage/actions/list?page=1&limit=20',userInput);
+            if (response?.data?.status_code === 200 || response?.data?.status_code === 201) {
+                return response.data;
+            } else {
+                if (response?.data?.errors) {
+                    return rejectWithValue(response.data.errors);
+                } else {
+                    return rejectWithValue('Something went wrong.');
+                }
+            }
+        } catch (err) {
+            return rejectWithValue(err);
+        }
+    }
+)
+export const actionListSearch = createAsyncThunk(
+    'add/actionList',
+    async (searchInput, { rejectWithValue }) => {
+        try {
+            const response = await api.get(`/postgresapi/admin/lead-manage/actions/list?q=${searchInput}`);
+            if (response?.data?.status_code === 200 || response?.data?.status_code === 201) {
+                return response.data;
+            } else {
+                if (response?.data?.errors) {
+                    return rejectWithValue(response.data.errors);
+                } else {
+                    return rejectWithValue('Something went wrong.');
+                }
+            }
+        } catch (err) {
+            return rejectWithValue(err);
+        }
+    }
+)
+export const actionListPendingCall = createAsyncThunk(
+    'add/actionList',
+    async (userInput, { rejectWithValue }) => {
+        try {
+            const response = await api.get('/postgresapi/admin/lead-manage/actions/list?action_status=PENDING&action_type=CALL');
+            if (response?.data?.status_code === 200 || response?.data?.status_code === 201) {
+                return response.data;
+            } else {
+                if (response?.data?.errors) {
+                    return rejectWithValue(response.data.errors);
+                } else {
+                    return rejectWithValue('Something went wrong.');
+                }
+            }
+        } catch (err) {
+            return rejectWithValue(err);
+        }
+    }
+)
+export const leadListbyRep = createAsyncThunk(
+    'add/leadListbyRep',
+    async (_, { rejectWithValue }) => {
+        try {
+            const response = await api.get(`/postgresapi/reps/dashboard/leads/list`);
+            if (response?.data?.status_code === 200 || response?.data?.status_code === 201) {
+                return response.data;
+            } else {
+                if (response?.data?.errors) {
+                    return rejectWithValue(response.data.errors);
+                } else {
+                    return rejectWithValue('Something went wrong.');
+                }
+            }
+        } catch (err) {
+            return rejectWithValue(err);
+        }
+    }
+)
+export const actionStatusChange = createAsyncThunk(
+    'add/actionStatusChange',
+    async (userInput, { rejectWithValue }) => {
+        try {
+            const response = await api.post(`/postgresapi/reps/dashboard/action/change`,userInput);
+            if (response?.data?.status_code === 200 || response?.data?.status_code === 201) {
+                return response.data;
+            } else {
+                if (response?.data?.errors) {
+                    return rejectWithValue(response.data.errors);
+                } else {
+                    return rejectWithValue('Something went wrong.');
+                }
+            }
+        } catch (err) {
+            return rejectWithValue(err);
+        }
+    }
+)
+export const actionListbyRep = createAsyncThunk(
+    'add/actionListbyRep',
+    async (token, { rejectWithValue }) => {
+        try {
+            const response = await api.get(`/postgresapi/reps/dashboard/actions/list`,{
+                headers: {
+                  'Authorization': `Bearer ${token}`
+                }
+              });
+            if (response?.data?.status_code === 200 || response?.data?.status_code === 201) {
+                return response.data;
+            } else {
+                if (response?.data?.errors) {
+                    return rejectWithValue(response.data.errors);
+                } else {
+                    return rejectWithValue('Something went wrong.');
+                }
+            }
+        } catch (err) {
+            return rejectWithValue(err);
+        }
+    }
+)
+
 
 const initialState = {
     error: null,
@@ -339,9 +544,12 @@ const initialState = {
     getLeadNoteAdminData:{},
     updatePartnerClassificationResponse:{},
     kanbanListData:{},
+    kanbanBulkOrderListData:{},
     leadListData:{},
     leadSingleData:{},
-    leadListSearchData:{}
+    leadListSearchData:{},
+    actionListbyRepData:{},
+    leadListbyRepData:{}
 }
 
 //slice part
@@ -562,6 +770,76 @@ const AddSlice = createSlice(
                         state.loading = false;
                         state.error = payload;
                     })
+                    .addCase(kanbanAddProject.pending, (state) => {
+                        state.message = null
+                        state.loading = true;
+                        state.error = null
+                    })
+                    .addCase(kanbanAddProject.fulfilled, (state, { payload }) => {
+                        state.loading = false;
+                        state.message = payload;
+                    })
+                    .addCase(kanbanAddProject.rejected, (state, { payload }) => {
+                        state.loading = false;
+                        state.error = payload;
+                    })
+                    .addCase(kanbanBulkOrderList.pending, (state) => {
+                        state.message = null;
+                        state.loading = true;
+                        state.error = null;
+                    })
+                    .addCase(kanbanBulkOrderList.fulfilled, (state, { payload }) => {
+                        state.loading = false;
+                        state.message = payload;
+                        state.kanbanBulkOrderListData = payload;
+                    })
+                    .addCase(kanbanBulkOrderList.rejected, (state, { payload }) => {
+                        state.loading = false;
+                        state.error = payload;
+                    })
+                    .addCase(kanbanBulkOrderDragnDrop.pending, (state) => {
+                        state.message = null;
+                        state.loading = true;
+                        state.error = null;
+                    })
+                    .addCase(kanbanBulkOrderDragnDrop.fulfilled, (state, { payload }) => {
+                        state.loading = false;
+                        state.message = payload;
+                    })
+                    .addCase(kanbanBulkOrderDragnDrop.rejected, (state, { payload }) => {
+                        state.loading = false;
+                        state.error = payload;
+                    })
+                    // actions
+                    .addCase(actionListbyRep.pending, (state) => {
+                        state.message = null;
+                        state.loading = true;
+                        state.error = null;
+                    })
+                    .addCase(actionListbyRep.fulfilled, (state, { payload }) => {
+                        state.loading = false;
+                        state.actionListbyRepData=payload?.data
+                        state.message = payload;
+                    })
+                    .addCase(actionListbyRep.rejected, (state, { payload }) => {
+                        state.loading = false;
+                        state.error = payload;
+                    })
+                    // repleads
+                    .addCase(leadListbyRep.pending, (state) => {
+                        state.message = null;
+                        state.loading = true;
+                        state.error = null;
+                    })
+                    .addCase(leadListbyRep.fulfilled, (state, { payload }) => {
+                        state.loading = false;
+                        state.leadListbyRepData=payload
+                        state.message = payload;
+                    })
+                    .addCase(leadListbyRep.rejected, (state, { payload }) => {
+                        state.loading = false;
+                        state.error = payload;
+                    });
 
         }
     }

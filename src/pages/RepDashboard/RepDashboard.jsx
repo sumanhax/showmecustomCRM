@@ -1,13 +1,13 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { AgGridReact } from "ag-grid-react";
-import { actionList, repDashboard, getLeadNote } from "../../Reducer/AddSlice";
+import { actionList, repDashboard, getLeadNote, leadList, actionListbyRep, leadListbyRep, actionStatusChange } from "../../Reducer/AddSlice";
 import { toast } from "react-toastify";
 import axios from "axios";
 import { FaUsers, FaTasks, FaBell } from "react-icons/fa";
 
 const RepDashboard = () => {
-  const { loading, repDashboardData, getLeadNoteData } = useSelector((state) => state.add);
+  const { loading,leadListbyRepData, actionListbyRepData, getLeadNoteData } = useSelector((state) => state.add);
   const {  authData } = useSelector((state) => state.auth);
   const dispatch = useDispatch();
   const [leadData, setLeadData] = useState([]);
@@ -18,7 +18,7 @@ const RepDashboard = () => {
   // const userId = authData?.data?.id;
   const userId = localStorage.getItem('user_id');
   console.log("userId", userId);
-  console.log("repDashboardData", repDashboardData);
+  console.log("actionListbyRepData", actionListbyRepData);
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -36,9 +36,9 @@ const RepDashboard = () => {
 
   // Action status options
   const actionStatusOptions = [
-    "Pending",
-    "Completed", 
-    "Overdue"
+    "PENDING",
+    "COMPLETED", 
+    "OVERDUE"
   ];
 
   // Custom cell renderer for Status with dropdown
@@ -49,17 +49,17 @@ const RepDashboard = () => {
     // Define colors for each status
     const getStatusStyle = (status) => {
       const statusStyles = {
-        "Pending": {
+        "PENDING": {
           backgroundColor: "#FEF3C7", // Light orange background
           color: "#D97706", // Dark orange text
           borderColor: "#F59E0B"
         },
-        "Completed": {
+        "COMPLETED": {
           backgroundColor: "#D1FAE5", // Light green background
           color: "#059669", // Dark green text
           borderColor: "#10B981"
         },
-        "Overdue": {
+        "OVERDUE": {
           backgroundColor: "#FEE2E2", // Light red background
           color: "#DC2626", // Dark red text
           borderColor: "#EF4444"
@@ -118,19 +118,17 @@ const RepDashboard = () => {
 
   // Handler for action status change
   const handleActionStatusChange = (actionId, newStatus) => {
-    console.log("Updating action status:", { actionId, newStatus });
+    console.log("Updating action status:", actionId, newStatus);
     
-    axios.post("https://n8n.bestworks.cloud/webhook/action-status-update", {
-      id: actionId,
-      status: newStatus
-    })
-    .then(() => {
-      toast.success("Action status updated successfully");
+    dispatch(actionStatusChange({ id: actionId,status: newStatus}))
+     
+    .then((res) => {
+      toast.success(res?.message || "Action status updated successfully");
       // Refresh the rep dashboard data
-      dispatch(repDashboard(userId)).then((res) => {
-        console.log("Rep dashboard refreshed:", res);
+      dispatch(actionListbyRep(authData?.token)).then((res) => {
+        console.log("actionlist", res);
       }).catch((err) => {
-        console.log("Error refreshing rep dashboard:", err);
+        console.log("actionlist err", err);
       });
     })
     .catch((error) => {
@@ -142,17 +140,16 @@ const RepDashboard = () => {
   // Fetch lead data and filter by current rep
   useEffect(() => {
     setIsLoadingLeads(true);
-    axios
-      .get("https://n8n.bestworks.cloud/webhook/airtable-lead-fetch")
+    dispatch(leadListbyRep())
       .then((res) => {
-        console.log("All leads fetched:", res.data);
+        console.log("All leads fetched:", res?.data?.leads);
         // Filter leads by current rep ID
-        const filteredLeads = res.data.filter(lead => {
-          // Check if the lead's Rep field contains the current user ID
-          return lead.Rep && lead.Rep.includes(userId);
-        });
-        console.log("Filtered leads for rep:", filteredLeads);
-        setLeadData(filteredLeads);
+        // const filteredLeads = res.data.filter(lead => {
+        //   // Check if the lead's Rep field contains the current user ID
+        //   return lead.Rep && lead.Rep.includes(userId);
+        // });
+        // console.log("Filtered leads for rep:", filteredLeads);
+        // setLeadData(res?.data?.leads);
       })
       .catch((error) => {
         console.error("Error fetching leads:", error);
@@ -163,8 +160,15 @@ const RepDashboard = () => {
       });
   }, [userId]);
 
+  // useEffect(() => {
+  //   dispatch(repDashboard(userId)).then((res) => {
+  //     console.log("actionlist", res);
+  //   }).catch((err) => {
+  //     console.log("actionlist err", err);
+  //   });
+  // }, [])
   useEffect(() => {
-    dispatch(repDashboard(userId)).then((res) => {
+    dispatch(actionListbyRep(authData?.token)).then((res) => {
       console.log("actionlist", res);
     }).catch((err) => {
       console.log("actionlist err", err);
@@ -172,19 +176,19 @@ const RepDashboard = () => {
   }, [])
 
   // Fetch lead notes for rep
-  const fetchLeadNotes = () => {
-    if (userId) {
-      dispatch(getLeadNote({ rep_id: userId })).then((res) => {
-        console.log("getLeadNote for rep", res);
-      }).catch((err) => {
-        console.log("getLeadNote err", err);
-      });
-    }
-  };
+  // const fetchLeadNotes = () => {
+  //   if (userId) {
+  //     dispatch(getLeadNote({ rep_id: userId })).then((res) => {
+  //       console.log("getLeadNote for rep", res);
+  //     }).catch((err) => {
+  //       console.log("getLeadNote err", err);
+  //     });
+  //   }
+  // };
 
-  useEffect(() => {
-    fetchLeadNotes();
-  }, [userId]);
+  // useEffect(() => {
+  //   fetchLeadNotes();
+  // }, [userId]);
 
   // Handle marking notification as read
   const handleMarkAsRead = (noteId) => {
@@ -224,108 +228,106 @@ const RepDashboard = () => {
   const leadColumnDefs = useMemo(
     () => [
       {
-        field: "Lead Name",
+        field: "name", // Updated from "Lead Name"
         headerName: "Lead Name",
         sortable: true,
         filter: true,
         width: 200,
+        pinned: 'left'
       },
       {
-        field: "Email",
+        field: "email", // Updated from "Email"
         headerName: "Email",
         sortable: true,
         filter: true,
         width: 250,
       },
       {
-        field: "Phone",
+        field: "phone", // Updated from "Phone"
         headerName: "Phone",
         sortable: true,
         filter: true,
         width: 150,
       },
       {
-        field: "Company Name",
+        field: "company_name", // Updated from "Company Name"
         headerName: "Company Name",
         sortable: true,
         filter: true,
         width: 200,
       },
       {
-        field: "Lead Status",
         headerName: "Lead Status",
+        field: "lead_status.name", // Access nested object
         sortable: true,
         filter: true,
-        width: 150,
+        width: 180,
         cellRenderer: (params) => {
-          const status = params.value;
+          // Use the nested status name from the new response
+          const status = params.data.lead_status?.name;
           if (!status) return "N/A";
-          
-          // Define colors for each status
-          const getStatusStyle = (status) => {
+  
+          const getStatusStyle = (statusName) => {
             const statusStyles = {
               "Sample Submitted": {
-                backgroundColor: "#DBEAFE", // Light blue
-                color: "#1E40AF", // Dark blue
+                backgroundColor: "#DBEAFE",
+                color: "#1E40AF",
                 borderColor: "#93C5FD"
               },
               "Sample Art Approved": {
-                backgroundColor: "#D1FAE5", // Light green
-                color: "#059669", // Dark green
+                backgroundColor: "#D1FAE5",
+                color: "#059669",
                 borderColor: "#6EE7B7"
               },
               "Sample Shipped": {
-                backgroundColor: "#FEF3C7", // Light orange
-                color: "#D97706", // Dark orange
+                backgroundColor: "#FEF3C7",
+                color: "#D97706",
                 borderColor: "#FCD34D"
               },
               "Sample Delivered": {
-                backgroundColor: "#E0E7FF", // Light indigo
-                color: "#3730A3", // Dark indigo
+                backgroundColor: "#E0E7FF",
+                color: "#3730A3",
                 borderColor: "#A5B4FC"
               },
               "Nurture Sequence": {
-                backgroundColor: "#F3E8FF", // Light purple
-                color: "#7C3AED", // Dark purple
+                backgroundColor: "#F3E8FF",
+                color: "#7C3AED",
                 borderColor: "#C4B5FD"
               },
               "Warm Lead": {
-                backgroundColor: "#FEE2E2", // Light red
-                color: "#DC2626", // Dark red
+                backgroundColor: "#FEE2E2",
+                color: "#DC2626",
                 borderColor: "#FCA5A5"
               },
               "Cold Lead": {
-                backgroundColor: "#FCE7F3", // Light pink
-                color: "#BE185D", // Dark pink
+                backgroundColor: "#FCE7F3",
+                color: "#BE185D",
                 borderColor: "#F9A8D4"
               },
             };
-            return statusStyles[status] || {
-              backgroundColor: "#F3F4F6", // Default light gray
-              color: "#6B7280", // Default gray text
+            return statusStyles[statusName] || {
+              backgroundColor: "#F3F4F6",
+              color: "#6B7280",
               borderColor: "#D1D5DB"
             };
           };
-
+  
           const style = getStatusStyle(status);
-
+  
           return (
             <span
               style={{
-                display: "inline",
-                alignItems: "center",
-                justifyContent: "center",
-                padding: "3px 8px",
-                borderRadius: "8px",
+                display: "inline-block",
+                padding: "3px 12px",
+                borderRadius: "12px",
                 fontSize: "11px",
                 fontWeight: "600",
                 textAlign: "center",
-                minWidth: "90px",
+                minWidth: "100px",
                 border: `1px solid ${style.borderColor}`,
                 backgroundColor: style.backgroundColor,
                 color: style.color,
-                boxShadow: "0 1px 2px rgba(0, 0, 0, 0.05)",
-                transition: "all 0.2s ease-in-out"
+                lineHeight: "normal"
               }}
             >
               {status}
@@ -334,11 +336,11 @@ const RepDashboard = () => {
         }
       },
       {
-        field: "Typeform Date",
-        headerName: "Date",
+        field: "created_at", // Updated from "Typeform Date"
+        headerName: "Date Created",
         sortable: true,
         filter: true,
-        width: 120,
+        width: 150,
         cellRenderer: (params) => {
           if (!params.value) return "N/A";
           return new Date(params.value).toLocaleDateString();
@@ -492,7 +494,7 @@ const RepDashboard = () => {
                   Your Assigned Leads
                 </p>
                 <p className="text-2xl font-bold text-gray-900">
-                  {leadData.length}
+                  {leadListbyRepData?.data?.leads?.length}
                 </p>
               </div>
               <div className="w-12 h-12 bg-[#f20c32] rounded-lg flex items-center justify-center">
@@ -509,7 +511,7 @@ const RepDashboard = () => {
                   Your Actions List
                 </p>
                 <p className="text-2xl font-bold text-gray-900">
-                  {repDashboardData?.data?.length || 0}
+                  {actionListbyRepData?.actions?.length || 0}
                 </p>
               </div>
               <div className="w-12 h-12 bg-[#f20c32] rounded-lg flex items-center justify-center">
@@ -521,150 +523,124 @@ const RepDashboard = () => {
 
         {/* Leads Table */}
         <div className="bg-white rounded-xl p-6 shadow-sm mb-6">
-          <h2 className="text-xl font-semibold text-gray-900 mb-6">
-            Your Assigned Leads
-          </h2>
-          {isLoadingLeads ? (
-            <div className="flex justify-center items-center h-32">
-              <div className="text-center">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#f20c32] mx-auto mb-2"></div>
-                <p className="text-gray-600">Loading leads...</p>
-              </div>
-            </div>
-          ) : (
-            <div className="ag-theme-alpine" style={{ height: 300, width: '100%' }}>
-              <AgGridReact
-                rowData={leadData}
-                columnDefs={leadColumnDefs}
-                pagination={true}
-                paginationPageSize={5}
-                defaultColDef={{
-                  resizable: true,
-                  sortable: true,
-                  filter: true
-                }}
-                suppressRowClickSelection={true}
-                animateRows={true}
-              />
-            </div>
-          )}
-        </div>
+  <h2 className="text-xl font-semibold text-gray-900 mb-6">
+    Your Assigned Leads
+  </h2>
+  {isLoadingLeads ? (
+    <div className="flex justify-center items-center h-32">
+       {/* ... existing loader ... */}
+    </div>
+  ) : (
+    <div className="ag-theme-alpine" style={{ height: 400, width: '100%' }}>
+      <AgGridReact
+        rowData={leadListbyRepData?.data?.leads || []} // Assuming leadData is the array from your "Updated response"
+        columnDefs={leadColumnDefs}
+        pagination={true}
+        paginationPageSize={10}
+        defaultColDef={{
+          resizable: true,
+          sortable: true,
+          filter: true,
+          flex: 1, // Added flex to make columns fill the space
+          minWidth: 100
+        }}
+        suppressRowClickSelection={true}
+        animateRows={true}
+      />
+    </div>
+  )}
+</div>
 
         {/* Actions List Table */}
         <div className="bg-white rounded-xl p-6 shadow-sm mb-6">
-          <h2 className="text-xl font-semibold text-gray-900 mb-6">
-            Your Actions List
-          </h2>
-          <div className="ag-theme-alpine" style={{ height: 400, width: '100%' }}>
-            <AgGridReact
-              rowData={repDashboardData?.data || []}
-              columnDefs={[
-                // {
-                //   headerName: "ID",
-                //   field: "id",
-                //   width: 150,
-                //   sortable: true,
-                //   filter: true
-                // },
-                {
-                  headerName: "Action Description",
-                  field: "action_description",
-                  width: 250,
-                  sortable: true,
-                  filter: true,
-                  cellRenderer: (params) => {
-                    return params.value || "N/A";
-                  }
-                },
-                {
-                  headerName: "Due Date",
-                  field: "due_date",
-                  width: 120,
-                  sortable: true,
-                  filter: true,
-                  cellRenderer: (params) => {
-                    return params.value || "N/A";
-                  }
-                },
-                {
-                  headerName: "Status",
-                  field: "status",
-                  width: 120,
-                  sortable: true,
-                  filter: true,
-                  cellRenderer: StatusRenderer
-                },
-                {
-                  headerName: "Action Type",
-                  field: "action_type",
-                  width: 120,
-                  sortable: true,
-                  filter: true,
-                  cellRenderer: (params) => {
-                    return params.value || "N/A";
-                  }
-                },
-                {
-                  headerName: "Created By",
-                  field: "created_by",
-                  width: 120,
-                  sortable: true,
-                  filter: true
-                },
-                {
-                  headerName: "Created Date",
-                  field: "created_date",
-                  width: 150,
-                  sortable: true,
-                  filter: true,
-                  cellRenderer: (params) => {
-                    if (!params.value) return "N/A";
-                    return new Date(params.value).toLocaleDateString();
-                  }
-                },
-                {
-                  headerName: "Lead Name",
-                  field: "lead",
-                  width: 200,
-                  sortable: true,
-                  filter: true,
-                  cellRenderer: (params) => {
-                    if (!params.value || !Array.isArray(params.value)) return "N/A";
-                    
-                    // Find lead names for the given lead IDs
-                    const leadNames = params.value.map(leadId => {
-                      const lead = leadData.find(l => l.id === leadId);
-                      return lead ? lead["Lead Name"] || "Unknown Lead" : `ID: ${leadId}`;
-                    });
-                    
-                    return leadNames.join(", ");
-                  }
-                },
-                // {
-                //   headerName: "Assigned To",
-                //   field: "assigned_to",
-                //   width: 150,
-                //   sortable: true,
-                //   filter: true,
-                //   cellRenderer: (params) => {
-                //     if (!params.value || !Array.isArray(params.value) || params.value.length === 0) return "Unassigned";
-                //     return params.value.join(", ");
-                //   }
-                // }
-              ]}
-              defaultColDef={{
-                resizable: true,
-                sortable: true,
-                filter: true
-              }}
-              pagination={true}
-              paginationPageSize={10}
-              suppressRowClickSelection={true}
-              rowSelection="multiple"
-              animateRows={true}
-            />
-          </div>
-        </div>
+  <h2 className="text-xl font-semibold text-gray-900 mb-6">
+    Your Actions List
+  </h2>
+  <div className="ag-theme-alpine" style={{ height: 400, width: '100%' }}>
+    <AgGridReact
+      // Updated to match the new nested response structure
+      rowData={actionListbyRepData?.actions || []} 
+      columnDefs={[
+        {
+          headerName: "Title",
+          field: "title",
+          width: 150,
+          cellRenderer: (params) => params.value || "No Title"
+        },
+        {
+          headerName: "Action Description",
+          field: "description", // Updated from action_description
+          width: 250,
+          sortable: true,
+          filter: true,
+          cellRenderer: (params) => params.value || "N/A"
+        },
+        {
+          headerName: "Due Date",
+          field: "due_at", // Updated from due_date
+          width: 150,
+          sortable: true,
+          filter: true,
+          cellRenderer: (params) => {
+            return params.value ? new Date(params.value).toLocaleDateString() : "N/A";
+          }
+        },
+        {
+          headerName: "Status",
+          field: "action_status", // Updated from status
+          width: 120,
+          sortable: true,
+          filter: true,
+          cellRenderer: StatusRenderer
+        },
+        {
+          headerName: "Priority",
+          field: "priority",
+          width: 110,
+          cellClassRules: {
+            'font-bold text-red-600': (params) => params.value === 'HIGH',
+            'text-orange-500': (params) => params.value === 'MEDIUM',
+          }
+        },
+        {
+          headerName: "Lead Name",
+          field: "lead.name", // Direct access to nested object
+          width: 200,
+          sortable: true,
+          filter: true,
+          valueGetter: (params) => params.data.lead?.name || "N/A"
+        },
+        {
+          headerName: "Lead Company",
+          field: "lead.company_name",
+          width: 180,
+          valueGetter: (params) => params.data.lead?.company_name || "N/A"
+        },
+        {
+          headerName: "Created Date",
+          field: "created_at", // Updated from created_date
+          width: 150,
+          sortable: true,
+          filter: true,
+          cellRenderer: (params) => {
+            if (!params.value) return "N/A";
+            return new Date(params.value).toLocaleDateString();
+          }
+        }
+      ]}
+      defaultColDef={{
+        resizable: true,
+        sortable: true,
+        filter: true
+      }}
+      pagination={true}
+      paginationPageSize={10}
+      suppressRowClickSelection={true}
+      rowSelection="multiple"
+      animateRows={true}
+    />
+  </div>
+</div>
       </div>
     </div>
   );

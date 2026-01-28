@@ -17,22 +17,36 @@ import { IoDocumentTextOutline } from "react-icons/io5";
 import { TbEyeShare  } from "react-icons/tb";
 import { FaPlus } from "react-icons/fa";
 import React from "react";
-import axios from "axios";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
+import { useDispatch } from "react-redux";
+import { kanbanBulkOrderDragnDrop } from "../../Reducer/AddSlice";
 import AddProjectModal from "../../pages/ManageLeads/AddProjectModal";
 
-export function KanbanBoardBulkOrder({ onRefresh }: { onRefresh?: () => void }) {
-  const navigate = useNavigate();
-  const api = "https://n8n.bestworks.cloud/webhook/get-kanbanbukorder";
-  const api2 = "https://n8n.bestworks.cloud/webhook/post-kanbanbukorder";
-  const api3="https://n8n.bestworks.cloud/webhook/react-dashboard";
-  const api4="https://n8n.bestworks.cloud/webhook/bulkorder-addproject"
+type StageColumn = {
+  stage: {
+    id: string | number;
+    name: string;
+    sort_order: number;
+  };
+  orders: any[];
+};
 
-  const[allLeadData,setAllLeadData]=useState<any[]>([])
+export function KanbanBoardBulkOrder({
+  onRefresh,
+  columnsData = [],
+  source,
+}: {
+  onRefresh?: () => void;
+  columnsData: StageColumn[];
+  source: "ONLINE" | "OFFLINE";
+}) {
+  const navigate = useNavigate();
+  const dispatch: any = useDispatch();
+
   const [leadData, setLeadData] = useState<any[]>([]);
-  const [reload, setReload] = useState<any[]>([]);
   const [kanbanWidth, setkanbanWidth] = useState<number>(0);
   const [emailModal, setEmailModal] = useState<{isOpen: boolean, leadEmail: string, leadName: string}>({
     isOpen: false,
@@ -71,56 +85,81 @@ export function KanbanBoardBulkOrder({ onRefresh }: { onRefresh?: () => void }) 
     return colors[type] || '#f3f4f6'; // Default light gray
   };
 
-// fetch lead data
-const fetchLeadData=()=>{
-  axios.get(api3).then((res:any)=>{
-    console.log("leadres",res.data)
-    setAllLeadData(res.data)
-  })
-}
+  const columns = useMemo(() => {
+    if (!columnsData || !Array.isArray(columnsData)) return [];
 
-useEffect(()=>{
-  fetchLeadData()
-},[])
+    const sorted = [...columnsData].sort(
+      (a, b) => (a?.stage?.sort_order || 0) - (b?.stage?.sort_order || 0)
+    );
 
+    return sorted.map((col) => ({
+      headerText: col?.stage?.name || "",
+      keyField: col?.stage?.name || "",
+      stageId: col?.stage?.id,
+    }));
+  }, [columnsData]);
 
-  // Fetch lead data
+  // Transform API columns + orders into Kanban card data
   useEffect(() => {
-    axios
-      .get(api)
-      .then((res: any) => {
-        console.log("res", res.data);
-        // Transform new Order schema → Kanban format
-        const transformed = res.data.map((order: any) => {
-          // Find lead data from allLeadData using Lead array
-          const leadId = order.Lead?.[0];
-          const leadInfo = allLeadData.find(lead => lead.id === leadId);
-          
-          return {
+    if (!columnsData || !Array.isArray(columnsData)) {
+      setLeadData([]);
+      setkanbanWidth(0);
+      return;
+    }
+
+    const cards: any[] = [];
+
+    columnsData.forEach((col) => {
+      const stageName = col?.stage?.name;
+      const stageId = col?.stage?.id;
+
+      col?.orders?.forEach((order) => {
+        if (source === "ONLINE") {
+          const customer = order.customer || {};
+          cards.push({
             Id: order.id,
-            Title: order["Order Name"],
-            LeadName: leadInfo?.["Lead Name"] || "",
-            Status: order["Order Stage"] || "Order received from customer",
-            Summary:
-              `Status: ${order["Order Status"] ?? "Open"} | Created: ${order["Order Date"] ?? order.createdTime}`,
-            Company: leadInfo?.["Company Name"] || order["Lead Company Name"]?.[0] || "",
-            Email: leadInfo?.Email || "",
-            Phone: leadInfo?.Phone || leadInfo?.["Phone Number"] || "",
-            Industry: leadInfo?.["Lead Industry"]?.[0] || "",
-            Assignee: order["Rep Name"]?.[0] || "Unassigned",
-            OrderType: order["Order Type"] || [],
-            OrderAmount: order["Order Amount"] || 0,
-            LeadId: leadId
-          };
-        });
-        setLeadData(transformed);
-        // Set minimum width for proper column spacing
-        setkanbanWidth(columns.length * 350)
-      })
-      .catch((err) => {
-        console.error("err", err);
+            // Title: order.order_number,
+            Title: "Order",
+            LeadName: customer.name,
+            Status: stageName,
+            Summary: `Status: ${order.status} | Payment: ${
+              order.payment_status
+            } | Created: ${order.created_at}`,
+            Company: customer.company_name,
+            Email: customer.email,
+            Phone: customer.phone,
+            OrderType: [], // online orders don't have explicit order types in payload
+            OrderAmount: Number(order.order_amount || 0),
+            LeadId: customer.id,
+            StageId: stageId,
+            Source: "ONLINE",
+          });
+        } else {
+          const lead = order.lead || {};
+          cards.push({
+            Id: order.id,
+            Title: "Order",
+            LeadName: lead.name,
+            Status: stageName,
+            Summary: `Status: ${order.order_status} | Origin: ${
+              order.order_origin
+            } | Start: ${order.start_date}`,
+            Company: lead.company_name,
+            Email: lead.email,
+            Phone: lead.phone,
+            OrderType: order.order_types || [],
+            OrderAmount: Number(order.order_amount || 0),
+            LeadId: order.lead_id,
+            StageId: stageId,
+            Source: "OFFLINE",
+          });
+        }
       });
-  }, [reload, allLeadData]);
+    });
+
+    setLeadData(cards);
+    setkanbanWidth((columns || []).length * 350);
+  }, [columnsData, source, columns]);
 
   // Remove license error
   useEffect(() => {
@@ -132,21 +171,37 @@ useEffect(()=>{
   }, []);
   
 
-const handleStatusUpdate = (leadInfo: { id: string; leadEmail: string; orderStage: string }) => {
-  console.log("trigger",leadInfo)
-  axios.post(api2, { id: leadInfo.id, leadEmail: leadInfo.leadEmail, orderStage: leadInfo.orderStage })
-    .then(() => {
-      toast.success("Status updated successfully");
-      setReload([1])
-      console.log("Status updated successfully");
-      if (onRefresh) {
-        try { onRefresh(); } catch(e) { console.log('onRefresh error', e); }
+const handleStatusUpdate = async (cardData: any) => {
+  try {
+    const targetColumn = columns.find(
+      (col: any) => col.keyField === cardData.Status
+    );
+
+    if (!targetColumn || !targetColumn.stageId) {
+      console.warn("Target column / stage not found for drag-and-drop");
+      return;
+    }
+
+    const payload: any = {
+      id: cardData.Id,
+      order_stage_id: targetColumn.stageId,
+      source: cardData.Source || source,
+    };
+
+    await dispatch(kanbanBulkOrderDragnDrop(payload)).unwrap();
+
+    toast.success("Status updated successfully");
+    if (onRefresh) {
+      try {
+        onRefresh();
+      } catch (e) {
+        console.log("onRefresh error", e);
       }
-    })
-    .catch((error) => {
-      console.error("Error updating status", error);
-      toast.error("Failed to update status. Please try again.");
-    });
+    }
+  } catch (error) {
+    console.error("Error updating status", error);
+    toast.error("Failed to update status. Please try again.");
+  }
 };
 
 // Email handler functions
@@ -251,23 +306,14 @@ const handleAddProject = (leadId: string) => {
 
 const handleProjectAdded = (projectData: any) => {
   console.log("Project added:", projectData);
-  
-  // Add project type to the payload
-  const payload = {
-    ...projectData,
-    projectType: projectData.projectType || 'existing' // Default to existing if not specified
-  };
-  
-  console.log("Sending payload with project type:", payload);
-  
-  axios.post(api4, payload).then((res:any)=>{
-    console.log("projectres",res.data)
-    toast.success("Project added successfully");
-    fetchLeadData()
-  }).catch((err:any)=>{
-    console.log("error",err)
-    toast.error("Failed to add project. Please try again.");
-  })
+  // Refresh kanban board after project is added
+  if (onRefresh) {
+    try {
+      onRefresh();
+    } catch (e) {
+      console.log("onRefresh error after project add", e);
+    }
+  }
 };
   // Prevent incorrect drags
   // function onDragStart(args: any) {
@@ -285,19 +331,16 @@ console.log('args',args)
   if (!cardData) return;
 
   // Now call handleStatusUpdate with the updated status
-  console.log('leadData.id',leadData)
-  const find=leadData.find(x=>x.Id==args?.data[0]?.Id)
-  console.log("find",find)
-  if(find.Status != args?.data[0]?.Status){
-    handleStatusUpdate({
-    id: cardData.Id,
-    leadEmail: cardData.Email,
-    orderStage: cardData.Status, // This is the new column after drop
-  });
+  console.log("leadData.id", leadData);
+  const existing = leadData.find((x) => x.Id === cardData.Id);
+  console.log("find", existing);
+
+  // Only trigger if status actually changed
+  if (!existing || existing.Status === cardData.Status) {
+    return;
   }
 
-  // Optional: Log to confirm
-  console.log("DragDrop Status Update Triggered:", cardData);
+  handleStatusUpdate(cardData);
 }
 
 
@@ -563,18 +606,6 @@ console.log('args',args)
 
     );
   };
-
-  const columns = [
-  { headerText: "📨 Order received from customer", keyField: "Order received from customer" },
-  { headerText: "📤 Order submitted", keyField: "Order submitted" },
-  { headerText: "🧾 Customer Invoice sent", keyField: "Customer Invoice sent" },
-  { headerText: "💰 Payment Received", keyField: "Payment Received" },
-  { headerText: "📄 Terms Given", keyField: "Terms Given" },
-  { headerText: "🚚 Order Shipped", keyField: "Order Shipped" },
-  { headerText: "🎁 Order delivered", keyField: "Order delivered" },
-];
-
-
 
   return (
     <div style={{ 
@@ -1132,7 +1163,6 @@ console.log('args',args)
         <AddProjectModal
           isOpen={openAddProjectModal}
           onClose={() => setOpenAddProjectModal(false)}
-          allLeadData={allLeadData}
           onProjectAdded={handleProjectAdded}
         />
       )}

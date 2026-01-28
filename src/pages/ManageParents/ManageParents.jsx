@@ -28,19 +28,19 @@ const ManageParents = () => {
     }
   }, [userData]);
 
-  const handleToggleStatus = (id, currentStatus) => {
-    const updatedRows = rowData.map((row) =>
-      row.id === id ? { ...row, status: !currentStatus } : row
-    );
-    setRowData(updatedRows);
-    const encodedId = btoa(id.toString()); // Base64 encode the ID
-    dispatch(userActiveDeactive(encodedId)).then((res) => {
-      console.log("res", res);
-    });
+  // const handleToggleStatus = (id, currentStatus) => {
+  //   const updatedRows = rowData.map((row) =>
+  //     row.id === id ? { ...row, status: !currentStatus } : row
+  //   );
+  //   setRowData(updatedRows);
+  //   const encodedId = btoa(id.toString()); // Base64 encode the ID
+  //   dispatch(userActiveDeactive(encodedId)).then((res) => {
+  //     console.log("res", res);
+  //   });
 
-    // Optionally call API to update status here
-    // api.patch(`/user/${id}/status`, { status: !currentStatus });
-  };
+  //   // Optionally call API to update status here
+  //   // api.patch(`/user/${id}/status`, { status: !currentStatus });
+  // };
 
   const columnDefs = [
     {
