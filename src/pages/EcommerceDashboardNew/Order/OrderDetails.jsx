@@ -456,8 +456,31 @@ const OrderDetails = () => {
 
   const { customer, orders } = customerData;
 
+
+  const handleDownload = async (url, filename) => {
+    try {
+      const response = await fetch(url);
+      const blob = await response.blob();
+      const blobUrl = window.URL.createObjectURL(blob);
+
+      const link = document.createElement('a');
+      link.href = blobUrl;
+      link.download = filename || 'download';
+      document.body.appendChild(link);
+      link.click();
+
+      // Cleanup
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(blobUrl);
+    } catch (error) {
+      console.error("Download failed", error);
+      // Fallback: open in new tab if fetch fails
+      window.open(url, '_blank');
+    }
+  };
+
   return (
-    <div className="max-w-7xl mx-auto p-4 md:p-6 bg-[#f8f9fa] min-h-screen">
+    <div className="p-2 bg-[#f8f9fa] min-h-screen">
       {/* HEADER SECTION */}
       <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
         <div className="flex items-center gap-4">
@@ -488,7 +511,7 @@ const OrderDetails = () => {
               </div>
               <div className="flex flex-col">
                 <span className="text-[10px] font-black text-gray-400 uppercase">Registered Email</span>
-                <span className="text-sm font-semibold truncate">{customer?.email}</span>
+                <span className="text-sm font-semibold">{customer?.email}</span>
               </div>
             </div>
           </div>
@@ -540,42 +563,71 @@ const OrderDetails = () => {
                     <span className="text-xs font-black uppercase text-gray-600">Purchased Items</span>
                   </div>
                   <div className="p-0">
-                    {order.order_groups?.map((group) => (
-                      <div key={group.id} className="p-4 border-b last:border-0 border-gray-50">
-                        <div className="flex justify-between items-start mb-4">
-                          <div>
-                            <h4 className="font-black text-gray-800 uppercase tracking-tight text-lg">{group.hat?.name || 'Unknown Hat'}</h4>
-                            <p className="text-xs text-blue-500 font-bold">Style Code: {group.hat?.internal_style_code || 'N/A'}</p>
+                    {order.order_groups?.map((group) => {
+                      const hatImage = group.hat?.hatImages?.[0]?.image_url;
+                      const fullHatImageUrl = hatImage ? `${import.meta.env.VITE_API_BASE_URL}/${hatImage}` : null;
+
+                      return (
+                        <div key={group.id} className="p-4 border-b last:border-0 border-gray-50">
+                          <div className="flex gap-4 items-start mb-4">
+                            {/* টুপি ইমেজ সেকশন */}
+                            <div className="w-20 h-20 bg-gray-100 rounded-lg border border-gray-100 overflow-hidden flex-shrink-0">
+                              {fullHatImageUrl ? (
+                                <img
+                                  src={fullHatImageUrl}
+                                  alt={group.hat?.name}
+                                  className="w-full h-full object-cover"
+                                />
+                              ) : (
+                                <div className="w-full h-full flex items-center justify-center text-[10px] text-gray-400 font-bold text-center p-1">
+                                  NO IMAGE
+                                </div>
+                              )}
+                            </div>
+                            <div className="flex justify-between items-start flex-grow">
+                              <div>
+                                <h4 className="font-black text-gray-800 uppercase tracking-tight text-lg leading-tight">
+                                  {group.hat?.name || 'Unknown Hat'}
+                                </h4>
+                                <p className="text-xs text-blue-500 font-bold mt-1">
+                                  Style Code: {group.hat?.internal_style_code || 'N/A'}
+                                </p>
+                              </div>
+                              <div className="text-right">
+                                <p className="text-xs font-bold text-gray-400 uppercase tracking-tighter leading-none">GROUP TOTAL</p>
+                                <p className="font-black text-gray-800 text-xl">{money(group.group_subtotal)}</p>
+                              </div>
+                            </div>
                           </div>
-                          <div className="text-right">
-                            <p className="text-xs font-bold text-gray-400">GROUP TOTAL</p>
-                            <p className="font-black text-gray-800">{money(group.group_subtotal)}</p>
+
+                          {/* Size Breakdown Table */}
+                          <div className="overflow-x-auto">
+                            <table className="w-full text-left text-sm">
+                              <thead className="text-[10px] text-gray-400 uppercase font-black">
+                                <tr>
+                                  <th className="pb-2">Size/Variant</th>
+                                  <th className="pb-2">SKU</th>
+                                  <th className="pb-2 text-center">Qty</th>
+                                  <th className="pb-2 text-right">Unit Price</th>
+                                </tr>
+                              </thead>
+                              <tbody className="text-gray-700">
+                                {group.order_items?.map((item) => (
+                                  <tr key={item.id} className="border-t border-gray-50">
+                                    <td className="py-2 font-medium">
+                                      {item.hat_size_variant?.size_label} ({item.hat_size_variant?.variant_name})
+                                    </td>
+                                    <td className="py-2 font-mono text-xs">{item.supplier_sku}</td>
+                                    <td className="py-2 text-center font-bold text-blue-600">{item.quantity}</td>
+                                    <td className="py-2 text-right font-semibold">{money(item.unit_price)}</td>
+                                  </tr>
+                                ))}
+                              </tbody>
+                            </table>
                           </div>
                         </div>
-
-                        {/* Size Breakdown Table */}
-                        <table className="w-full text-left text-sm">
-                          <thead className="text-[10px] text-gray-400 uppercase font-black">
-                            <tr>
-                              <th className="pb-2">Size/Variant</th>
-                              <th className="pb-2">SKU</th>
-                              <th className="pb-2 text-center">Qty</th>
-                              <th className="pb-2 text-right">Unit Price</th>
-                            </tr>
-                          </thead>
-                          <tbody className="text-gray-700">
-                            {group.order_items?.map((item) => (
-                              <tr key={item.id} className="border-t border-gray-50">
-                                <td className="py-2 font-medium">{item.hat_size_variant?.size_label} ({item.hat_size_variant?.variant_name})</td>
-                                <td className="py-2 font-mono text-xs">{item.supplier_sku}</td>
-                                <td className="py-2 text-center font-bold">{item.quantity}</td>
-                                <td className="py-2 text-right font-semibold">{money(item.unit_price)}</td>
-                              </tr>
-                            ))}
-                          </tbody>
-                        </table>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 </div>
 
@@ -584,11 +636,21 @@ const OrderDetails = () => {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                     <div>
                       <p className="text-[10px] font-black text-gray-400 uppercase mb-2">Artwork Logo</p>
-                      <img
-                        src={`${import.meta.env.VITE_API_BASE_URL}${order.artwork_config?.logo?.original_file_url}`}
-                        alt="Logo"
-                        className="w-full max-w-[200px] h-auto border-2 border-gray-100 rounded-lg shadow-sm"
-                      />
+                      <div className="flex justify-center">
+                        <img
+                          src={`${import.meta.env.VITE_API_BASE_URL}${order.artwork_config?.logo?.original_file_url}`}
+                          alt="Logo"
+                          className="w-full max-w-[200px] h-auto border-2 border-gray-100 rounded-lg shadow-sm"
+                        />
+                      </div>
+                      <div className="flex justify-center">
+                        <button
+                          onClick={() => handleDownload(`${import.meta.env.VITE_API_BASE_URL}${order.artwork_config?.logo?.original_file_url}`, 'logo.png')}
+                          className="px-2 py-1 bg-blue-600 text-white rounded-md text-sm hover:bg-blue-700 transition"
+                        >
+                          Download Logo
+                        </button>
+                      </div>
                       <div className="mt-4 p-3 bg-blue-50 rounded-lg">
                         <p className="text-xs font-bold text-blue-700">Setup Plan: {order.artwork_config?.setup_plan?.name}</p>
                         <p className="text-[10px] text-blue-500 font-medium">{order.artwork_config?.setup_plan?.description}</p>
@@ -603,29 +665,57 @@ const OrderDetails = () => {
                           <li><span className="text-gray-400">Placement:</span> <span className="font-bold uppercase">{order.artwork_config?.logo_placement?.replace('_', ' ')}</span></li>
                         </ul>
                       </div>
-                      <div>
-                        <p className="text-[10px] font-black text-gray-400 uppercase mb-2">Decoration Addons</p>
-                        <div className="flex flex-wrap gap-2">
-                          {order.artwork_config?.addons?.map(a => (
-                            <span
-                              key={a.id}
-                              className="
-                              px-3 py-1
-                              text-xs
-                              font-semibold
-                              tracking-wide
-                              bg-gray-100
-                              text-gray-800
-                              rounded-full
-                              uppercase
-                              border
-                            "
-                            >
-                              {a.decoration_addon?.name}
-                            </span>
-                          ))}
-                        </div>
+                      <div className="mt-4">
+                        <p className="text-[10px] font-black text-gray-400 uppercase mb-3">Decoration Addons</p>
+                        <div className="flex flex-col gap-3">
+                          {order.artwork_config?.addons?.map((addon) => {
+                            const hasImage = addon.file_url !== null;
+                            const fullImageUrl = `${import.meta.env.VITE_API_BASE_URL}${addon.file_url}`;
 
+                            return (
+                              <div key={addon.id} className="w-full">
+                                {hasImage ? (
+                                  <div className="flex items-center bg-gray-50 p-3 rounded-lg border border-gray-200 gap-4">
+                                    <img
+                                      src={fullImageUrl}
+                                      alt={addon.decoration_addon?.name}
+                                      className="w-14 h-14 object-cover rounded border bg-white flex-shrink-0"
+                                    />
+
+                                    <div className="flex flex-col flex-grow">
+                                      <span className="text-xs font-bold text-gray-800 uppercase">
+                                        {addon.decoration_addon?.name}
+                                      </span>
+                                      {addon.notes && (
+                                        <p className="text-[11px] text-gray-500 mt-1">
+                                          <span className="font-bold text-gray-600">Notes:</span> {addon.notes}
+                                        </p>
+                                      )}
+                                    </div>
+
+                                    <button
+                                      onClick={() => handleDownload(fullImageUrl, `addon-${addon.id}`)}
+                                      className="px-3 py-1.5 bg-blue-600 text-white text-[10px] font-bold rounded hover:bg-blue-700 transition flex-shrink-0"
+                                    >
+                                      DOWNLOAD
+                                    </button>
+                                  </div>
+                                ) : (
+                                  <div className="flex flex-col items-start px-2 py-1 rounded-lg border border-gray-200 ml-1">
+                                    <span className="text-xs font-semibold text-gray-700 uppercase">
+                                      {addon.decoration_addon?.name}
+                                    </span>
+                                    {addon.notes && (
+                                      <p className="text-[10px] text-gray-500 mt-0.5">
+                                        <span className="font-medium">Notes:</span> {addon.notes}
+                                      </p>
+                                    )}
+                                  </div>
+                                )}
+                              </div>
+                            );
+                          })}
+                        </div>
                       </div>
                     </div>
 
@@ -660,6 +750,52 @@ const OrderDetails = () => {
                         {order.artwork_config?.logo_size_notes || "No Color Notes."}
                       </p>
                     </div>
+                  </div>
+                </AccordionItem>
+                {/* 6. ADDRESS INFORMATION */}
+                <AccordionItem title="Shipping & Billing Address" icon={FaMapMarkerAlt}>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+                    {/* Shipping Address */}
+                    <div className="p-4 bg-gray-50 rounded-xl border border-gray-100">
+                      <h4 className="text-[10px] font-black text-blue-600 uppercase flex items-center gap-2 mb-3">
+                        <FaBox className="text-[10px]" /> Shipping Address
+                      </h4>
+                      <div className="space-y-1">
+                        <p className="text-sm font-bold text-gray-800">{customer?.first_name} {customer?.last_name}</p>
+                        <p className="text-sm text-gray-600">{order.shipping_address?.line1}</p>
+                        {order.shipping_address?.line2 && (
+                          <p className="text-sm text-gray-600">{order.shipping_address?.line2}</p>
+                        )}
+                        <p className="text-sm text-gray-600">
+                          {order.shipping_address?.city}, {order.shipping_address?.state}
+                        </p>
+                        <p className="text-sm text-gray-600">
+                          {order.shipping_address?.postal_code}, {order.shipping_address?.country}
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Billing Address */}
+                    <div className="p-4 bg-gray-50 rounded-xl border border-gray-100">
+                      <h4 className="text-[10px] font-black text-green-600 uppercase flex items-center gap-2 mb-3">
+                        <FaCreditCard className="text-[10px]" /> Billing Address
+                      </h4>
+                      <div className="space-y-1">
+                        <p className="text-sm font-bold text-gray-800">{customer?.first_name} {customer?.last_name}</p>
+                        <p className="text-sm text-gray-600">{order.billing_address?.line1}</p>
+                        {order.billing_address?.line2 && (
+                          <p className="text-sm text-gray-600">{order.billing_address?.line2}</p>
+                        )}
+                        <p className="text-sm text-gray-600">
+                          {order.billing_address?.city}, {order.billing_address?.state}
+                        </p>
+                        <p className="text-sm text-gray-600">
+                          {order.billing_address?.postal_code}, {order.billing_address?.country}
+                        </p>
+                      </div>
+                    </div>
+
                   </div>
                 </AccordionItem>
                 {/* 5. DATES */}
