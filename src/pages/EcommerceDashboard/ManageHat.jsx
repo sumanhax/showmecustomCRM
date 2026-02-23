@@ -20,8 +20,10 @@ import { FaSearch, FaTimes, FaEye, FaEdit, FaTrash } from "react-icons/fa";
 const ManageHat = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { hatListData, loading, supplierListData } = useSelector((state) => state.ecom);
-  
+  const { hatListData, loading, supplierListData } = useSelector(
+    (state) => state.ecom,
+  );
+
   const [openAddHatModal, setOpenAddHatModal] = useState(false);
   const [openEditHatModal, setOpenEditHatModal] = useState(false);
   const [openDeleteModal, setOpenDeleteModal] = useState(false);
@@ -36,10 +38,14 @@ const ManageHat = () => {
       return hatListData.data.map((item) => {
         // Find supplier name from supplierListData
         let supplierName = "";
-        if (item.supplier && item.supplier.length > 0 && supplierListData?.data) {
+        if (
+          item.supplier &&
+          item.supplier.length > 0 &&
+          supplierListData?.data
+        ) {
           const supplierId = item.supplier[0];
           const foundSupplier = supplierListData.data.find(
-            (supp) => supp.id === supplierId
+            (supp) => supp.id === supplierId,
           );
           if (foundSupplier?.fields?.["Supplier Name"]) {
             supplierName = foundSupplier.fields["Supplier Name"];
@@ -94,22 +100,24 @@ const ManageHat = () => {
   // Filter hats based on search term
   const filteredHatData = useMemo(() => {
     if (!searchTerm) return hatData;
-    
+
     const searchLower = searchTerm.toLowerCase();
-    return hatData.filter((hat) => 
-      (hat.hatName && hat.hatName.toLowerCase().includes(searchLower)) ||
-      (hat.supplierStyleCode && hat.supplierStyleCode.toLowerCase().includes(searchLower)) ||
-      (hat.basePrice && hat.basePrice.toLowerCase().includes(searchLower))
+    return hatData.filter(
+      (hat) =>
+        (hat.hatName && hat.hatName.toLowerCase().includes(searchLower)) ||
+        (hat.supplierStyleCode &&
+          hat.supplierStyleCode.toLowerCase().includes(searchLower)) ||
+        (hat.basePrice && hat.basePrice.toLowerCase().includes(searchLower)),
     );
   }, [hatData, searchTerm]);
 
   // Handle pagination change
   const onPaginationChanged = (event) => {
-    console.log("onPaginationChanged called", event); 
+    console.log("onPaginationChanged called", event);
     const api = event.api;
     const currentPageNum = api.paginationGetCurrentPage();
     const pageSizeNum = api.paginationGetPageSize();
-    
+
     if (pageSizeNum !== pageSize) {
       setPageSize(pageSizeNum);
       setCurrentPage(1);
@@ -179,24 +187,24 @@ const ManageHat = () => {
     const hatId = params.data.id;
 
     return (
-      <div className="flex gap-2 justify-center items-center">
+      <div className="flex gap-2 justify-center items-center mt-2">
         <button
           onClick={() => handleViewHat(hatId)}
-          className="bg-blue-500 hover:bg-blue-600 p-2 text-white rounded-full transition-colors"
+          className="bg-blue-500 hover:bg-blue-600 p-2 text-white rounded-md transition-colors"
           title="View"
         >
           <FaEye size={14} />
         </button>
         <button
           onClick={() => handleEditHat(hatId)}
-          className="bg-yellow-500 hover:bg-yellow-600 p-2 text-white rounded-full transition-colors"
+          className="bg-yellow-500 hover:bg-yellow-600 p-2 text-white rounded-md transition-colors"
           title="Edit"
         >
           <FaEdit size={14} />
         </button>
         <button
           onClick={() => handleDeleteHat(hatId)}
-          className="bg-red-500 hover:bg-red-600 p-2 text-white rounded-full transition-colors"
+          className="bg-red-500 hover:bg-red-600 p-2 text-white rounded-md transition-colors"
           title="Delete"
         >
           <FaTrash size={14} />
@@ -205,9 +213,9 @@ const ManageHat = () => {
     );
   };
 
-  const handleToggleActive=(hatId, currentStatus)=>{
-    console.log("toggle")
-  }
+  const handleToggleActive = (hatId, currentStatus) => {
+    console.log("toggle");
+  };
   // Custom cell renderer for isActive toggle
   const ActiveToggleRenderer = (params) => {
     const isActive = params.value;
@@ -221,7 +229,7 @@ const ManageHat = () => {
             ? "bg-green-500 hover:bg-green-600"
             : "bg-gray-400 hover:bg-gray-500"
         }`}
-        style={{ fontSize: '12px' }}
+        style={{ fontSize: "12px" }}
       >
         {isActive ? "Active" : "Inactive"}
       </button>

@@ -31,15 +31,15 @@ function Header(props: {
                 props.setSidebarOpen(!props.sidebarOpen);
                 dispatch(toggleSidebar());
               }}
-              className="z-99999 block rounded-lg bg-[#f20c32] p-1 absolute top-[28px] left-[-12px]"
+              className="z-99999 block rounded-lg bg-[#f20c32] p-1 absolute top-[14px] lg:top-[28px] left-[-12px]"
             >
               <IoMdArrowForward className="text-xl text-white hover:text-black" />
             </button>
             {/* <!-- Hamburger Toggle BTN --> */}
             
               {/* <img src={logoIcon} alt="Logo" /> */}
-              <p className="text-3xl text-gray-900 mb-2">Dashboard</p>
-              <span className="text-gray-600">
+              <p className="text-xl lg:text-3xl text-gray-900 lg:mb-2 mb-0">Dashboard</p>
+              <span className="text-[10px] lg:text-base text-[#323232] hidden lg:block">
                 Monitor and analyze your lead generation performance
               </span>
            
@@ -61,17 +61,19 @@ function Header(props: {
                   props.setSidebarOpen(!props.sidebarOpen);
                   dispatch(toggleSidebar())
                 }}
-                className="z-99999 block rounded-lg bg-[#f20c32] p-1 absolute top-[28px] left-[-12px]"
+                className="z-99999 block rounded-lg bg-[#f20c32] p-1 absolute top-[14px] lg:top-[28px] left-[-12px]"
               >
                 <IoMdArrowBack className="text-xl text-white hover:text-black" />
               </button>
               {/* <!-- Hamburger Toggle BTN --> */}
               
                 {/* <img src={logoIcon} alt="Logo" /> */}
-                <p className="text-3xl text-gray-900 font-medium">Dashboard</p>
-                <span className="text-base text-[#323232]">
-                  Monitor and analyze your lead generation performance
-                </span>
+                <div className="hidden lg:block">
+                  <p className="text-3xl text-gray-900 font-medium">Dashboard</p>
+                  <span className="text-base text-[#323232]">
+                    Monitor and analyze your lead generation performance
+                  </span>
+                </div>
               
             </div>
           </div>

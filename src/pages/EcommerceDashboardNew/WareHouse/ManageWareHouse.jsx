@@ -9,16 +9,16 @@ import AddWareHouseModal from "./AddWareHouseModal";
 import { warehouseList } from "../../../Reducer/ManageWareHouseNewSlice";
 import { toast } from "react-toastify";
 
-const ManageWareHouse=()=>{
-
+const ManageWareHouse = () => {
   const dispatch = useDispatch();
-  const { warehouseListData, loading, error } = useSelector((state) => state.warehouse);
+  const { warehouseListData, loading, error } = useSelector(
+    (state) => state.warehouse,
+  );
   const [openAddWareHouseModal, setOpenAddWareHouseModal] = useState(false);
   const [openEditwarehouseModal, setOpenEditwarehouseModal] = useState(false);
   const [openDeleteModal, setOpenDeleteModal] = useState(false);
   const [selectedwarehouseData, setSelectedwarehouseData] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
-
 
   const warehouseData = useMemo(() => {
     if (warehouseListData?.data && Array.isArray(warehouseListData.data)) {
@@ -53,17 +53,21 @@ const ManageWareHouse=()=>{
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
- // Filter warehouses based on search term
- const filteredWarehouseData = useMemo(() => {
-  if (!searchTerm) return warehouseData;
-  
-  const searchLower = searchTerm.toLowerCase();
-  return warehouseData.filter((warehouse) => 
-    (warehouse.name && warehouse.name.toLowerCase().includes(searchLower)) ||
-    (warehouse.code && warehouse.code.toLowerCase().includes(searchLower)) ||
-    (warehouse.websiteURL && warehouse.websiteURL.toLowerCase().includes(searchLower)) 
-  );
-}, [warehouseData, searchTerm]);
+  // Filter warehouses based on search term
+  const filteredWarehouseData = useMemo(() => {
+    if (!searchTerm) return warehouseData;
+
+    const searchLower = searchTerm.toLowerCase();
+    return warehouseData.filter(
+      (warehouse) =>
+        (warehouse.name &&
+          warehouse.name.toLowerCase().includes(searchLower)) ||
+        (warehouse.code &&
+          warehouse.code.toLowerCase().includes(searchLower)) ||
+        (warehouse.websiteURL &&
+          warehouse.websiteURL.toLowerCase().includes(searchLower)),
+    );
+  }, [warehouseData, searchTerm]);
 
   // Handle add new warehouse
   const handleAddWarehouse = () => {
@@ -77,13 +81,13 @@ const ManageWareHouse=()=>{
     const warehouse = warehouseData.find((s) => s.id === warehouseId);
     console.log("Found warehouse:", warehouse);
     if (warehouse) {
-      console.log("wareHouse",warehouse)
+      console.log("wareHouse", warehouse);
       // Pass the warehouse with flattened structure to modal
       setSelectedwarehouseData({
         id: warehouse.id,
         name: warehouse?.warehouseName,
         code: warehouse?.code,
-        address:warehouse?.address,
+        address: warehouse?.address,
         is_active: warehouse.isActive ? 1 : 0,
       });
       setOpenEditwarehouseModal(true);
@@ -129,13 +133,13 @@ const ManageWareHouse=()=>{
     const newStatus = !currentStatus;
 
     // Use edit action to update isActive status with proper field name
-    dispatch(warehouseActiveToggle(
-      warehouseId
-    ))
+    dispatch(warehouseActiveToggle(warehouseId))
       .unwrap()
       .then((response) => {
         console.log("warehouse status updated successfully:", response);
-        toast.success(`warehouse ${newStatus ? "activated" : "deactivated"} successfully!`);
+        toast.success(
+          `warehouse ${newStatus ? "activated" : "deactivated"} successfully!`,
+        );
         fetchWareHouse();
       })
       .catch((error) => {
@@ -147,14 +151,16 @@ const ManageWareHouse=()=>{
   // Handle view warehouse (sample handler)
   const handleViewwarehouse = (warehouseId) => {
     console.log("Viewing warehouse:", warehouseId);
-    
+
     dispatch(warehouseDetails(warehouseId))
       .unwrap()
       .then((response) => {
         console.log("warehouse details:", response);
         const warehouse = warehouseData.find((s) => s.id === warehouseId);
         if (warehouse) {
-          toast.info(`Viewing warehouse: ${warehouse.name} (${warehouse.code})`);
+          toast.info(
+            `Viewing warehouse: ${warehouse.name} (${warehouse.code})`,
+          );
           // Add navigation or modal to show full details
         }
       })
@@ -177,7 +183,7 @@ const ManageWareHouse=()=>{
             ? "bg-green-500 hover:bg-green-600"
             : "bg-gray-400 hover:bg-gray-500"
         }`}
-        style={{ fontSize: '12px' }}
+        style={{ fontSize: "12px" }}
       >
         {isActive ? "Active" : "Inactive"}
       </button>
@@ -189,24 +195,24 @@ const ManageWareHouse=()=>{
     const warehouseId = params.data.id;
 
     return (
-      <div className="flex gap-2 justify-center items-center">
+      <div className="flex gap-2 justify-center items-center mb-2">
         <button
           onClick={() => handleViewwarehouse(warehouseId)}
-          className="bg-blue-500 hover:bg-blue-600 p-2 text-white rounded-full transition-colors"
+          className="bg-blue-500 hover:bg-blue-600 p-2 text-white rounded-md transition-colors"
           title="View"
         >
           <FaEye size={14} />
         </button>
         <button
           onClick={() => handleEditwarehouse(warehouseId)}
-          className="bg-yellow-500 hover:bg-yellow-600 p-2 text-white rounded-full transition-colors"
+          className="bg-yellow-500 hover:bg-yellow-600 p-2 text-white rounded-md transition-colors"
           title="Edit"
         >
           <FaEdit size={14} />
         </button>
         <button
           onClick={() => handleDeletewarehouse(warehouseId)}
-          className="bg-red-500 hover:bg-red-600 p-2 text-white rounded-full transition-colors"
+          className="bg-red-500 hover:bg-red-600 p-2 text-white rounded-md transition-colors"
           title="Delete"
         >
           <FaTrash size={14} />
@@ -230,15 +236,15 @@ const ManageWareHouse=()=>{
       filter: true,
       flex: 1,
     },
-    
-     {
+
+    {
       field: "address",
       headerName: "Address",
       sortable: true,
       filter: true,
       flex: 2,
     },
-    
+
     {
       field: "isActive",
       headerName: "Status",
@@ -312,7 +318,8 @@ const ManageWareHouse=()=>{
           {searchTerm && (
             <div className="mb-4">
               <p className="text-sm text-gray-600">
-                Showing {filteredWarehouseData.length} of {warehouseData.length} warehouses
+                Showing {filteredWarehouseData.length} of {warehouseData.length}{" "}
+                warehouses
               </p>
             </div>
           )}
@@ -334,20 +341,18 @@ const ManageWareHouse=()=>{
           </div>
         </div>
 
-         {openAddWareHouseModal && (
+        {openAddWareHouseModal && (
           <AddWareHouseModal
             openModal={openAddWareHouseModal}
             setOpenModal={setOpenAddWareHouseModal}
-           // onwarehouseAdded={fetchWareHouse}
+            // onwarehouseAdded={fetchWareHouse}
             warehouseData={warehouseData}
             isEdit={false}
             // hatListData={hatListData}
             // decoList={decoList}
-            
           />
         )}
 
-     
         {openEditwarehouseModal && selectedwarehouseData && (
           <AddWareHouseModal
             openModal={openEditwarehouseModal}
@@ -357,7 +362,7 @@ const ManageWareHouse=()=>{
             isEdit={true}
           />
         )}
-{/*  
+        {/*  
         
         {openDeleteModal && selectedwarehouseData && (
           <DeleteConfirmModal
@@ -370,5 +375,5 @@ const ManageWareHouse=()=>{
       </div>
     </>
   );
-}
-export default ManageWareHouse
+};
+export default ManageWareHouse;

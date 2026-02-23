@@ -13,8 +13,10 @@ import { brandDelete, brandList } from "../../../Reducer/EcommerceNewSlice";
 
 const Managebrand = () => {
   const dispatch = useDispatch();
-  const { brandListData, loading, error } = useSelector((state) => state.newecom);
-  
+  const { brandListData, loading, error } = useSelector(
+    (state) => state.newecom,
+  );
+
   const [openAddbrandModal, setOpenAddbrandModal] = useState(false);
   const [openEditbrandModal, setOpenEditbrandModal] = useState(false);
   const [openDeleteModal, setOpenDeleteModal] = useState(false);
@@ -30,10 +32,10 @@ const Managebrand = () => {
         name: item?.name || "",
         code: item?.code || "",
         isActive: item?.is_active ?? false,
-        // fields: item.fields, 
+        // fields: item.fields,
         createdTime: item.created_at,
-        websiteURL:item.website_url,
-        imageURL:item.image_url,
+        websiteURL: item.website_url,
+        imageURL: item.image_url,
       }));
     }
     return [];
@@ -61,12 +63,14 @@ const Managebrand = () => {
   // Filter brands based on search term
   const filteredbrandData = useMemo(() => {
     if (!searchTerm) return brandData;
-    
+
     const searchLower = searchTerm.toLowerCase();
-    return brandData.filter((brand) => 
-      (brand.name && brand.name.toLowerCase().includes(searchLower)) ||
-      (brand.code && brand.code.toLowerCase().includes(searchLower)) ||
-      (brand.websiteURL && brand.websiteURL.toLowerCase().includes(searchLower)) 
+    return brandData.filter(
+      (brand) =>
+        (brand.name && brand.name.toLowerCase().includes(searchLower)) ||
+        (brand.code && brand.code.toLowerCase().includes(searchLower)) ||
+        (brand.websiteURL &&
+          brand.websiteURL.toLowerCase().includes(searchLower)),
     );
   }, [brandData, searchTerm]);
 
@@ -88,8 +92,8 @@ const Managebrand = () => {
         name: brand.name,
         code: brand.code,
         isActive: brand.isActive,
-        website_url:brand.websiteURL,
-        image_url:brand.imageURL
+        website_url: brand.websiteURL,
+        image_url: brand.imageURL,
       });
       setOpenEditbrandModal(true);
     } else {
@@ -135,13 +139,13 @@ const Managebrand = () => {
     const newStatus = !currentStatus;
 
     // Use edit action to update isActive status with proper field name
-    dispatch(brandActiveToggle(
-      brandId
-    ))
+    dispatch(brandActiveToggle(brandId))
       .unwrap()
       .then((response) => {
         console.log("brand status updated successfully:", response);
-        toast.success(`brand ${newStatus ? "activated" : "deactivated"} successfully!`);
+        toast.success(
+          `brand ${newStatus ? "activated" : "deactivated"} successfully!`,
+        );
         fechBrands();
       })
       .catch((error) => {
@@ -153,7 +157,7 @@ const Managebrand = () => {
   // Handle view brand (sample handler)
   const handleViewbrand = (brandId) => {
     console.log("Viewing brand:", brandId);
-    
+
     dispatch(brandDetails(brandId))
       .unwrap()
       .then((response) => {
@@ -178,12 +182,12 @@ const Managebrand = () => {
     return (
       <button
         onClick={() => handleToggleActive(brandId, isActive)}
-        className={`px-4 py-1 rounded-full text-white text-xs font-semibold transition-colors ${
+        className={`px-4 py-1 rounded-md text-white text-xs font-semibold transition-colors ${
           isActive
             ? "bg-green-500 hover:bg-green-600"
             : "bg-gray-400 hover:bg-gray-500"
         }`}
-        style={{ fontSize: '12px' }}
+        style={{ fontSize: "12px" }}
       >
         {isActive ? "Active" : "Inactive"}
       </button>
@@ -195,24 +199,24 @@ const Managebrand = () => {
     const brandId = params.data.id;
 
     return (
-      <div className="flex gap-2 justify-center items-center">
+      <div className="flex gap-2 justify-center items-center mt-2">
         <button
           onClick={() => handleViewbrand(brandId)}
-          className="bg-blue-500 hover:bg-blue-600 p-2 text-white rounded-full transition-colors"
+          className="bg-blue-500 hover:bg-blue-600 p-2 text-white rounded-md transition-colors"
           title="View"
         >
           <FaEye size={14} />
         </button>
         <button
           onClick={() => handleEditbrand(brandId)}
-          className="bg-yellow-500 hover:bg-yellow-600 p-2 text-white rounded-full transition-colors"
+          className="bg-[#b4b4b4] hover:bg-[#929292] p-2 text-white rounded-md transition-colors"
           title="Edit"
         >
           <FaEdit size={14} />
         </button>
         <button
           onClick={() => handleDeletebrand(brandId)}
-          className="bg-red-500 hover:bg-red-600 p-2 text-white rounded-full transition-colors"
+          className="bg-red-500 hover:bg-red-600 p-2 text-white rounded-md transition-colors"
           title="Delete"
         >
           <FaTrash size={14} />
@@ -346,7 +350,6 @@ const Managebrand = () => {
             onbrandAdded={fechBrands}
             brandData={null}
             isEdit={false}
-            
           />
         )}
 

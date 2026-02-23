@@ -11,15 +11,22 @@ import Loader from "../../../components/Loader";
 import AddHatModal from "./AddHatModal";
 import DeleteConfirmModal from "../../EcommerceDashboard/DeleteConfirmModal";
 import { FaSearch, FaTimes, FaEye, FaEdit, FaTrash } from "react-icons/fa";
-import { hatList, hatAdd, hatSingle, brandList, hatDelete  } from "../../../Reducer/EcommerceNewSlice";
+import {
+  hatList,
+  hatAdd,
+  hatSingle,
+  brandList,
+  hatDelete,
+} from "../../../Reducer/EcommerceNewSlice";
 // import { hatAdd, hatList } from "../../../Reducer/EcommerceNewSlice";
 
 const ManageHat = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { hatListData, loading, brandListData } = useSelector((state) => state.newecom);
+  const { hatListData, loading, brandListData } = useSelector(
+    (state) => state.newecom,
+  );
 
-  
   const [openAddHatModal, setOpenAddHatModal] = useState(false);
   const [openEditHatModal, setOpenEditHatModal] = useState(false);
   const [openDeleteModal, setOpenDeleteModal] = useState(false);
@@ -28,18 +35,16 @@ const ManageHat = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
 
-
-
   // Extract and transform hat list from response
   const hatData = useMemo(() => {
     if (hatListData?.data && Array.isArray(hatListData.data)) {
       return hatListData.data.map((item) => {
         // Find brand name from brandListData
         let brandName = "";
-        if ( brandListData?.data) {
+        if (brandListData?.data) {
           const brandId = item.brand_id;
           const foundbrand = brandListData.data.find(
-            (brand) => brand.id === brandId
+            (brand) => brand.id === brandId,
           );
           if (foundbrand?.name) {
             brandName = foundbrand?.name;
@@ -94,22 +99,24 @@ const ManageHat = () => {
   // Filter hats based on search term
   const filteredHatData = useMemo(() => {
     if (!searchTerm) return hatData;
-    
+
     const searchLower = searchTerm.toLowerCase();
-    return hatData.filter((hat) => 
-      (hat.hatName && hat.hatName.toLowerCase().includes(searchLower)) ||
-      (hat.brandStyleCode && hat.brandStyleCode.toLowerCase().includes(searchLower)) ||
-      (hat.basePrice && hat.basePrice.toLowerCase().includes(searchLower))
+    return hatData.filter(
+      (hat) =>
+        (hat.hatName && hat.hatName.toLowerCase().includes(searchLower)) ||
+        (hat.brandStyleCode &&
+          hat.brandStyleCode.toLowerCase().includes(searchLower)) ||
+        (hat.basePrice && hat.basePrice.toLowerCase().includes(searchLower)),
     );
   }, [hatData, searchTerm]);
 
   // Handle pagination change
   const onPaginationChanged = (event) => {
-    console.log("onPaginationChanged called", event); 
+    console.log("onPaginationChanged called", event);
     const api = event.api;
     const currentPageNum = api.paginationGetCurrentPage();
     const pageSizeNum = api.paginationGetPageSize();
-    
+
     if (pageSizeNum !== pageSize) {
       setPageSize(pageSizeNum);
       setCurrentPage(1);
@@ -179,24 +186,24 @@ const ManageHat = () => {
     const hatId = params.data.id;
 
     return (
-      <div className="flex gap-2 justify-center items-center">
+      <div className="flex gap-2 justify-center items-center mt-2">
         <button
           onClick={() => handleViewHat(hatId)}
-          className="bg-blue-500 hover:bg-blue-600 p-2 text-white rounded-full transition-colors"
+          className="bg-blue-500 hover:bg-blue-600 p-2 text-white rounded-md transition-colors"
           title="View"
         >
           <FaEye size={14} />
         </button>
         <button
           onClick={() => handleEditHat(hatId)}
-          className="bg-yellow-500 hover:bg-yellow-600 p-2 text-white rounded-full transition-colors"
+          className="bg-yellow-500 hover:bg-yellow-600 p-2 text-white rounded-md transition-colors"
           title="Edit"
         >
           <FaEdit size={14} />
         </button>
         <button
           onClick={() => handleDeleteHat(hatId)}
-          className="bg-red-500 hover:bg-red-600 p-2 text-white rounded-full transition-colors"
+          className="bg-red-500 hover:bg-red-600 p-2 text-white rounded-md transition-colors"
           title="Delete"
         >
           <FaTrash size={14} />
@@ -205,9 +212,9 @@ const ManageHat = () => {
     );
   };
 
-  const handleToggleActive=(hatId, currentStatus)=>{
-    console.log("toggle")
-  }
+  const handleToggleActive = (hatId, currentStatus) => {
+    console.log("toggle");
+  };
   // Custom cell renderer for isActive toggle
   const ActiveToggleRenderer = (params) => {
     const isActive = params.value;
@@ -216,12 +223,12 @@ const ManageHat = () => {
     return (
       <button
         onClick={() => handleToggleActive(brandId, isActive)}
-        className={`px-4 py-1 rounded-full text-white text-xs font-semibold transition-colors ${
+        className={`px-4 py-1 rounded-md text-white text-xs font-semibold transition-colors ${
           isActive
             ? "bg-green-500 hover:bg-green-600"
             : "bg-gray-400 hover:bg-gray-500"
         }`}
-        style={{ fontSize: '12px' }}
+        style={{ fontSize: "12px" }}
       >
         {isActive ? "Active" : "Inactive"}
       </button>
@@ -386,9 +393,9 @@ const ManageHat = () => {
               rowData={filteredHatData}
               columnDefs={columnDefs}
               pagination={true}
-               paginationPageSize={pageSize}
+              paginationPageSize={pageSize}
               domLayout="autoHeight"
-               paginationPageSizeSelector={[10, 20, 50, 100]}
+              paginationPageSizeSelector={[10, 20, 50, 100]}
               // onPaginationChanged={onPaginationChanged}
               getRowHeight={() => 50}
             />

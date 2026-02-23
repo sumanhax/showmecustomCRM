@@ -8,7 +8,6 @@ import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import Loader from "../../../components/Loader";
 
-
 import { orderList } from "../../../Reducer/EcommerceNewSlice";
 
 const ManageOrder = () => {
@@ -17,17 +16,17 @@ const ManageOrder = () => {
 
   const gridRef = useRef(null);
 
-  const { orderListData, loading, error } = useSelector((state) => state.newecom);
+  const { orderListData, loading, error } = useSelector(
+    (state) => state.newecom,
+  );
 
   const [searchTerm, setSearchTerm] = useState("");
-
 
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
 
   const fetchOrders = useCallback(
     (p = page, l = limit) => {
-
       dispatch(orderList({ page: p, limit: l }))
         .unwrap?.()
         .catch((err) => {
@@ -35,7 +34,7 @@ const ManageOrder = () => {
           toast.error("Failed to fetch orders");
         });
     },
-    [dispatch, page, limit]
+    [dispatch, page, limit],
   );
 
   // load on mount + whenever page/limit changes
@@ -96,7 +95,6 @@ const ManageOrder = () => {
     });
   }, [orderListData]);
 
-
   // local filtering (within current page)
   const filteredRows = useMemo(() => {
     if (!searchTerm) return rowData;
@@ -108,7 +106,8 @@ const ManageOrder = () => {
         (r.email && r.email.toLowerCase().includes(s)) ||
         (r.phone && String(r.phone).toLowerCase().includes(s)) ||
         (r.company_name && r.company_name.toLowerCase().includes(s)) ||
-        (r.latest_order_number && r.latest_order_number.toLowerCase().includes(s))
+        (r.latest_order_number &&
+          r.latest_order_number.toLowerCase().includes(s)),
     );
   }, [rowData, searchTerm]);
 
@@ -118,7 +117,7 @@ const ManageOrder = () => {
       <div className="flex justify-center items-center">
         <button
           onClick={() => navigate(`/order/${customerId}`)}
-          className="bg-blue-500 hover:bg-blue-600 p-2 text-white rounded-full transition-colors"
+          className="bg-blue-500 hover:bg-blue-600 p-2 text-white rounded-md transition-colors"
           title="View"
         >
           <FaEye size={14} />
@@ -131,8 +130,9 @@ const ManageOrder = () => {
     const isActive = params.value === true;
     return (
       <span
-        className={`px-3 py-1 rounded-full text-white text-xs font-semibold ${isActive ? "bg-green-500" : "bg-gray-400"
-          }`}
+        className={`px-3 py-1 rounded-md text-white text-xs font-semibold ${
+          isActive ? "bg-green-500" : "bg-gray-400"
+        }`}
       >
         {isActive ? "Active" : "Inactive"}
       </span>
@@ -143,15 +143,44 @@ const ManageOrder = () => {
     {
       headerName: "Customer",
       flex: 1.2,
-      valueGetter: (p) => `${p.data.first_name || ""} ${p.data.last_name || ""}`.trim(),
+      valueGetter: (p) =>
+        `${p.data.first_name || ""} ${p.data.last_name || ""}`.trim(),
       sortable: true,
       filter: true,
       minWidth: 120,
     },
-    { field: "email", headerName: "Email", flex: 1.4, sortable: true, filter: true, minWidth: 160, },
-    { field: "phone", headerName: "Phone", flex: 1, sortable: true, filter: true, minWidth: 120 },
-    { field: "company_name", headerName: "Company", flex: 1, sortable: true, filter: true, minWidth: 160 },
-    { field: "orders_count", headerName: "Orders", width: 110, sortable: true, filter: true, minWidth: 100, },
+    {
+      field: "email",
+      headerName: "Email",
+      flex: 1.4,
+      sortable: true,
+      filter: true,
+      minWidth: 160,
+    },
+    {
+      field: "phone",
+      headerName: "Phone",
+      flex: 1,
+      sortable: true,
+      filter: true,
+      minWidth: 120,
+    },
+    {
+      field: "company_name",
+      headerName: "Company",
+      flex: 1,
+      sortable: true,
+      filter: true,
+      minWidth: 160,
+    },
+    {
+      field: "orders_count",
+      headerName: "Orders",
+      width: 110,
+      sortable: true,
+      filter: true,
+      minWidth: 100,
+    },
     {
       field: "latest_order_number",
       headerName: "Latest Order #",
@@ -160,7 +189,14 @@ const ManageOrder = () => {
       filter: true,
       minWidth: 160,
     },
-    { field: "latest_status", headerName: "Status", flex: 1, sortable: true, filter: true, minWidth: 160 },
+    {
+      field: "latest_status",
+      headerName: "Status",
+      flex: 1,
+      sortable: true,
+      filter: true,
+      minWidth: 160,
+    },
     {
       field: "latest_payment_status",
       headerName: "Payment",
@@ -169,8 +205,18 @@ const ManageOrder = () => {
       filter: true,
       minWidth: 120,
     },
-    { field: "is_active", headerName: "Account", width: 120, cellRenderer: StatusRenderer },
-    { headerName: "Actions", width: 110, pinned: "right", cellRenderer: ActionsRenderer },
+    {
+      field: "is_active",
+      headerName: "Account",
+      width: 120,
+      cellRenderer: StatusRenderer,
+    },
+    {
+      headerName: "Actions",
+      width: 110,
+      pinned: "right",
+      cellRenderer: ActionsRenderer,
+    },
   ];
 
   // ✅ AgGrid pagination -> update payload
@@ -256,7 +302,8 @@ const ManageOrder = () => {
         {searchTerm && (
           <div className="mb-4">
             <p className="text-sm text-gray-600">
-              Showing {filteredRows.length} of {rowData.length} customers (current page)
+              Showing {filteredRows.length} of {rowData.length} customers
+              (current page)
             </p>
           </div>
         )}

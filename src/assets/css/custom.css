@@ -187,11 +187,11 @@ input {
   font-weight: 500;
   margin-left: 0;
   margin-right: 0;
-  color: #23b9fb;
+  color: #646363;
 }
 .sidebar_menu ul ul li a:hover {
-  color: #ab54db;
-  background: #efe0f7;
+  color: #f20c32;
+  background: #ffe0e5;
 }
 
 .sidebar_menu ul li a.active {

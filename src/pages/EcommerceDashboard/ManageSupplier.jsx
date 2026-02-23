@@ -18,8 +18,10 @@ import { FaSearch, FaTimes, FaEye, FaEdit, FaTrash } from "react-icons/fa";
 
 const ManageSupplier = () => {
   const dispatch = useDispatch();
-  const { supplierListData, loading, error } = useSelector((state) => state.ecom);
-  
+  const { supplierListData, loading, error } = useSelector(
+    (state) => state.ecom,
+  );
+
   const [openAddSupplierModal, setOpenAddSupplierModal] = useState(false);
   const [openEditSupplierModal, setOpenEditSupplierModal] = useState(false);
   const [openDeleteModal, setOpenDeleteModal] = useState(false);
@@ -64,11 +66,12 @@ const ManageSupplier = () => {
   // Filter suppliers based on search term
   const filteredSupplierData = useMemo(() => {
     if (!searchTerm) return supplierData;
-    
+
     const searchLower = searchTerm.toLowerCase();
-    return supplierData.filter((supplier) => 
-      (supplier.name && supplier.name.toLowerCase().includes(searchLower)) ||
-      (supplier.code && supplier.code.toLowerCase().includes(searchLower))
+    return supplierData.filter(
+      (supplier) =>
+        (supplier.name && supplier.name.toLowerCase().includes(searchLower)) ||
+        (supplier.code && supplier.code.toLowerCase().includes(searchLower)),
     );
   }, [supplierData, searchTerm]);
 
@@ -136,13 +139,13 @@ const ManageSupplier = () => {
     const newStatus = !currentStatus;
 
     // Use edit action to update isActive status with proper field name
-    dispatch(supplierActiveToggle(
-      supplierId
-    ))
+    dispatch(supplierActiveToggle(supplierId))
       .unwrap()
       .then((response) => {
         console.log("Supplier status updated successfully:", response);
-        toast.success(`Supplier ${newStatus ? "activated" : "deactivated"} successfully!`);
+        toast.success(
+          `Supplier ${newStatus ? "activated" : "deactivated"} successfully!`,
+        );
         fetchSuppliers();
       })
       .catch((error) => {
@@ -154,7 +157,7 @@ const ManageSupplier = () => {
   // Handle view supplier (sample handler)
   const handleViewSupplier = (supplierId) => {
     console.log("Viewing supplier:", supplierId);
-    
+
     dispatch(supplierDetails(supplierId))
       .unwrap()
       .then((response) => {
@@ -184,7 +187,7 @@ const ManageSupplier = () => {
             ? "bg-green-500 hover:bg-green-600"
             : "bg-gray-400 hover:bg-gray-500"
         }`}
-        style={{ fontSize: '12px' }}
+        style={{ fontSize: "12px" }}
       >
         {isActive ? "Active" : "Inactive"}
       </button>
@@ -196,24 +199,24 @@ const ManageSupplier = () => {
     const supplierId = params.data.id;
 
     return (
-      <div className="flex gap-2 justify-center items-center">
+      <div className="flex gap-2 justify-center items-center mt-2">
         <button
           onClick={() => handleViewSupplier(supplierId)}
-          className="bg-blue-500 hover:bg-blue-600 p-2 text-white rounded-full transition-colors"
+          className="bg-blue-500 hover:bg-blue-600 p-2 text-white rounded-md transition-colors"
           title="View"
         >
           <FaEye size={14} />
         </button>
         <button
           onClick={() => handleEditSupplier(supplierId)}
-          className="bg-yellow-500 hover:bg-yellow-600 p-2 text-white rounded-full transition-colors"
+          className="bg-yellow-500 hover:bg-yellow-600 p-2 text-white rounded-md transition-colors"
           title="Edit"
         >
           <FaEdit size={14} />
         </button>
         <button
           onClick={() => handleDeleteSupplier(supplierId)}
-          className="bg-red-500 hover:bg-red-600 p-2 text-white rounded-full transition-colors"
+          className="bg-red-500 hover:bg-red-600 p-2 text-white rounded-md transition-colors"
           title="Delete"
         >
           <FaTrash size={14} />
@@ -310,7 +313,8 @@ const ManageSupplier = () => {
           {searchTerm && (
             <div className="mb-4">
               <p className="text-sm text-gray-600">
-                Showing {filteredSupplierData.length} of {supplierData.length} suppliers
+                Showing {filteredSupplierData.length} of {supplierData.length}{" "}
+                suppliers
               </p>
             </div>
           )}
@@ -340,7 +344,6 @@ const ManageSupplier = () => {
             onSupplierAdded={fetchSuppliers}
             supplierData={null}
             isEdit={false}
-            
           />
         )}
 

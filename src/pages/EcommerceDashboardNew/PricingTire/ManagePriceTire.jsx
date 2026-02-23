@@ -1,7 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
 import { useSelector } from "react-redux";
 import { useDispatch } from "react-redux";
-import { priceTierList, primaryDecorationList } from "../../../Reducer/ManagePriceTireNewSlice";
+import {
+  priceTierList,
+  primaryDecorationList,
+} from "../../../Reducer/ManagePriceTireNewSlice";
 import { FaEdit, FaEye, FaSearch, FaTimes, FaTrash } from "react-icons/fa";
 import { Button } from "flowbite-react";
 import { AgGridReact } from "ag-grid-react";
@@ -9,32 +12,33 @@ import Loader from "../../../components/Loader";
 import AddPriceModal from "./AddPriceModal";
 import { brandList, hatList } from "../../../Reducer/EcommerceNewSlice";
 
-const ManagePriceTire=()=>{
-
+const ManagePriceTire = () => {
   const dispatch = useDispatch();
-  const { decoList, loading, error ,allPriceTierList} = useSelector((state) => state.decoration);
-    const { hatListData, brandListData } = useSelector((state) => state.newecom);
-  
+  const { decoList, loading, error, allPriceTierList } = useSelector(
+    (state) => state.decoration,
+  );
+  const { hatListData, brandListData } = useSelector((state) => state.newecom);
+
   const [openAddPriceModal, setOpenAddPriceModal] = useState(false);
   const [openEditbrandModal, setOpenEditbrandModal] = useState(false);
   const [openDeleteModal, setOpenDeleteModal] = useState(false);
   const [selectedbrandData, setSelectedbrandData] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
 
-  useEffect(()=>{
-dispatch(priceTierList({page:1,limit:20}))
-  },[])
-  useEffect(()=>{
-dispatch(hatList())
-  },[])
+  useEffect(() => {
+    dispatch(priceTierList({ page: 1, limit: 20 }));
+  }, []);
+  useEffect(() => {
+    dispatch(hatList());
+  }, []);
 
-  useEffect(()=>{
-dispatch(primaryDecorationList({page:1,limit:10}))
-  },[])
-  console.log("allPriceTierList",allPriceTierList);
-  
+  useEffect(() => {
+    dispatch(primaryDecorationList({ page: 1, limit: 10 }));
+  }, []);
+  console.log("allPriceTierList", allPriceTierList);
+
   // Extract and transform brand list from response
-// Extract and transform price tier list from response
+  // Extract and transform price tier list from response
   const brandData = useMemo(() => {
     if (allPriceTierList?.data && Array.isArray(allPriceTierList.data)) {
       // Transform the nested structure to flat structure for AG Grid
@@ -75,12 +79,14 @@ dispatch(primaryDecorationList({page:1,limit:10}))
   // Filter brands based on search term
   const filteredbrandData = useMemo(() => {
     if (!searchTerm) return brandData;
-    
+
     const searchLower = searchTerm.toLowerCase();
-    return brandData.filter((brand) => 
-      (brand.name && brand.name.toLowerCase().includes(searchLower)) ||
-      (brand.code && brand.code.toLowerCase().includes(searchLower)) ||
-      (brand.websiteURL && brand.websiteURL.toLowerCase().includes(searchLower)) 
+    return brandData.filter(
+      (brand) =>
+        (brand.name && brand.name.toLowerCase().includes(searchLower)) ||
+        (brand.code && brand.code.toLowerCase().includes(searchLower)) ||
+        (brand.websiteURL &&
+          brand.websiteURL.toLowerCase().includes(searchLower)),
     );
   }, [brandData, searchTerm]);
 
@@ -102,8 +108,8 @@ dispatch(primaryDecorationList({page:1,limit:10}))
         name: brand.name,
         code: brand.code,
         isActive: brand.isActive,
-        website_url:brand.websiteURL,
-        image_url:brand.imageURL
+        website_url: brand.websiteURL,
+        image_url: brand.imageURL,
       });
       setOpenEditbrandModal(true);
     } else {
@@ -149,13 +155,13 @@ dispatch(primaryDecorationList({page:1,limit:10}))
     const newStatus = !currentStatus;
 
     // Use edit action to update isActive status with proper field name
-    dispatch(brandActiveToggle(
-      brandId
-    ))
+    dispatch(brandActiveToggle(brandId))
       .unwrap()
       .then((response) => {
         console.log("brand status updated successfully:", response);
-        toast.success(`brand ${newStatus ? "activated" : "deactivated"} successfully!`);
+        toast.success(
+          `brand ${newStatus ? "activated" : "deactivated"} successfully!`,
+        );
         fechBrands();
       })
       .catch((error) => {
@@ -167,7 +173,7 @@ dispatch(primaryDecorationList({page:1,limit:10}))
   // Handle view brand (sample handler)
   const handleViewbrand = (brandId) => {
     console.log("Viewing brand:", brandId);
-    
+
     dispatch(brandDetails(brandId))
       .unwrap()
       .then((response) => {
@@ -192,12 +198,12 @@ dispatch(primaryDecorationList({page:1,limit:10}))
     return (
       <button
         onClick={() => handleToggleActive(brandId, isActive)}
-        className={`px-4 py-1 rounded-full text-white text-xs font-semibold transition-colors ${
+        className={`px-4 py-1 rounded-md text-white text-xs font-semibold transition-colors ${
           isActive
             ? "bg-green-500 hover:bg-green-600"
             : "bg-gray-400 hover:bg-gray-500"
         }`}
-        style={{ fontSize: '12px' }}
+        style={{ fontSize: "12px" }}
       >
         {isActive ? "Active" : "Inactive"}
       </button>
@@ -209,24 +215,24 @@ dispatch(primaryDecorationList({page:1,limit:10}))
     const brandId = params.data.id;
 
     return (
-      <div className="flex gap-2 justify-center items-center">
+      <div className="flex gap-2 justify-center items-center mt-2">
         <button
           onClick={() => handleViewbrand(brandId)}
-          className="bg-blue-500 hover:bg-blue-600 p-2 text-white rounded-full transition-colors"
+          className="bg-blue-500 hover:bg-blue-600 p-2 text-white rounded-md transition-colors"
           title="View"
         >
           <FaEye size={14} />
         </button>
         <button
           onClick={() => handleEditbrand(brandId)}
-          className="bg-yellow-500 hover:bg-yellow-600 p-2 text-white rounded-full transition-colors"
+          className="bg-[#b4b4b4] hover:bg-[#929292] p-2 text-white rounded-md transition-colors"
           title="Edit"
         >
           <FaEdit size={14} />
         </button>
         <button
           onClick={() => handleDeletebrand(brandId)}
-          className="bg-red-500 hover:bg-red-600 p-2 text-white rounded-full transition-colors"
+          className="bg-red-500 hover:bg-red-600 p-2 text-white rounded-md transition-colors"
           title="Delete"
         >
           <FaTrash size={14} />
@@ -264,8 +270,8 @@ dispatch(primaryDecorationList({page:1,limit:10}))
       filter: true,
       flex: 1,
     },
-    
-     {
+
+    {
       field: "displayLabel",
       headerName: "Display Label",
       sortable: true,
@@ -279,7 +285,7 @@ dispatch(primaryDecorationList({page:1,limit:10}))
       filter: true,
       flex: 1,
     },
-    
+
     {
       field: "isActive",
       headerName: "Status",
@@ -375,20 +381,19 @@ dispatch(primaryDecorationList({page:1,limit:10}))
           </div>
         </div>
 
-         {openAddPriceModal && (
+        {openAddPriceModal && (
           <AddPriceModal
             openAddPriceModal={openAddPriceModal}
             setOpenAddPriceModal={setOpenAddPriceModal}
-           // onbrandAdded={fechBrands}
+            // onbrandAdded={fechBrands}
             brandData={null}
             isEdit={false}
             hatListData={hatListData}
             decoList={decoList}
-            
           />
         )}
 
-{/*       
+        {/*       
         {openAddbrandModal && (
           <AddbrandModal
             openModal={openAddbrandModal}
@@ -423,5 +428,5 @@ dispatch(primaryDecorationList({page:1,limit:10}))
       </div>
     </>
   );
-}
-export default ManagePriceTire
+};
+export default ManagePriceTire;

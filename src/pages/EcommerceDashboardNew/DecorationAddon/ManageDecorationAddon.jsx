@@ -21,11 +21,11 @@ import { useNavigate } from "react-router-dom";
 
 const ManageDecorationAddon = () => {
   const dispatch = useDispatch();
-  const navigate=useNavigate()
+  const navigate = useNavigate();
 
   //  store: decaddon (as you said)
   const { decorationaddonListData, loading, error } = useSelector(
-    (state) => state.decaddon
+    (state) => state.decaddon,
   );
 
   const [openAddModal, setOpenAddModal] = useState(false);
@@ -35,7 +35,10 @@ const ManageDecorationAddon = () => {
   const [searchTerm, setSearchTerm] = useState("");
 
   const addonData = useMemo(() => {
-    if (decorationaddonListData?.data && Array.isArray(decorationaddonListData.data)) {
+    if (
+      decorationaddonListData?.data &&
+      Array.isArray(decorationaddonListData.data)
+    ) {
       return decorationaddonListData.data.map((item) => ({
         id: item?.id,
         name: item?.name || "",
@@ -73,7 +76,7 @@ const ManageDecorationAddon = () => {
       (a) =>
         (a.name && a.name.toLowerCase().includes(s)) ||
         (a.code && a.code.toLowerCase().includes(s)) ||
-        (a.type && a.type.toLowerCase().includes(s))
+        (a.type && a.type.toLowerCase().includes(s)),
     );
   }, [addonData, searchTerm]);
 
@@ -150,7 +153,9 @@ const ManageDecorationAddon = () => {
     //     toast.error("Failed to update status. Please try again.");
     //   });
 
-    toast.info("Hook up decorationaddonActiveToggle() in slice to enable status toggle.");
+    toast.info(
+      "Hook up decorationaddonActiveToggle() in slice to enable status toggle.",
+    );
   };
 
   const handleViewAddon = (addonId) => {
@@ -180,8 +185,10 @@ const ManageDecorationAddon = () => {
     return (
       <button
         onClick={() => handleToggleActive(addonId, isActive)}
-        className={`px-4 py-1 rounded-full text-white text-xs font-semibold transition-colors ${
-          isActive ? "bg-green-500 hover:bg-green-600" : "bg-gray-400 hover:bg-gray-500"
+        className={`px-4 py-1 rounded-md text-white text-xs font-semibold transition-colors ${
+          isActive
+            ? "bg-green-500 hover:bg-green-600"
+            : "bg-gray-400 hover:bg-gray-500"
         }`}
         style={{ fontSize: "12px" }}
       >
@@ -194,10 +201,10 @@ const ManageDecorationAddon = () => {
     const addonId = params.data.id;
 
     return (
-      <div className="flex gap-2 justify-center items-center">
+      <div className="flex gap-2 justify-center items-center mt-2">
         <button
           onClick={() => handleViewAddon(addonId)}
-          className="bg-blue-500 hover:bg-blue-600 p-2 text-white rounded-full transition-colors"
+          className="bg-blue-500 hover:bg-blue-600 p-2 text-white rounded-md transition-colors"
           title="View"
         >
           <FaEye size={14} />
@@ -205,7 +212,7 @@ const ManageDecorationAddon = () => {
 
         <button
           onClick={() => handleEditAddon(addonId)}
-          className="bg-yellow-500 hover:bg-yellow-600 p-2 text-white rounded-full transition-colors"
+          className="bg-yellow-500 hover:bg-yellow-600 p-2 text-white rounded-md transition-colors"
           title="Edit"
         >
           <FaEdit size={14} />
@@ -213,7 +220,7 @@ const ManageDecorationAddon = () => {
 
         <button
           onClick={() => handleDeleteAddon(addonId)}
-          className="bg-red-500 hover:bg-red-600 p-2 text-white rounded-full transition-colors"
+          className="bg-red-500 hover:bg-red-600 p-2 text-white rounded-md transition-colors"
           title="Delete"
         >
           <FaTrash size={14} />
@@ -223,10 +230,34 @@ const ManageDecorationAddon = () => {
   };
 
   const columnDefs = [
-    { field: "name", headerName: "Name", sortable: true, filter: true, flex: 1 },
-    { field: "code", headerName: "Code", sortable: true, filter: true, flex: 1 },
-    { field: "type", headerName: "Type", sortable: true, filter: true, flex: 1 },
-    { field: "description", headerName: "Description", sortable: true, filter: true, flex: 2 },
+    {
+      field: "name",
+      headerName: "Name",
+      sortable: true,
+      filter: true,
+      flex: 1,
+    },
+    {
+      field: "code",
+      headerName: "Code",
+      sortable: true,
+      filter: true,
+      flex: 1,
+    },
+    {
+      field: "type",
+      headerName: "Type",
+      sortable: true,
+      filter: true,
+      flex: 1,
+    },
+    {
+      field: "description",
+      headerName: "Description",
+      sortable: true,
+      filter: true,
+      flex: 2,
+    },
     {
       field: "isActive",
       headerName: "Status",
@@ -306,7 +337,10 @@ const ManageDecorationAddon = () => {
             </div>
           )}
 
-          <div className="ag-theme-alpine" style={{ height: 600, width: "100%" }}>
+          <div
+            className="ag-theme-alpine"
+            style={{ height: 600, width: "100%" }}
+          >
             <AgGridReact
               rowData={filteredAddonData}
               columnDefs={columnDefs}
@@ -341,12 +375,17 @@ const ManageDecorationAddon = () => {
 
         {/* Delete Confirm Modal */}
         {openDeleteModal && selectedAddonData && (
-          <Modal show={openDeleteModal} onClose={() => setOpenDeleteModal(false)} size="md">
+          <Modal
+            show={openDeleteModal}
+            onClose={() => setOpenDeleteModal(false)}
+            size="md"
+          >
             <Modal.Header>Confirm Delete</Modal.Header>
             <Modal.Body>
               <p className="text-sm text-gray-700">
                 Are you sure you want to delete{" "}
-                <span className="font-semibold">{selectedAddonData?.name}</span>?
+                <span className="font-semibold">{selectedAddonData?.name}</span>
+                ?
               </p>
 
               <div className="flex justify-end gap-3 pt-6">
