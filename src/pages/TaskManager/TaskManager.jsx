@@ -1,10 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useSelector } from "react-redux";
-import {
-  changeStatus,
-  getMoodMaster
-} from "../../Reducer/MoodMasterSlice";
+import { changeStatus, getMoodMaster } from "../../Reducer/MoodMasterSlice";
 import { addRep } from "../../Reducer/AddSlice";
 import { AgGridReact } from "ag-grid-react";
 import { ToastContainer, toast } from "react-toastify";
@@ -23,31 +20,37 @@ const TaskManager = () => {
   const [openUpdateMoodMasterModal, setOpenUpdateMoodMasterModal] =
     useState(false);
 
-    const [repData, setRepData] = useState([]);
-    const [isLoading, setIsLoading] = useState(true);
+  const [repData, setRepData] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   // React Hook Form setup
-  const { register, handleSubmit, reset, formState: { errors } } = useForm();
-  const {loading} = useSelector((state)=>state.add);
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm();
+  const { loading } = useSelector((state) => state.add);
   // Form submission handler
-  const onSubmit = (data)=>{
+  const onSubmit = (data) => {
     dispatch(addRep(data))
-    .then((res) => {
-      console.log("res", res);
-      toast.success(res?.payload?.message);
-      reset();
-      setOpenMoodMasterModal(false);
-      // axios.get("https://n8n.bestworks.cloud/webhook/airtable-rep-fetch")
-    })
-    .catch((err) => {
-      console.log("err", err);
-      toast.error(res?.payload?.message);
-    });
-  }
+      .then((res) => {
+        console.log("res", res);
+        toast.success(res?.payload?.message);
+        reset();
+        setOpenMoodMasterModal(false);
+        // axios.get("https://n8n.bestworks.cloud/webhook/airtable-rep-fetch")
+      })
+      .catch((err) => {
+        console.log("err", err);
+        toast.error(res?.payload?.message);
+      });
+  };
 
   useEffect(() => {
     setIsLoading(true);
-    axios.get("https://n8n.bestworks.cloud/webhook/airtable-rep-fetch")
+    axios
+      .get("https://n8n.bestworks.cloud/webhook/airtable-rep-fetch")
       .then((res) => {
         console.log("res", res.data);
         setRepData(res.data);
@@ -62,61 +65,63 @@ const TaskManager = () => {
   }, []);
   console.log("repData", repData);
 
-//   const rowData = useMemo(() => {
-//     return (
-//       moodsList?.data?.map((tags) => ({
-//         id: tags?.id,
-//         mood_master_name: tags?.mood_master_name,
-//         mood_master_description: tags?.mood_master_description,
-//         mood_master_color_code: tags?.mood_master_color_code,
-//         mood_master_icon:
-//           "https://goodmoodapi.bestworks.cloud/" + tags?.mood_master_icon,
-//         status: tags.status,
-//       })) || []
-//     );
-//   }, [moodsList?.data]);
+  //   const rowData = useMemo(() => {
+  //     return (
+  //       moodsList?.data?.map((tags) => ({
+  //         id: tags?.id,
+  //         mood_master_name: tags?.mood_master_name,
+  //         mood_master_description: tags?.mood_master_description,
+  //         mood_master_color_code: tags?.mood_master_color_code,
+  //         mood_master_icon:
+  //           "https://goodmoodapi.bestworks.cloud/" + tags?.mood_master_icon,
+  //         status: tags.status,
+  //       })) || []
+  //     );
+  //   }, [moodsList?.data]);
 
   // Custom cell renderer for Lead Status
   const StatusRenderer = (params) => {
     const status = params.value;
-    
+
     // Define vibrant colors for each status with white text
     const getStatusStyle = (status) => {
       const statusStyles = {
         "Sample Submitted": {
           backgroundColor: "#3B82F6", // Vibrant blue
-          color: "#FFFFFF"
+          color: "#FFFFFF",
         },
         "Sample Art Approved": {
           backgroundColor: "#06B6D4", // Vibrant green
-          color: "#FFFFFF"
+          color: "#FFFFFF",
         },
         "Sample Shipped": {
           backgroundColor: "#F59E0B", // Vibrant orange
-          color: "#FFFFFF"
+          color: "#FFFFFF",
         },
         "Sample Delivered": {
           backgroundColor: "#10B981", // Vibrant cyan
-          color: "#FFFFFF"
+          color: "#FFFFFF",
         },
         "Nurture Sequence": {
           backgroundColor: "#8B5CF6", // Vibrant purple
-          color: "#FFFFFF"
+          color: "#FFFFFF",
         },
         "Warm Lead": {
           backgroundColor: "#EF4444", // Vibrant red
-          color: "#FFFFFF"
+          color: "#FFFFFF",
         },
         "Cold Lead": {
           backgroundColor: "#EC4899", // Vibrant pink
-          color: "#FFFFFF"
+          color: "#FFFFFF",
+        },
+      };
+
+      return (
+        statusStyles[status] || {
+          backgroundColor: "#6B7280", // Default gray
+          color: "#FFFFFF",
         }
-      };
-      
-      return statusStyles[status] || {
-        backgroundColor: "#6B7280", // Default gray
-        color: "#FFFFFF"
-      };
+      );
     };
 
     const style = getStatusStyle(status);
@@ -135,7 +140,7 @@ const TaskManager = () => {
           textAlign: "center",
           minWidth: "140px",
           boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)", // Subtle shadow for depth
-          ...style
+          ...style,
         }}
       >
         {status}
@@ -146,7 +151,7 @@ const TaskManager = () => {
   // Custom cell renderer for Assigned Leads array
   const AssignedLeadsRenderer = (params) => {
     const assignedLeads = params.value;
-    
+
     // Check if it's an array
     if (!Array.isArray(assignedLeads)) {
       return <div>No leads assigned</div>;
@@ -155,7 +160,7 @@ const TaskManager = () => {
     // Single color for all lead badges
     const badgeStyle = {
       backgroundColor: "#3B82F6", // Vibrant blue
-      color: "#FFFFFF"
+      color: "#FFFFFF",
     };
 
     return (
@@ -176,7 +181,7 @@ const TaskManager = () => {
                 textAlign: "center",
                 minWidth: "80px",
                 boxShadow: "0 1px 3px rgba(0, 0, 0, 0.1)",
-                ...badgeStyle
+                ...badgeStyle,
               }}
             >
               {leadId.substring(0, 8)}...
@@ -305,15 +310,15 @@ const TaskManager = () => {
         },
       },
     ],
-    []
+    [],
   );
 
-//   const handleUpdateMoodMaster = (id) => {
-//     console.log(id, "id");
-//     setOpenUpdateMoodMasterModal(true);
-//     setMoodMasterId(id);
-//     dispatch(getMoodMasterSingle({ user_input: id }));
-//   };
+  //   const handleUpdateMoodMaster = (id) => {
+  //     console.log(id, "id");
+  //     setOpenUpdateMoodMasterModal(true);
+  //     setMoodMasterId(id);
+  //     dispatch(getMoodMasterSingle({ user_input: id }));
+  //   };
 
   // Show loader while data is being fetched
   if (isLoading) {
@@ -328,7 +333,7 @@ const TaskManager = () => {
 
   return (
     <>
-       <>
+      <>
         <ToastContainer />
         <div className="wrapper_area my-0 mx-auto p-6 rounded-xl bg-white">
           <div className="h-full lg:h-screen">
@@ -357,28 +362,33 @@ const TaskManager = () => {
           </div>
           {/* Add Rep Modal */}
           {openMoodMasterModal && (
-            <div style={{
-              position: 'fixed',
-              top: 0,
-              left: 0,
-              right: 0,
-              bottom: 0,
-              backgroundColor: 'rgba(0, 0, 0, 0.5)',
-              backdropFilter: 'blur(4px)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              zIndex: 1000
-            }}>
-              <div style={{
-                backgroundColor: 'white',
-                borderRadius: '12px',
-                padding: '24px',
-                width: '90%',
-                maxWidth: '500px',
-                boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
-                position: 'relative'
-              }}>
+            <div
+              style={{
+                position: "fixed",
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                backgroundColor: "rgba(0, 0, 0, 0.5)",
+                backdropFilter: "blur(4px)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                zIndex: 1000,
+              }}
+            >
+              <div
+                style={{
+                  backgroundColor: "white",
+                  borderRadius: "12px",
+                  padding: "24px",
+                  width: "90%",
+                  maxWidth: "500px",
+                  boxShadow:
+                    "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)",
+                  position: "relative",
+                }}
+              >
                 {/* Close Button */}
                 <button
                   onClick={() => {
@@ -386,67 +396,90 @@ const TaskManager = () => {
                     reset();
                   }}
                   style={{
-                    position: 'absolute',
-                    top: '16px',
-                    right: '16px',
-                    background: 'none',
-                    border: 'none',
-                    fontSize: '24px',
-                    cursor: 'pointer',
-                    color: '#6b7280',
-                    padding: '4px'
+                    position: "absolute",
+                    top: "16px",
+                    right: "16px",
+                    background: "none",
+                    border: "none",
+                    fontSize: "24px",
+                    cursor: "pointer",
+                    color: "#6b7280",
+                    padding: "4px",
                   }}
                 >
                   ×
                 </button>
 
                 {/* Modal Header */}
-                <div style={{ marginBottom: '20px' }}>
-                  <h2 style={{
-                    fontSize: '20px',
-                    fontWeight: '700',
-                    color: '#1f2937',
-                    margin: 0
-                  }}>
+                <div style={{ marginBottom: "20px" }}>
+                  <h2
+                    style={{
+                      fontSize: "20px",
+                      fontWeight: "700",
+                      color: "#1f2937",
+                      margin: 0,
+                    }}
+                  >
                     Add New Rep
                   </h2>
-                  <p style={{
-                    fontSize: '14px',
-                    color: '#6b7280',
-                    margin: '4px 0 0 0'
-                  }}>
+                  <p
+                    style={{
+                      fontSize: "14px",
+                      color: "#6b7280",
+                      margin: "4px 0 0 0",
+                    }}
+                  >
                     Add a new sales representative to the system
                   </p>
                 </div>
 
                 {/* Form */}
-                <form onSubmit={handleSubmit(onSubmit)} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                <form
+                  onSubmit={handleSubmit(onSubmit)}
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: "16px",
+                  }}
+                >
                   {/* Rep Name Field */}
                   <div>
-                    <label style={{
-                      display: 'block',
-                      fontSize: '14px',
-                      fontWeight: '600',
-                      color: '#374151',
-                      marginBottom: '6px'
-                    }}>
+                    <label
+                      style={{
+                        display: "block",
+                        fontSize: "14px",
+                        fontWeight: "600",
+                        color: "#374151",
+                        marginBottom: "6px",
+                      }}
+                    >
                       Rep Name *
                     </label>
                     <input
                       type="text"
-                      {...register('name', { required: 'Rep name is required' })}
+                      {...register("name", {
+                        required: "Rep name is required",
+                      })}
                       style={{
-                        width: '100%',
-                        padding: '10px 12px',
-                        border: errors.rep_name ? '1px solid #ef4444' : '1px solid #d1d5db',
-                        borderRadius: '6px',
-                        fontSize: '14px',
-                        outline: 'none',
-                        transition: 'border-color 0.2s'
+                        width: "100%",
+                        padding: "10px 12px",
+                        border: errors.rep_name
+                          ? "1px solid #ef4444"
+                          : "1px solid #d1d5db",
+                        borderRadius: "6px",
+                        fontSize: "14px",
+                        outline: "none",
+                        transition: "border-color 0.2s",
                       }}
                     />
                     {errors.rep_name && (
-                      <p style={{ color: '#ef4444', fontSize: '12px', marginTop: '4px' }}>
+                      <p
+                        style={{
+                          color: "#ef4444",
+                          fontSize: "12px",
+                          marginTop: "4px",
+                        }}
+                      >
                         {errors.rep_name.message}
                       </p>
                     )}
@@ -454,36 +487,46 @@ const TaskManager = () => {
 
                   {/* Email Field */}
                   <div>
-                    <label style={{
-                      display: 'block',
-                      fontSize: '14px',
-                      fontWeight: '600',
-                      color: '#374151',
-                      marginBottom: '6px'
-                    }}>
+                    <label
+                      style={{
+                        display: "block",
+                        fontSize: "14px",
+                        fontWeight: "600",
+                        color: "#374151",
+                        marginBottom: "6px",
+                      }}
+                    >
                       Email Address *
                     </label>
                     <input
                       type="email"
-                      {...register('email', { 
-                        required: 'Email is required',
+                      {...register("email", {
+                        required: "Email is required",
                         pattern: {
                           value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                          message: 'Invalid email address'
-                        }
+                          message: "Invalid email address",
+                        },
                       })}
                       style={{
-                        width: '100%',
-                        padding: '10px 12px',
-                        border: errors.email ? '1px solid #ef4444' : '1px solid #d1d5db',
-                        borderRadius: '6px',
-                        fontSize: '14px',
-                        outline: 'none',
-                        transition: 'border-color 0.2s'
+                        width: "100%",
+                        padding: "10px 12px",
+                        border: errors.email
+                          ? "1px solid #ef4444"
+                          : "1px solid #d1d5db",
+                        borderRadius: "6px",
+                        fontSize: "14px",
+                        outline: "none",
+                        transition: "border-color 0.2s",
                       }}
                     />
                     {errors.email && (
-                      <p style={{ color: '#ef4444', fontSize: '12px', marginTop: '4px' }}>
+                      <p
+                        style={{
+                          color: "#ef4444",
+                          fontSize: "12px",
+                          marginTop: "4px",
+                        }}
+                      >
                         {errors.email.message}
                       </p>
                     )}
@@ -491,30 +534,42 @@ const TaskManager = () => {
 
                   {/* Phone Field */}
                   <div>
-                    <label style={{
-                      display: 'block',
-                      fontSize: '14px',
-                      fontWeight: '600',
-                      color: '#374151',
-                      marginBottom: '6px'
-                    }}>
+                    <label
+                      style={{
+                        display: "block",
+                        fontSize: "14px",
+                        fontWeight: "600",
+                        color: "#374151",
+                        marginBottom: "6px",
+                      }}
+                    >
                       Phone Number *
                     </label>
                     <input
                       type="tel"
-                      {...register('phone', { required: 'Phone number is required' })}
+                      {...register("phone", {
+                        required: "Phone number is required",
+                      })}
                       style={{
-                        width: '100%',
-                        padding: '10px 12px',
-                        border: errors.phone ? '1px solid #ef4444' : '1px solid #d1d5db',
-                        borderRadius: '6px',
-                        fontSize: '14px',
-                        outline: 'none',
-                        transition: 'border-color 0.2s'
+                        width: "100%",
+                        padding: "10px 12px",
+                        border: errors.phone
+                          ? "1px solid #ef4444"
+                          : "1px solid #d1d5db",
+                        borderRadius: "6px",
+                        fontSize: "14px",
+                        outline: "none",
+                        transition: "border-color 0.2s",
                       }}
                     />
                     {errors.phone && (
-                      <p style={{ color: '#ef4444', fontSize: '12px', marginTop: '4px' }}>
+                      <p
+                        style={{
+                          color: "#ef4444",
+                          fontSize: "12px",
+                          marginTop: "4px",
+                        }}
+                      >
                         {errors.phone.message}
                       </p>
                     )}
@@ -548,12 +603,14 @@ const TaskManager = () => {
                   </div> */}
 
                   {/* Action Buttons */}
-                  <div style={{
-                    display: 'flex',
-                    gap: '12px',
-                    justifyContent: 'flex-end',
-                    marginTop: '8px'
-                  }}>
+                  <div
+                    style={{
+                      display: "flex",
+                      gap: "12px",
+                      justifyContent: "flex-end",
+                      marginTop: "8px",
+                    }}
+                  >
                     <button
                       type="button"
                       onClick={() => {
@@ -561,15 +618,15 @@ const TaskManager = () => {
                         reset();
                       }}
                       style={{
-                        padding: '10px 20px',
-                        border: '1px solid #d1d5db',
-                        borderRadius: '6px',
-                        fontSize: '14px',
-                        fontWeight: '600',
-                        color: '#374151',
-                        background: 'white',
-                        cursor: 'pointer',
-                        transition: 'all 0.2s'
+                        padding: "10px 20px",
+                        border: "1px solid #d1d5db",
+                        borderRadius: "6px",
+                        fontSize: "14px",
+                        fontWeight: "600",
+                        color: "#374151",
+                        background: "white",
+                        cursor: "pointer",
+                        transition: "all 0.2s",
                       }}
                     >
                       Cancel
@@ -578,18 +635,19 @@ const TaskManager = () => {
                       type="submit"
                       disabled={loading}
                       style={{
-                        padding: '10px 20px',
-                        border: 'none',
-                        borderRadius: '6px',
-                        fontSize: '14px',
-                        fontWeight: '600',
-                        color: 'white',
-                        background: 'linear-gradient(135deg, #f20c32 0%, #dc2626 100%)',
-                        cursor: 'pointer',
-                        transition: 'all 0.2s'
+                        padding: "10px 20px",
+                        border: "none",
+                        borderRadius: "6px",
+                        fontSize: "14px",
+                        fontWeight: "600",
+                        color: "white",
+                        background:
+                          "linear-gradient(135deg, #f20c32 0%, #dc2626 100%)",
+                        cursor: "pointer",
+                        transition: "all 0.2s",
                       }}
                     >
-                      {loading?"Processing...":"Add Rep"}
+                      {loading ? "Processing..." : "Add Rep"}
                     </button>
                   </div>
                 </form>
@@ -597,9 +655,8 @@ const TaskManager = () => {
             </div>
           )}
         </div>
-      </> 
-    
+      </>
     </>
   );
 };
-export default TaskManager
+export default TaskManager;

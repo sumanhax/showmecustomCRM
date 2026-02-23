@@ -276,11 +276,13 @@ const ManageWareHouse = () => {
     <>
       <div className="wrapper_area my-0 mx-auto p-6 rounded-xl bg-white">
         <div className="h-full lg:h-screen">
-          <div className="flex justify-between items-center mb-4 gap-4 relative">
-            <h1 className="text-2xl font-semibold">Manage Warehouse</h1>
+          <div className="lg:flex justify-between items-center mb-4 gap-4 relative">
+            <h1 className="text-xl lg:text-2xl font-semibold pb-1 lg:pb-0">
+              Manage Warehouse
+            </h1>
 
             {/* Search Bar in the middle */}
-            <div className="flex-1 max-w-md">
+            <div className="flex-1 max-w-md mb-2 lg:mb-0">
               <div className="relative">
                 <input
                   type="text"
