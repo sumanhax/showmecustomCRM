@@ -17,13 +17,14 @@ import {
   hatSingle,
   brandList,
   hatDelete,
+  hatSingleForEdit,
 } from "../../../Reducer/EcommerceNewSlice";
 // import { hatAdd, hatList } from "../../../Reducer/EcommerceNewSlice";
 
 const ManageHat = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { hatListData, loading, brandListData } = useSelector(
+  const { hatListData, loading, brandListData,hatSingleData } = useSelector(
     (state) => state.newecom,
   );
 
@@ -133,17 +134,17 @@ const ManageHat = () => {
 
   // Handle edit hat
   const handleEditHat = (hatId) => {
-    console.log("handleEditHat called with hatId:", hatId);
-    const hat = hatData.find((h) => h.id === hatId);
-    console.log("Found hat:", hat);
-    if (hat) {
-      setSelectedHatData(hat);
-      setOpenEditHatModal(true);
-    } else {
-      console.log("Hat not found");
-      toast.error("Hat not found");
-    }
+   
+
+    dispatch(hatSingleForEdit(hatId)).then((res)=>{
+      if(res?.payload?.status_code===200){
+      setSelectedHatData(hatId);
+    setOpenEditHatModal(true);
+      }
+    })
   };
+  console.log("hatSingleData",hatSingleData);
+  
 
   // Handle delete hat
   const handleDeleteHat = (hatId) => {
@@ -337,11 +338,11 @@ const ManageHat = () => {
     <>
       <div className="wrapper_area my-0 mx-auto p-6 rounded-xl bg-white">
         <div className="h-full lg:h-screen">
-          <div className="flex justify-between items-center mb-4 gap-4 relative">
+          <div className="lg:flex justify-between items-center mb-4 gap-4 relative">
             <h1 className="text-2xl font-semibold">Manage Hats</h1>
 
             {/* Search Bar in the middle */}
-            <div className="flex-1 max-w-md">
+            <div className="flex-1 max-w-md mb-2 lg:mb-0">
               <div className="relative">
                 <input
                   type="text"

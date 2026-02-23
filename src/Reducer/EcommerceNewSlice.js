@@ -176,6 +176,46 @@ export const hatSingle = createAsyncThunk(
         }
     }
 )
+
+export const hatSingleForEdit = createAsyncThunk(
+    'ecommerce/hatSingleForEdit',
+    async (id, { rejectWithValue }) => {
+        try {
+            const response = await api.get(`/postgresapi/admin/hat/detail?hat_id=${id}`);
+            if (response?.data?.status_code === 201 || response?.data?.status_code === 200) {
+                return response.data;
+            } else {
+                if (response?.data?.errors) {
+                    return rejectWithValue(response.data.errors);
+                } else {
+                    return rejectWithValue('Something went wrong.');
+                }
+            }
+        } catch (err) {
+            return rejectWithValue(err);
+        }
+    }
+)
+
+export const hatUpdate = createAsyncThunk(
+    'ecommerce/hatUpdate',
+    async (userInput, { rejectWithValue }) => {
+        try {
+            const response = await api.post(`/postgresapi/admin/hat/update`,userInput);
+            if (response?.data?.status_code === 201 || response?.data?.status_code === 200) {
+                return response.data;
+            } else {
+                if (response?.data?.errors) {
+                    return rejectWithValue(response.data.errors);
+                } else {
+                    return rejectWithValue('Something went wrong.');
+                }
+            }
+        } catch (err) {
+            return rejectWithValue(err);
+        }
+    }
+)
 export const hatDelete = createAsyncThunk(
     'ecommerce/hatDelete',
     async (id, { rejectWithValue }) => {
@@ -365,6 +405,8 @@ const initialState = {
     hatImageGetData:{},
     orderListData:{},
     orderSingleData:{},
+    updateHatData:"",
+    hatSingleForEditData:{}
 }
 
 //slice part
@@ -600,6 +642,36 @@ const AddSlice = createSlice(
                 state.loading = false;
                 state.error = payload;
             })
+            .addCase(hatUpdate.pending, (state) => {
+                state.message = null
+                state.loading = true;
+                state.error = null
+            })
+            .addCase(hatUpdate.fulfilled, (state, { payload }) => {
+                state.loading = false;
+                state.message = payload;
+                state.updateHatData=payload
+            })
+            .addCase(hatUpdate.rejected, (state, { payload }) => {
+                state.loading = false;
+                state.error = payload;
+            })
+                .addCase(hatSingleForEdit.pending, (state) => {
+                state.message = null
+                state.loading = true;
+                state.error = null
+            })
+            .addCase(hatSingleForEdit.fulfilled, (state, { payload }) => {
+                state.loading = false;
+                state.message = payload;
+                state.hatSingleForEditData=payload
+            })
+            .addCase(hatSingleForEdit.rejected, (state, { payload }) => {
+                state.loading = false;
+                state.error = payload;
+            })
+
+
             }
     }
 )

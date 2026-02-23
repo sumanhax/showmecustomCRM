@@ -48,6 +48,7 @@ export const HatDetails = () => {
     useSelector((state) => state.newecom);
 
   const { inventoryListData } = useSelector((state) => state.invent);
+  const [isEditingImage, setIsEditingImage] = useState(false);
 
   const [hatData, setHatData] = useState(null);
   const [brandName, setBrandName] = useState("");
@@ -82,9 +83,10 @@ export const HatDetails = () => {
     const formData = new FormData();
     formData.append("image", file);
     formData.append("hat_style_id", id);
-    formData.append("image_type", "hat");
+    formData.append("image_type", "jpg");
     formData.append("alt_text", "Cap Image");
     formData.append("is_primary", 1);
+    formData.append("hat_color_id",0)
 
     dispatch(hatImageAdd(formData)).then((res) => {
       toast.success(res?.payload?.data?.message || "Image uploaded");
@@ -123,8 +125,11 @@ export const HatDetails = () => {
     dispatch(hatImageGet(id))
       .unwrap()
       .then((response) => {
-        if (response?.data?.length > 0) setHideFileUpload("hidden");
-        else setHideFileUpload("");
+        if (response?.data?.length > 0){ setHideFileUpload("hidden");
+        }
+        else{ setHideFileUpload("")
+        }
+        setIsEditingImage(false);
       })
       .catch((error) => {
         console.error("Error fetching hat image:", error);
@@ -599,6 +604,15 @@ export const HatDetails = () => {
                       e.target.style.display = "none";
                     }}
                   />
+                    {!isEditingImage && (
+                  <button
+                    onClick={() => setIsEditingImage(true)}
+                    className="absolute top-2 right-2 bg-[#f20c32] hover:bg-black text-white p-2 rounded-full shadow-md transition-colors"
+                    title="Edit Image"
+                  >
+                    <FaEdit size={14} />
+                  </button>
+                )}
                 </div>
               ) : (
                 <div className="flex items-center justify-center w-full h-64 bg-gray-100 rounded-lg border border-gray-200 mb-4">
@@ -609,7 +623,13 @@ export const HatDetails = () => {
                 </div>
               )}
 
-              <FileInput className={`${hideFileUpload}`} accept="image/*" onChange={handleImageUpload} />
+              {/* <FileInput className={`${hideFileUpload}`} accept="image/*" onChange={handleImageUpload} /> */}
+              {(!hatImageGetData?.data?.length || isEditingImage) && (
+            <FileInput
+              accept="image/*"
+              onChange={handleImageUpload}
+            />
+          )}
             </div>
           </div>
         </div>

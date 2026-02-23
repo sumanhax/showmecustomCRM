@@ -3,7 +3,7 @@ import { toast } from "react-toastify";
 import { useEffect, useState } from "react";
 import { Modal, Select } from "flowbite-react";
 import { useDispatch } from "react-redux";
-import { brandList, hatAdd, hatList } from "../../../Reducer/EcommerceNewSlice";
+import { brandList, hatAdd, hatList, hatUpdate } from "../../../Reducer/EcommerceNewSlice";
 import { useNavigate } from "react-router-dom";
 import { CiCirclePlus } from "react-icons/ci";
 import { CiCircleMinus } from "react-icons/ci";
@@ -17,6 +17,9 @@ const AddHatModal = ({
   isEdit,
   brandListData,
 }) => {
+   const {hatSingleForEditData } = useSelector(
+      (state) => state.newecom,
+    );
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const {
@@ -41,244 +44,142 @@ const AddHatModal = ({
   const [imagePreview, setImagePreview] = useState(null);
   console.log("brandListData", brandListData);
 
-  // Pre-fill form when hatData is provided (for edit mode)
-  // useEffect(() => {
-  //   if (hatData && isEdit && openModal) {
-  //     setValue("name", hatData.name || "");
-  //     setValue("code", hatData.code || "");
-  //     setValue("website_url", hatData.website_url || "");
-  //     setValue("is_active", hatData.is_active === 1 ? 1 : 0);
-
-  //     // Set image preview if exists
-  //     if (hatData.image_url) {
-  //       setImagePreview(hatData.image_url);
-  //     }
-  //   } else if (!isEdit && openModal) {
-  //     // Reset form for add mode
-  //     reset();
-  //     setSelectedImage(null);
-  //     setImagePreview(null);
-  //   }
-  // }, [hatData, isEdit, openModal, setValue, reset]);
-
-  // Handle image file selection
-  // const handleImageChange = (e) => {
-  //   const file = e.target.files?.[0];
-  //   if (file) {
-  //     // Validate file type
-  //     const validTypes = ["image/jpeg", "image/jpg", "image/png"];
-  //     if (!validTypes.includes(file.type)) {
-  //       toast.error("Please upload only JPEG, JPG, or PNG images", {
-  //         position: "top-right",
-  //         autoClose: 3000,
-  //       });
-  //       e.target.value = "";
-  //       return;
-  //     }
-
-  //     // Validate file size (optional - limit to 5MB)
-  //     if (file.size > 5 * 1024 * 1024) {
-  //       toast.error("Image size should be less than 5MB", {
-  //         position: "top-right",
-  //         autoClose: 3000,
-  //       });
-  //       e.target.value = "";
-  //       return;
-  //     }
-
-  //     setSelectedImage(file);
-
-  //     // Create preview
-  //     const reader = new FileReader();
-  //     reader.onloadend = () => {
-  //       setImagePreview(reader.result);
-  //     };
-  //     reader.readAsDataURL(file);
-  //   }
-  // };
-
-  // const onSubmit = async (data) => {
-  //   setIsSubmitting(true);
-  //   try {
-     
-  //     if (selectedImage) {
-  //       formData.append("image", selectedImage);
-  //     } else if (isEdit && hatData?.image_url && !selectedImage) {
-     
-  //       formData.append("image", hatData.image_url);
-  //     }
-
-  //     if (isEdit && hatData) {
-  //       // FormData for non-image fields on edit
-  //       // const editFormData = new FormData();
-  //       // editFormData.append("name", data.name || "");
-  //       // editFormData.append("code", data.code || "");
-  //       // editFormData.append("website_url", data.website_url || "");
-  //       // editFormData.append("is_active", data.is_active ? 1 : 0);
-  //       // const promises= [];
-  //       // if (selectedImage) {
-  //       //   // Separate image upload on edit
-  //       //   const imageFormData = new FormData();
-  //       //   imageFormData.append("image_url", selectedImage);
-  //       //   promises.push(
-  //       //     dispatch(
-  //       //       hatEditImageUpload({ id: hatData.id, userInput: imageFormData })
-  //       //     ).unwrap()
-  //       //   );
-  //       // }
-  //       // Always update main fields
-  //       // promises.push(
-  //       //   dispatch(hatEdit({ id: hatData.id, userInput: editFormData })).unwrap()
-  //       // );
-  //       // Promise.all(promises)
-  //       //   .then((responses) => {
-  //       //     console.log("Hat/brand updated successfully:", responses);
-  //       //     const response = responses[responses.length - 1];
-  //       //     if (response?.status_code === 200 || response?.status_code === 201) {
-  //       //       toast.success(response?.message || "Updated successfully!", {
-  //       //         position: "top-right",
-  //       //         autoClose: 3000,
-  //       //       });
-  //       //     } else if (response?.status_code === 422) {
-  //       //       toast.error(response?.message || "Validation error occurred", {
-  //       //         position: "top-right",
-  //       //         autoClose: 3000,
-  //       //       });
-  //       //     } else {
-  //       //       toast.error(response?.message || "Failed to update", {
-  //       //         position: "top-right",
-  //       //         autoClose: 3000,
-  //       //       });
-  //       //     }
-  //       //     reset();
-  //       //     setSelectedImage(null);
-  //       //     setImagePreview(null);
-  //       //     navigate(`/hat-details/${responses[0].data.id}`);
-  //       //     setTimeout(() => {
-  //       //       setOpenModal(false);
-  //       //       if (onHatAdded) onHatAdded();
-  //       //     }, 100);
-  //       //   })
-  //       //   .catch((error) => {
-  //       //     console.error("Error updating:", error);
-  //       //     const errorMessage =
-  //       //       error?.response?.data?.message ||
-  //       //       error?.message ||
-  //       //       "Failed to update. Please try again.";
-  //       //     toast.error(errorMessage, {
-  //       //       position: "top-right",
-  //       //       autoClose: 3000,
-  //       //     });
-  //       //   })
-  //       //   .finally(() => setIsSubmitting(false));
-  //     } else {
   
-  //       dispatch(hatAdd(data))
-  //         .unwrap()
-  //         .then((response) => {
-  //           console.log("Hat/brand added successfully:", response);
-  //           if (
-  //             response?.status_code === 200 ||
-  //             response?.status_code === 201
-  //           ) {
-  //             toast.success(response?.message || "Added successfully!", {
-  //               position: "top-right",
-  //               autoClose: 3000,
-  //             });
-  //           } else if (response?.status_code === 422) {
-  //             toast.error(response?.message || "Validation error occurred", {
-  //               position: "top-right",
-  //               autoClose: 3000,
-  //             });
-  //           } else {
-  //             toast.error(response?.message || "Failed to add", {
-  //               position: "top-right",
-  //               autoClose: 3000,
-  //             });
-  //           }
 
-  //           reset();
-  //           setSelectedImage(null);
-  //           setImagePreview(null);
+useEffect(() => {
+  if (isEdit && openModal && hatSingleForEditData?.data) {
+    const data = hatSingleForEditData.data;
 
-  //           setTimeout(() => {
-  //             setOpenModal(false);
-  //             if (onHatAdded) onHatAdded();
-  //           }, 100);
-  //           navigate(`/hat-details/${response.data.id}`);
-  //         })
-  //         .catch((error) => {
-  //           console.error("Error adding:", error);
-  //           const errorMessage =
-  //             error?.response?.data?.message ||
-  //             error?.message ||
-  //             "Failed to add. Please try again.";
-  //           toast.error(errorMessage, {
-  //             position: "top-right",
-  //             autoClose: 3000,
-  //           });
-  //         })
-  //         .finally(() => setIsSubmitting(false));
-  //     }
-  //   } catch (error) {
-  //     console.error("Error saving:", error);
-  //     const errorMessage =
-  //       error?.response?.data?.message ||
-  //       error?.message ||
-  //       `Failed to ${isEdit ? "update" : "add"}. Please try again.`;
-  //     toast.error(errorMessage, {
-  //       position: "top-right",
-  //       autoClose: 3000,
-  //     });
-  //     setIsSubmitting(false);
-  //   }
-  // };
+    reset({
+      brand_id: Number(data.brand_id),
+      name: data.name || "",
+      internal_style_code: data.internal_style_code || "",
+      description: data.description || "",
+      min_qty: Number(data.min_qty) || 0,
 
- const onSubmit = async (data) => {
+      // 👇 THIS IS THE FIX
+      size_chart:
+        data.size_chart_json?.size_chart?.length > 0
+          ? data.size_chart_json.size_chart
+          : [{ size: "", value: "" }],
+    });
+  }
+
+  if (!openModal) {
+    reset({
+      size_chart: [{ size: "", value: "" }],
+    });
+  }
+}, [isEdit, openModal, hatSingleForEditData , reset]);
+ 
+ 
+ 
+ 
+ 
+//   const onSubmit = async (data) => {
+//   setIsSubmitting(true);
+
+//   try {
+//     const payload = {
+//       brand_id: Number(data.brand_id),
+//       name: data.name,
+//       internal_style_code: data.internal_style_code,
+//       description: data.description,
+//       min_qty: Number(data.min_qty),
+
+//       // 👇 IMPORTANT: stringify size chart
+//       size_chart_json: JSON.stringify({
+//         size_chart: data.size_chart,
+//       }),
+//     };
+
+//     console.log("FINAL PAYLOAD 👉", payload);
+
+//     dispatch(hatAdd(payload))
+//       .unwrap()
+//       .then((response) => {
+//         console.log("res",response);
+//         dispatch(hatList())
+        
+//         toast.success(response?.message || "Added successfully!");
+//         reset();
+//         setOpenModal(false);
+//       })
+//       .catch((error) => {
+//         toast.error(
+//           error?.response?.data?.message || "Failed to add"
+//         );
+//       })
+//       .finally(() => setIsSubmitting(false));
+
+//   } catch (error) {
+//     console.error(error);
+//     toast.error("Something went wrong");
+//     setIsSubmitting(false);
+//   }
+// };
+
+  const onSubmit = async (data) => {
   setIsSubmitting(true);
 
   try {
-    const payload = {
-      brand_id: Number(data.brand_id),
-      name: data.name,
-      internal_style_code: data.internal_style_code,
-      description: data.description,
-      min_qty: Number(data.min_qty),
+    let payload;
 
-      // 👇 IMPORTANT: stringify size chart
-      size_chart_json: JSON.stringify({
+    if (isEdit) {
+      // ✅ UPDATE PAYLOAD
+      payload = {
+        hat_id: Number(hatSingleForEditData?.data?.id),
+        name: data.name,
+        internal_style_code: data.internal_style_code,
+        description: data.description,
+        size_chart_json: {
+          size_chart: data.size_chart,
+        },
+      };
+
+      const response = await dispatch(hatUpdate(payload)).unwrap();
+
+      toast.success(response?.message || "Updated successfully!");
+
+    } else {
+      // ✅ ADD PAYLOAD
+      payload = {
+        brand_id: Number(data.brand_id),
+        name: data.name,
+        internal_style_code: data.internal_style_code,
+        description: data.description,
+        min_qty: Number(data.min_qty),
+             size_chart_json: JSON.stringify({
         size_chart: data.size_chart,
-      }),
-    };
-
-    console.log("FINAL PAYLOAD 👉", payload);
-
-    dispatch(hatAdd(payload))
-      .unwrap()
-      .then((response) => {
-        console.log("res",response);
-        dispatch(hatList())
-        
-        toast.success(response?.message || "Added successfully!");
-        reset();
-        setOpenModal(false);
       })
-      .catch((error) => {
-        toast.error(
-          error?.response?.data?.message || "Failed to add"
-        );
-      })
-      .finally(() => setIsSubmitting(false));
+      };
+
+      const response = await dispatch(hatAdd(payload)).unwrap();
+
+      toast.success(response?.message || "Added successfully!");
+    }
+
+    dispatch(hatList());
+    reset();
+    setOpenModal(false);
 
   } catch (error) {
     console.error(error);
-    toast.error("Something went wrong");
+    toast.error(error?.message || "Something went wrong");
+  } finally {
     setIsSubmitting(false);
   }
 };
+ 
 
-  
-  return (
+
+
+
+
+
+
+
+return (
     <Modal
       show={openModal}
       onClose={() => {
