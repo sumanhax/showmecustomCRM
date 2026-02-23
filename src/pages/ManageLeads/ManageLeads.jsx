@@ -22,12 +22,12 @@ const ManageLeads = () => {
   // const [openMoodMasterModal, setOpenMoodMasterModal] = useState(false);
   // const [mood_masterId, setMoodMasterId] = useState();
   // const [openUpdateMoodMasterModal, setOpenUpdateMoodMasterModal] =
-    useState(false);
+  useState(false);
   const navigate = useNavigate();
-  const [leadsId,setLeadsId]=useState()
+  const [leadsId, setLeadsId] = useState();
   const [leadData, setLeadData] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [opentaskModal,setOpenTaskModal]=useState(false)
+  const [opentaskModal, setOpenTaskModal] = useState(false);
   const [openNoteModal, setOpenNoteModal] = useState(false);
   const [openAddLeadModal, setOpenAddLeadModal] = useState(false);
   const [openUpdateLeadModal, setOpenUpdateLeadModal] = useState(false);
@@ -82,12 +82,12 @@ const ManageLeads = () => {
   // Lead status options
   const leadStatusOptions = [
     "Sample Submitted",
-    "Sample Art Approved", 
+    "Sample Art Approved",
     "Sample Shipped",
     "Sample Delivered",
     "Nurture Sequence",
     "Warm Lead",
-    "Cold Lead"
+    "Cold Lead",
   ];
 
   const fetchLeads = () => {
@@ -112,12 +112,14 @@ const ManageLeads = () => {
         company_name: lead.company_name,
         "Lead Name": lead.name,
         "Company Name": lead.company_name,
-        "Email": lead.email,
-        "Phone": lead.phone,
+        Email: lead.email,
+        Phone: lead.phone,
         "Lead Status": lead.lead_status?.name || "Unknown",
-        "Typeform Date": lead.typeform_date ? new Date(lead.typeform_date).toLocaleDateString() : "",
+        "Typeform Date": lead.typeform_date
+          ? new Date(lead.typeform_date).toLocaleDateString()
+          : "",
         "Partner Classification": lead.partner_classification || "",
-        "Orders": lead.orders || [],
+        Orders: lead.orders || [],
       }));
       setLeadData(transformed);
     }
@@ -132,20 +134,27 @@ const ManageLeads = () => {
   // Filter leads based on search term + partner + lead status
   const filteredLeadData = leadData.filter((lead) => {
     const searchLower = searchTerm.toLowerCase();
-    const matchesSearch = !searchTerm || (
-      (lead["Lead Name"] && lead["Lead Name"].toLowerCase().includes(searchLower)) ||
+    const matchesSearch =
+      !searchTerm ||
+      (lead["Lead Name"] &&
+        lead["Lead Name"].toLowerCase().includes(searchLower)) ||
       (lead["Email"] && lead["Email"].toLowerCase().includes(searchLower)) ||
-      (lead["Typeform Date"] && lead["Typeform Date"].toLowerCase().includes(searchLower)) ||
-      (lead["Lead Status"] && lead["Lead Status"].toLowerCase().includes(searchLower))
-    );
+      (lead["Typeform Date"] &&
+        lead["Typeform Date"].toLowerCase().includes(searchLower)) ||
+      (lead["Lead Status"] &&
+        lead["Lead Status"].toLowerCase().includes(searchLower));
 
     // Apply partner filter when selected (only for leads that have orders)
     const matchesPartner = partnerFilter
-      ? (Array.isArray(lead?.Orders) && lead.Orders.length > 0 && (lead?.["Partner Classification"] || "") === partnerFilter)
+      ? Array.isArray(lead?.Orders) &&
+        lead.Orders.length > 0 &&
+        (lead?.["Partner Classification"] || "") === partnerFilter
       : true;
 
     // Apply lead status filter when selected
-    const matchesStatus = statusFilter ? (lead?.["Lead Status"] || "") === statusFilter : true;
+    const matchesStatus = statusFilter
+      ? (lead?.["Lead Status"] || "") === statusFilter
+      : true;
 
     return matchesSearch && matchesPartner && matchesStatus;
   });
@@ -168,7 +177,6 @@ const ManageLeads = () => {
   const StatusRenderer = (params) => {
     const status = params.value;
     const leadId = params.data.id;
-    
 
     // Define vibrant colors for each status with white text
     const getStatusStyle = (status) => {
@@ -236,7 +244,11 @@ const ManageLeads = () => {
         }}
       >
         {leadStatusOptions.map((option) => (
-          <option key={option} value={option} style={{ backgroundColor: "white", color: "#374151" }}>
+          <option
+            key={option}
+            value={option}
+            style={{ backgroundColor: "white", color: "#374151" }}
+          >
             {option}
           </option>
         ))}
@@ -244,24 +256,24 @@ const ManageLeads = () => {
     );
   };
 
-  const handleAddTask=(id)=>{
-    console.log("Task_id",id)
-    
-    setLeadsId(id)
-    setOpenTaskModal(true)
-  }
+  const handleAddTask = (id) => {
+    console.log("Task_id", id);
 
-  const handleAddNote=(id)=>{
-    console.log("Note_id",id)
-    
-    setLeadsId(id)
-    setOpenNoteModal(true)
-  }
+    setLeadsId(id);
+    setOpenTaskModal(true);
+  };
+
+  const handleAddNote = (id) => {
+    console.log("Note_id", id);
+
+    setLeadsId(id);
+    setOpenNoteModal(true);
+  };
 
   const handleStatusChange = (leadId, newStatus) => {
     // TODO: Implement status update using kanbanDragnDrop or a new action
     // For now, keeping the existing API call until a proper Redux action is created
-    const lead = leadData.find(l => l.id === leadId);
+    const lead = leadData.find((l) => l.id === leadId);
     if (!lead) {
       console.error("Lead not found");
       toast.error("Lead not found");
@@ -275,26 +287,27 @@ const ManageLeads = () => {
       return;
     }
 
-    axios.post(api2, { 
-      id: leadId, 
-      email: leadEmail, 
-      status: newStatus 
-    })
-    .then(() => {
-      toast.success("Status updated successfully");
-      fetchLeads(); // Refresh the leads data
-      console.log("Status updated successfully");
-    })
-    .catch((error) => {
-      console.error("Error updating status", error);
-      toast.error("Failed to update status. Please try again.");
-    });
+    axios
+      .post(api2, {
+        id: leadId,
+        email: leadEmail,
+        status: newStatus,
+      })
+      .then(() => {
+        toast.success("Status updated successfully");
+        fetchLeads(); // Refresh the leads data
+        console.log("Status updated successfully");
+      })
+      .catch((error) => {
+        console.error("Error updating status", error);
+        toast.error("Failed to update status. Please try again.");
+      });
   };
 
   const handleUpdateLead = (leadId) => {
     console.log("handleUpdateLead called with leadId:", leadId);
     console.log("leadData:", leadData);
-    const lead = leadData.find(l => l.id === leadId);
+    const lead = leadData.find((l) => l.id === leadId);
     console.log("Found lead:", lead);
     if (lead) {
       setSelectedLeadData(lead);
@@ -309,14 +322,17 @@ const ManageLeads = () => {
     if (window.confirm("Are you sure you want to delete this lead?")) {
       try {
         console.log("Deleting lead:", leadId);
-        
-        const response = await axios.post("https://n8n.bestworks.cloud/webhook/delete-lead", {
-          id: leadId
-        });
-        
+
+        const response = await axios.post(
+          "https://n8n.bestworks.cloud/webhook/delete-lead",
+          {
+            id: leadId,
+          },
+        );
+
         console.log("Delete response:", response.data);
         toast.success("Lead deleted successfully!");
-        
+
         // Refresh the leads data
         fetchLeads();
       } catch (error) {
@@ -331,24 +347,23 @@ const ManageLeads = () => {
     navigate(`/lead-details/${leadId}`);
   };
 
-
   // Custom cell renderer for Lead Name with click navigation
   const LeadNameRenderer = (params) => {
     const leadName = params.value;
     const leadId = params.data.id;
-    
+
     return (
       <button
         onClick={() => handleViewLead(leadId)}
         className="cursor-pointer"
-        style={{ 
-          background: 'none', 
-          border: 'none', 
-          padding: 0, 
-          textAlign: 'left',
-          fontSize: 'inherit',
-          color: 'inherit',
-          textDecoration: 'none'
+        style={{
+          background: "none",
+          border: "none",
+          padding: 0,
+          textAlign: "left",
+          fontSize: "inherit",
+          color: "inherit",
+          textDecoration: "none",
         }}
       >
         {leadName}
@@ -397,7 +412,7 @@ const ManageLeads = () => {
         const hasOrders = Array.isArray(lead?.Orders) && lead.Orders.length > 0;
         if (!hasOrders) {
           return (
-            <span style={{ fontSize: '12px', color: '#6B7280' }}>N/A</span>
+            <span style={{ fontSize: "12px", color: "#6B7280" }}>N/A</span>
           );
         }
         const current = lead?.["Partner Classification"] || "";
@@ -449,7 +464,7 @@ const ManageLeads = () => {
       cellRenderer: StatusRenderer,
       width: 200,
     },
-   
+
     {
       width: 300,
       headerName: "Task",
@@ -460,14 +475,14 @@ const ManageLeads = () => {
             <button
               onClick={() => handleAddTask(params?.data?.id)}
               className="bg-[#8B5CF6] hover:bg-[#7C3AED] px-3 py-1 text-white text-sm flex justify-center items-center rounded-full"
-              style={{ fontSize: '12px' }}
+              style={{ fontSize: "12px" }}
             >
               Add Task
             </button>
             <button
               onClick={() => handleAddNote(params?.data?.id)}
               className="bg-[#10B981] hover:bg-[#059669] px-3 py-1 text-white text-sm flex justify-center items-center rounded-full"
-              style={{ fontSize: '12px' }}
+              style={{ fontSize: "12px" }}
             >
               Add Note
             </button>
@@ -485,14 +500,14 @@ const ManageLeads = () => {
             <button
               onClick={() => handleUpdateLead(params?.data?.id)}
               className="bg-[#3B82F6] hover:bg-[#2563EB] px-3 py-1 text-white text-sm flex justify-center items-center rounded-full"
-              style={{ fontSize: '12px' }}
+              style={{ fontSize: "12px" }}
             >
               Update
             </button>
             <button
               onClick={() => handleDeleteLead(params?.data?.id)}
               className="bg-[#EF4444] hover:bg-[#DC2626] px-3 py-1 text-white text-sm flex justify-center items-center rounded-full"
-              style={{ fontSize: '12px' }}
+              style={{ fontSize: "12px" }}
             >
               Delete
             </button>
@@ -526,11 +541,13 @@ const ManageLeads = () => {
         <ToastContainer />
         <div className="wrapper_area my-0 mx-auto p-6 rounded-xl bg-white">
           <div className="h-full lg:h-screen">
-            <div className="flex justify-between items-center mb-4 gap-4 relative">
-              <h2 className="text-2xl font-semibold">Leads</h2>
-              
+            <div className="lg:flex justify-between items-center mb-4 gap-4 relative">
+              <h2 className="text-xl lg:text-2xl font-semibold pb-1 lg:pb-0">
+                Leads
+              </h2>
+
               {/* Search Bar in the middle */}
-              <div className="flex-1 max-w-md">
+              <div className="flex-1 max-w-md mb-2 lg:mb-0">
                 <div className="relative">
                   <input
                     type="text"
@@ -552,7 +569,7 @@ const ManageLeads = () => {
                   )}
                 </div>
               </div>
-              
+
               {/* Filter + Add */}
               <div className="flex items-center gap-2">
                 <button
@@ -560,8 +577,8 @@ const ManageLeads = () => {
                   className="bg-gray-500 hover:bg-black px-4 py-1 text-white text-base font-semibold flex justify-center items-center rounded-md"
                 >
                   {partnerFilter || statusFilter
-                    ? `${partnerFilter || 'All Partners'} • ${statusFilter || 'All Statuses'}`
-                    : 'Filter'}
+                    ? `${partnerFilter || "All Partners"} • ${statusFilter || "All Statuses"}`
+                    : "Filter"}
                 </button>
                 <Button
                   onClick={() => setOpenAddLeadModal(true)}
@@ -572,7 +589,9 @@ const ManageLeads = () => {
                 {showFilter && (
                   <div className="absolute right-0 top-12 bg-white border border-gray-200 rounded-lg shadow-lg p-4 w-80 z-50">
                     <div className="mb-3">
-                      <label className="block text-xs font-semibold text-gray-700 mb-1">Partner</label>
+                      <label className="block text-xs font-semibold text-gray-700 mb-1">
+                        Partner
+                      </label>
                       <select
                         value={partnerFilter}
                         onChange={(e) => setPartnerFilter(e.target.value)}
@@ -580,12 +599,16 @@ const ManageLeads = () => {
                       >
                         <option value="">All</option>
                         {partnerOptions.map((opt) => (
-                          <option key={opt} value={opt}>{opt}</option>
+                          <option key={opt} value={opt}>
+                            {opt}
+                          </option>
                         ))}
                       </select>
                     </div>
                     <div className="mb-3">
-                      <label className="block text-xs font-semibold text-gray-700 mb-1">Lead Status</label>
+                      <label className="block text-xs font-semibold text-gray-700 mb-1">
+                        Lead Status
+                      </label>
                       <select
                         value={statusFilter}
                         onChange={(e) => setStatusFilter(e.target.value)}
@@ -593,7 +616,9 @@ const ManageLeads = () => {
                       >
                         <option value="">All</option>
                         {leadStatusOptions.map((s) => (
-                          <option key={s} value={s}>{s}</option>
+                          <option key={s} value={s}>
+                            {s}
+                          </option>
                         ))}
                       </select>
                     </div>
@@ -618,7 +643,7 @@ const ManageLeads = () => {
                 )}
               </div>
             </div>
-            
+
             {/* Search Results Counter */}
             {searchTerm && (
               <div className="mb-4">
@@ -656,24 +681,20 @@ const ManageLeads = () => {
               singleMoodMaster={singleMoodMaster}
             />
           )} */}
-          {
-            opentaskModal&&(
-              <LeadsTaskModal
+          {opentaskModal && (
+            <LeadsTaskModal
               leadsId={leadsId}
               opentaskModal={opentaskModal}
               setOpenTaskModal={setOpenTaskModal}
-              />
-            )
-          }
-          {
-            openNoteModal&&(
-              <AddNoteModal
+            />
+          )}
+          {openNoteModal && (
+            <AddNoteModal
               leadsId={leadsId}
               openNoteModal={openNoteModal}
               setOpenNoteModal={setOpenNoteModal}
-              />
-            )
-          }
+            />
+          )}
           {openAddLeadModal && (
             <AddLeadModal
               openAddLeadModal={openAddLeadModal}

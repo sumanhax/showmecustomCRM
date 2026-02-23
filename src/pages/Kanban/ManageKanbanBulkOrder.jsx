@@ -9,7 +9,9 @@ import { kanbanBulkOrderList } from "../../Reducer/AddSlice";
 
 const ManageKanbanBulkOrder = () => {
   const sidebarOpen = useSelector((state) => state.sidebar.isOpen);
-  const { kanbanBulkOrderListData, loading } = useSelector((state) => state.add);
+  const { kanbanBulkOrderListData, loading } = useSelector(
+    (state) => state.add,
+  );
   const dispatch = useDispatch();
 
   const [orders, setOrders] = useState([]);
@@ -93,19 +95,19 @@ const ManageKanbanBulkOrder = () => {
       // last 7 days backwards from now (inclusive)
       start = new Date(now);
       start.setDate(now.getDate() - 6);
-      start.setHours(0,0,0,0);
+      start.setHours(0, 0, 0, 0);
       end = now;
     } else if (period === "month") {
       // last 30 days backwards from now
       start = new Date(now);
       start.setDate(now.getDate() - 29);
-      start.setHours(0,0,0,0);
+      start.setHours(0, 0, 0, 0);
       end = now;
     } else if (period === "quarter") {
       // last 90 days backwards from now
       start = new Date(now);
       start.setDate(now.getDate() - 89);
-      start.setHours(0,0,0,0);
+      start.setHours(0, 0, 0, 0);
       end = now;
     } else if (period === "year") {
       start = new Date(now.getFullYear(), 0, 1);
@@ -116,10 +118,10 @@ const ManageKanbanBulkOrder = () => {
     } else {
       // default week
       const day = now.getDay();
-      const diff = (day === 0 ? 6 : day - 1);
+      const diff = day === 0 ? 6 : day - 1;
       start = new Date(now);
       start.setDate(now.getDate() - diff);
-      start.setHours(0,0,0,0);
+      start.setHours(0, 0, 0, 0);
       end = now;
     }
     return { start, end };
@@ -141,7 +143,7 @@ const ManageKanbanBulkOrder = () => {
         (o) =>
           o.source === activeSource &&
           o.stageName === "Order delivered" &&
-          isInRange(o.createdAt)
+          isInRange(o.createdAt),
       );
 
       const sum = (arr, key) =>
@@ -155,10 +157,8 @@ const ManageKanbanBulkOrder = () => {
       };
     }, [orders, period, fromDate, toDate, activeSource]);
 
-  const onlineColumns =
-    kanbanBulkOrderListData?.data?.online_columns || [];
-  const offlineColumns =
-    kanbanBulkOrderListData?.data?.offline_columns || [];
+  const onlineColumns = kanbanBulkOrderListData?.data?.online_columns || [];
+  const offlineColumns = kanbanBulkOrderListData?.data?.offline_columns || [];
 
   return (
     <>
@@ -166,7 +166,9 @@ const ManageKanbanBulkOrder = () => {
       <div className="wrapper_area my-0 mx-auto p-6 rounded-xl bg-white">
         <div className="h-full lg:h-full">
           <div className="flex justify-between items-center mb-4">
-            <h2 className="text-2xl font-semibold">Manage Orders</h2>
+            <h2 className="text-xl lg:text-2xl font-semibold pb-1 lg:pb-0">
+              Manage Orders
+            </h2>
             {/* <Button
                 onClick={() => setOpenMoodMasterModal(true)}
                 className="bg-[#f20c32] hover:bg-black px-4 py-1 text-white text-base font-semibold flex justify-center items-center rounded-md"
@@ -213,7 +215,9 @@ const ManageKanbanBulkOrder = () => {
             <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-gray-600">Completed Orders</p>
+                  <p className="text-sm font-medium text-gray-600">
+                    Completed Orders
+                  </p>
                   <p className="text-2xl font-bold text-gray-900">
                     {isLoadingStats ? "—" : completedCount}
                   </p>
@@ -229,7 +233,9 @@ const ManageKanbanBulkOrder = () => {
                 <div>
                   <p className="text-sm font-medium text-gray-600">Revenue</p>
                   <p className="text-2xl font-bold text-gray-900">
-                    {isLoadingStats ? "—" : `$${Math.round(totalRevenue).toLocaleString()}`}
+                    {isLoadingStats
+                      ? "—"
+                      : `$${Math.round(totalRevenue).toLocaleString()}`}
                   </p>
                 </div>
                 <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
@@ -243,7 +249,9 @@ const ManageKanbanBulkOrder = () => {
                 <div>
                   <p className="text-sm font-medium text-gray-600">Profit</p>
                   <p className="text-2xl font-bold text-gray-900">
-                    {isLoadingStats ? "—" : `$${Math.round(totalProfit).toLocaleString()}`}
+                    {isLoadingStats
+                      ? "—"
+                      : `$${Math.round(totalProfit).toLocaleString()}`}
                   </p>
                 </div>
                 <div className="w-12 h-12 bg-emerald-100 rounded-lg flex items-center justify-center">
@@ -257,7 +265,9 @@ const ManageKanbanBulkOrder = () => {
                 <div>
                   <p className="text-sm font-medium text-gray-600">Expense</p>
                   <p className="text-2xl font-bold text-gray-900">
-                    {isLoadingStats ? "—" : `$${Math.round(totalExpense).toLocaleString()}`}
+                    {isLoadingStats
+                      ? "—"
+                      : `$${Math.round(totalExpense).toLocaleString()}`}
                   </p>
                 </div>
                 <div className="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
