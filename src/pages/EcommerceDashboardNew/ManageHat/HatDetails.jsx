@@ -28,6 +28,7 @@ import {
   hatColorSingle,
   hatImageAdd,
   hatImageGet,
+  hatImageUpdate,
   hatSingle,
   hatSizeSingle,
 } from "../../../Reducer/EcommerceNewSlice";
@@ -76,23 +77,68 @@ export const HatDetails = () => {
 
   const [hideFileUpload, setHideFileUpload] = useState("");
 
-  const handleImageUpload = (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
+  // const handleImageUpload = (e) => {
+  //   const file = e.target.files[0];
+  //   if (!file) return;
 
-    const formData = new FormData();
-    formData.append("image", file);
-    formData.append("hat_style_id", id);
-    formData.append("image_type", "jpg");
-    formData.append("alt_text", "Cap Image");
-    formData.append("is_primary", 1);
-    formData.append("hat_color_id",0)
+  //   const formData = new FormData();
+  //   formData.append("image", file);
+  //   formData.append("hat_style_id", id);
+  //   formData.append("image_type", "jpg");
+  //   formData.append("alt_text", "Cap Image");
+  //   formData.append("is_primary", 1);
+  //   formData.append("hat_color_id",0)
 
-    dispatch(hatImageAdd(formData)).then((res) => {
-      toast.success(res?.payload?.data?.message || "Image uploaded");
-      fetchHatImage();
-    });
-  };
+  //   dispatch(hatImageAdd(formData)).then((res) => {
+  //     toast.success(res?.payload?.data?.message || "Image uploaded");
+  //     fetchHatImage();
+  //   });
+  // };
+
+const handleImageUpload = async (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+
+  const hasImage = hatImageGetData?.data?.length > 0;
+
+  try {
+    if (hasImage) {
+      // ✅ UPDATE PAYLOAD (ONLY 2 FIELDS)
+      const updateFormData = new FormData();
+      updateFormData.append("hat_style_id", id);
+      updateFormData.append("image", file);
+
+      const res = await dispatch(hatImageUpdate(updateFormData)).unwrap();
+      toast.success(res?.message || "Image updated successfully");
+
+    } else {
+      // ✅ ADD PAYLOAD (OLD FULL PAYLOAD)
+      const addFormData = new FormData();
+      addFormData.append("image", file);
+      addFormData.append("hat_style_id", id);
+      addFormData.append("image_type", "jpg");
+      addFormData.append("alt_text", "Cap Image");
+      addFormData.append("is_primary", 1);
+      addFormData.append("hat_color_id",0)
+
+      const res = await dispatch(hatImageAdd(addFormData)).unwrap();
+      toast.success(res?.message || "Image uploaded successfully");
+    }
+
+    setIsEditingImage(false);
+    fetchHatImage();
+
+  } catch (error) {
+    console.error(error);
+    toast.error("Failed to upload image");
+  }
+};
+
+
+
+
+
+
 
   const fetchHatDetails = useCallback(() => {
     if (!id) return;

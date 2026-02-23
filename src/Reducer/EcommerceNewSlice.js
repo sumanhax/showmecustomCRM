@@ -22,6 +22,29 @@ export const hatImageAdd = createAsyncThunk(
         }
     }
 )
+
+export const hatImageUpdate = createAsyncThunk(
+    'ecommerce/hatImageUpdate',
+    async (userInput, { rejectWithValue }) => {
+        try {
+            const response = await api.post(`/postgresapi/admin/hat/primary-image/update`,userInput);
+            if (response?.data?.status_code === 201 || response?.data?.status_code === 200) {
+                return response.data;
+            } else {
+                if (response?.data?.errors) {
+                    return rejectWithValue(response.data.errors);
+                } else {
+                    return rejectWithValue('Something went wrong.');
+                }
+            }
+        } catch (err) {
+            return rejectWithValue(err);
+        }
+    }
+)
+
+
+
 export const hatImageGet = createAsyncThunk(
     'ecommerce/hatImageGet',
     async (id, { rejectWithValue }) => {
@@ -406,7 +429,8 @@ const initialState = {
     orderListData:{},
     orderSingleData:{},
     updateHatData:"",
-    hatSingleForEditData:{}
+    hatSingleForEditData:{},
+    hatImageUpdateMessage:""
 }
 
 //slice part
@@ -597,6 +621,19 @@ const AddSlice = createSlice(
                 state.message = payload;
             })
             .addCase(hatImageAdd.rejected, (state, { payload }) => {
+                state.loading = false;
+                state.error = payload;
+            })
+               .addCase(hatImageUpdate.pending, (state) => {
+                state.message = null
+                state.loading = true;
+                state.error = null
+            })
+            .addCase(hatImageUpdate.fulfilled, (state, { payload }) => {
+                state.loading = false;
+                state.hatImageUpdateMessage= payload;
+            })
+            .addCase(hatImageUpdate.rejected, (state, { payload }) => {
                 state.loading = false;
                 state.error = payload;
             })
