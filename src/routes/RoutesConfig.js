@@ -62,7 +62,7 @@ import DecorationAddonDetails from '../pages/EcommerceDashboardNew/DecorationAdd
 import ManageOrder from '../pages/EcommerceDashboardNew/Order/ManageOrder.jsx';
 import OrderDetails from '../pages/EcommerceDashboardNew/Order/OrderDetails.jsx';
 import BulkUpload from '../pages/BulkUpload/BulkUpload.jsx';
-
+import CMSUpload from '../pages/CMSUpload/CMSUpload.jsx';
 
 const allRoutes = [
   {
@@ -608,7 +608,16 @@ const allRoutes = [
       },
     ],
   },
-
+{
+    path: '/cms-upload',
+    element: <InsideLayout />,
+    children: [
+      {
+        index: true,
+        element: <CMSUpload />,
+      },
+    ],
+  },
   {
     path: '*',
     element: 'Outside page not found',
