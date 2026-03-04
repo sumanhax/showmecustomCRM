@@ -107,13 +107,13 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
 
           {sidebarOpen ?
             <>
-              <div className="text-center mb-8">
+              <div className="text-center">
                 <img src={showme} alt="smallLogo" className="inline-block w-6/12" />
               </div>
             </>
             :
             <>
-              <div className="text-center mb-8">
+              <div className="text-center">
                 <img src={showme} alt="logo" className="inline-block w-7/12" />
               </div>
             </>
@@ -124,13 +124,13 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
       </div>
       {/* <!-- SIDEBAR HEADER --> */}
 
-      <div className="sidebar_menu no-scrollbar flex flex-col overflow-y-auto duration-300 ease-linear overscroll-none">
+      <div className="sidebar_menu no-scrollbar flex flex-col overflow-y-auto duration-300 ease-linear overscroll-none h-[500px]">
         {/* <!-- Sidebar Menu --> */}
         <nav className="mt-0 pb-4 px-4 lg:px-0">
           {/* <!-- Menu Group --> */}
           <div>
 
-            <ul className="mb-6 flex flex-col gap-1.5">
+            <ul className="mb-20 flex flex-col gap-1.5">
 
               {/* <!-- Menu Item Calendar --> */}
               {/* <li>
