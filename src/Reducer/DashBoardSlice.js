@@ -26,7 +26,7 @@ export const bannerUpload = createAsyncThunk(
     'dashboard/bannerUpload',
     async (formData, { rejectWithValue }) => {
         try {
-            const response = await newApi.post('api/banners/create', formData);
+            const response = await newApi.post('/api/banners/save', formData);
             if (response?.data?.status_code === 200 || response?.status === 200) {
                 return response.data;
             } else {
@@ -38,28 +38,13 @@ export const bannerUpload = createAsyncThunk(
     }
 )
 
-export const updateBannerUpload = createAsyncThunk(
-    'dashboard/updateBannerUpload',
-    async ({ id, formData }, { rejectWithValue }) => {
-        try {
-            const response = await newApi.put(`api/banners/update/${id}`, formData);
-            if (response?.data?.status_code === 200 || response?.status === 200) {
-                return response.data;
-            } else {
-                return rejectWithValue(response?.data?.errors || 'Something went wrong.');
-            }
-        } catch (err) {
-            return rejectWithValue(err);
-        }
-    }
-)
 
 // POST /api/logo-placement/create
 export const createLogoPlacement = createAsyncThunk(
     'dashboard/createLogoPlacement',
     async (formData, { rejectWithValue }) => {
         try {
-            const response = await newApi.post('/api/logo-placement/create', formData);
+            const response = await newApi.post('/api/logo-placement/save', formData);
             if (response?.data?.status === true || response?.status === 201) {
                 return response.data;
             } else {
@@ -71,22 +56,6 @@ export const createLogoPlacement = createAsyncThunk(
     }
 )
 
-// PUT /api/logo-placement/update/:id
-export const updateLogoPlacement = createAsyncThunk(
-    'dashboard/updateLogoPlacement',
-    async ({ id, formData }, { rejectWithValue }) => {
-        try {
-            const response = await newApi.put(`/api/logo-placement/update/${id}`, formData);
-            if (response?.data?.status === true || response?.status === 200) {
-                return response.data;
-            } else {
-                return rejectWithValue(response?.data?.message || 'Something went wrong.');
-            }
-        } catch (err) {
-            return rejectWithValue(err);
-        }
-    }
-)
 
 const initialState = {
     loading: false,
@@ -137,21 +106,6 @@ const DashBoardSlice = createSlice(
                     state.bannerError = payload?.message || 'Banner upload failed.';
                 })
 
-                // Update Banner Upload
-                .addCase(updateBannerUpload.pending, (state) => {
-                    state.bannerLoading = true;
-                    state.bannerError = null;
-                })
-                .addCase(updateBannerUpload.fulfilled, (state, { payload }) => {
-                    state.bannerLoading = false;
-                    state.bannerData = payload;
-                    state.bannerError = null;
-                })
-                .addCase(updateBannerUpload.rejected, (state, { payload }) => {
-                    state.bannerLoading = false;
-                    state.bannerError = payload?.message || 'Banner update failed.';
-                })
-
                 // Create Logo Placement
                 .addCase(createLogoPlacement.pending, (state) => {
                     state.logoPlacementLoading = true;
@@ -167,20 +121,6 @@ const DashBoardSlice = createSlice(
                     state.logoPlacementError = payload || 'Logo placement creation failed.';
                 })
 
-                // Update Logo Placement
-                .addCase(updateLogoPlacement.pending, (state) => {
-                    state.logoPlacementLoading = true;
-                    state.logoPlacementError = null;
-                })
-                .addCase(updateLogoPlacement.fulfilled, (state, { payload }) => {
-                    state.logoPlacementLoading = false;
-                    state.logoPlacementData = payload?.data;
-                    state.logoPlacementError = null;
-                })
-                .addCase(updateLogoPlacement.rejected, (state, { payload }) => {
-                    state.logoPlacementLoading = false;
-                    state.logoPlacementError = payload || 'Logo placement update failed.';
-                })
         }
     }
 )

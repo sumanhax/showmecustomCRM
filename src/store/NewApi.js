@@ -2,10 +2,8 @@ import axios from 'axios';
 const newApi = axios.create({ baseURL: import.meta.env.VITE_API_NEW_URL });
 let domain = window.location.origin
 const formDataURL = [
-    'api/banners/create',
-    'api/banners/update',
-    '/api/logo-placement/create',
-    '/api/logo-placement/update'
+    '/api/logo-placement/save',
+    '/api/banners/save',
 ];
 newApi.interceptors.request.use((req) => {
     let userTokenData;

@@ -328,7 +328,7 @@ const CMSUpload = () => {
 
     const formData = new FormData();
     formData.append('bannerName', bannerName);
-    formData.append('bannerUrl', bannerFile);
+    formData.append('file', bannerFile)
 
     const result = await dispatch(bannerUpload(formData));
     if (bannerUpload.fulfilled.match(result)) {
@@ -351,6 +351,7 @@ const CMSUpload = () => {
       const formData = new FormData();
       formData.append('code', slot.code);
       formData.append('data', slot.file);
+      formData.append('active', 'true');
       const result = await dispatch(createLogoPlacement(formData));
       if (createLogoPlacement.fulfilled.match(result)) successCount++;
     }
