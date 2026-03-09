@@ -166,16 +166,16 @@ const ManageKanbanBulkOrder = () => {
       <div className="wrapper_area my-0 mx-auto p-6 rounded-xl bg-white">
         <div className="h-full lg:h-full">
           <div className="flex justify-between items-center mb-4">
-            <h2 className="text-xl lg:text-2xl font-semibold pb-1 lg:pb-0">
+            {/* <h2 className="text-xl lg:text-2xl font-semibold pb-1 lg:pb-0">
               Manage Orders
-            </h2>
+            </h2> */}
             {/* <Button
                 onClick={() => setOpenMoodMasterModal(true)}
                 className="bg-[#f20c32] hover:bg-black px-4 py-1 text-white text-base font-semibold flex justify-center items-center rounded-md"
               >
                 Add Mood Master
               </Button> */}
-            <div className="flex items-center gap-3">
+            {/* <div className="flex items-center gap-3">
               <label className="text-sm text-gray-600">Filter</label>
               <select
                 value={period}
@@ -207,12 +207,12 @@ const ManageKanbanBulkOrder = () => {
                   />
                 </>
               )}
-            </div>
+            </div> */}
           </div>
           {/* Stats Row */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
             {/* Completed Orders */}
-            <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+            {/* <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-gray-600">
@@ -226,9 +226,9 @@ const ManageKanbanBulkOrder = () => {
                   <FaCheckCircle className="w-6 h-6 text-green-600" />
                 </div>
               </div>
-            </div>
+            </div> */}
             {/* Revenue */}
-            <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+            {/* <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-gray-600">Revenue</p>
@@ -242,9 +242,9 @@ const ManageKanbanBulkOrder = () => {
                   <FaDollarSign className="w-6 h-6 text-blue-600" />
                 </div>
               </div>
-            </div>
+            </div> */}
             {/* Profit */}
-            <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+            {/* <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-gray-600">Profit</p>
@@ -258,9 +258,9 @@ const ManageKanbanBulkOrder = () => {
                   <FaDollarSign className="w-6 h-6 text-emerald-600" />
                 </div>
               </div>
-            </div>
+            </div> */}
             {/* Expense */}
-            <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+            {/* <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-gray-600">Expense</p>
@@ -274,7 +274,7 @@ const ManageKanbanBulkOrder = () => {
                   <FaDollarSign className="w-6 h-6 text-yellow-600" />
                 </div>
               </div>
-            </div>
+            </div> */}
           </div>
 
           {/* Online / Offline Tabs */}

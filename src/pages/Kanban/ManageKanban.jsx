@@ -1,12 +1,14 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { ToastContainer } from "react-toastify";
 import { KanbanBoard } from "../../components/Kanban/kanban-board";
 import { Button } from "flowbite-react";
 import { useSelector } from "react-redux";
 
+
 const ManageKanban = () => {
   const sidebarOpen = useSelector((state) => state.sidebar.isOpen);
   console.log("sidebarOpen", sidebarOpen);
+  
   return (
     <>
       <ToastContainer />

@@ -14,7 +14,7 @@ import "@syncfusion/ej2-navigations/styles/material.css";
 import "@syncfusion/ej2-popups/styles/material.css";
 import "@syncfusion/ej2-react-kanban/styles/material.css";
 import { IoDocumentTextOutline } from "react-icons/io5";
-import { TbEyeShare  } from "react-icons/tb";
+import { TbEyeShare } from "react-icons/tb";
 import { FaPlus } from "react-icons/fa";
 import React from "react";
 import { useEffect, useMemo, useState } from "react";
@@ -48,7 +48,7 @@ export function KanbanBoardBulkOrder({
 
   const [leadData, setLeadData] = useState<any[]>([]);
   const [kanbanWidth, setkanbanWidth] = useState<number>(0);
-  const [emailModal, setEmailModal] = useState<{isOpen: boolean, leadEmail: string, leadName: string}>({
+  const [emailModal, setEmailModal] = useState<{ isOpen: boolean, leadEmail: string, leadName: string }>({
     isOpen: false,
     leadEmail: '',
     leadName: ''
@@ -58,7 +58,7 @@ export function KanbanBoardBulkOrder({
     subject: '',
     message: ''
   });
-  const [callModal, setCallModal] = useState<{isOpen: boolean, phoneNumber: string, leadName: string}>({
+  const [callModal, setCallModal] = useState<{ isOpen: boolean, phoneNumber: string, leadName: string }>({
     isOpen: false,
     phoneNumber: '',
     leadName: ''
@@ -122,9 +122,8 @@ export function KanbanBoardBulkOrder({
             Title: "Order",
             LeadName: customer.name,
             Status: stageName,
-            Summary: `Status: ${order.status} | Payment: ${
-              order.payment_status
-            } | Created: ${order.created_at}`,
+            Summary: `Status: ${order.status} | Payment: ${order.payment_status
+              } | Created: ${order.created_at}`,
             Company: customer.company_name,
             Email: customer.email,
             Phone: customer.phone,
@@ -141,9 +140,8 @@ export function KanbanBoardBulkOrder({
             Title: "Order",
             LeadName: lead.name,
             Status: stageName,
-            Summary: `Status: ${order.order_status} | Origin: ${
-              order.order_origin
-            } | Start: ${order.start_date}`,
+            Summary: `Status: ${order.order_status} | Origin: ${order.order_origin
+              } | Start: ${order.start_date}`,
             Company: lead.company_name,
             Email: lead.email,
             Phone: lead.phone,
@@ -166,155 +164,156 @@ export function KanbanBoardBulkOrder({
     const interval = setInterval(() => {
       document.querySelectorAll('.syncfusion-license-error').forEach(el => el.remove());
     }, 500);
-  
+
     return () => clearInterval(interval);
   }, []);
-  
 
-const handleStatusUpdate = async (cardData: any) => {
-  try {
-    const targetColumn = columns.find(
-      (col: any) => col.keyField === cardData.Status
-    );
 
-    if (!targetColumn || !targetColumn.stageId) {
-      console.warn("Target column / stage not found for drag-and-drop");
+  const handleStatusUpdate = async (cardData: any) => {
+    try {
+      const targetColumn = columns.find(
+        (col: any) => col.keyField === cardData.Status
+      );
+
+      if (!targetColumn || !targetColumn.stageId) {
+        console.warn("Target column / stage not found for drag-and-drop");
+        return;
+      }
+
+      const payload: any = {
+        id: cardData.Id,
+        order_stage_id: targetColumn.stageId,
+        source: cardData.Source || source,
+      };
+
+      await dispatch(kanbanBulkOrderDragnDrop(payload)).unwrap();
+
+      toast.success("Status updated successfully");
+      if (onRefresh) {
+        try {
+          onRefresh();
+        } catch (e) {
+          console.log("onRefresh error", e);
+        }
+      }
+    } catch (error) {
+      console.error("Error updating status", error);
+      toast.error("Failed to update status. Please try again.");
+    }
+  };
+
+  // Email handler functions
+  const handleEmailClick = (leadEmail: string, leadName: string) => {
+    setEmailModal({
+      isOpen: true,
+      leadEmail,
+      leadName
+    });
+    setEmailForm({
+      to: leadEmail,
+      subject: `Follow up - ${leadName}`,
+      message: `Hi ${leadName},\n\nI hope this email finds you well. I wanted to follow up on our previous conversation...\n\nBest regards,`
+    });
+  };
+
+  const handleEmailSend = () => {
+    if (!emailForm.to.trim() || !emailForm.subject.trim() || !emailForm.message.trim()) {
+      toast.error('Please fill in all fields.');
       return;
     }
 
-    const payload: any = {
-      id: cardData.Id,
-      order_stage_id: targetColumn.stageId,
-      source: cardData.Source || source,
+    setIsEmailSending(true);
+    const payload = {
+      reciepent: emailForm.to,
+      sender: 'teams@showmecustomapparel', // You can replace this with actual sender email
+      subject: emailForm.subject,
+      replyBody: emailForm.message,
     };
 
-    await dispatch(kanbanBulkOrderDragnDrop(payload)).unwrap();
+    axios.post('https://n8n.bestworks.cloud/webhook/email-sender', payload)
+      .then(res => {
+        if (res.status === 200) {
+          toast.success('Email Sent Successfully!');
+          setEmailModal({ isOpen: false, leadEmail: '', leadName: '' });
+          setEmailForm({ to: '', subject: '', message: '' });
+        } else {
+          toast.error('Failed to send email. Please try again.');
+        }
+      })
+      .catch(err => {
+        console.error("Error sending email:", err);
+        toast.error('An error occurred while sending the email.');
+      })
+      .finally(() => {
+        setIsEmailSending(false);
+      });
+  };
 
-    toast.success("Status updated successfully");
+  const handleEmailModalClose = () => {
+    setEmailModal({ isOpen: false, leadEmail: '', leadName: '' });
+    setEmailForm({ to: '', subject: '', message: '' });
+  };
+
+  // Call modal handler functions
+  const handleCallClick = (phoneNumber: string, leadName: string) => {
+    setCallModal({
+      isOpen: true,
+      phoneNumber,
+      leadName
+    });
+    setCallForm({
+      phone: phoneNumber,
+      message: `Hi ${leadName},\n\nI hope this call finds you well. I wanted to follow up on our previous conversation...\n\nBest regards,`
+    });
+  };
+
+  const handleCallSend = () => {
+    if (!callForm.phone.trim() || !callForm.message.trim()) {
+      toast.error('Please fill in all fields.');
+      return;
+    }
+
+    setIsCallSending(true);
+    // Sample handler function - you can replace this with actual API call
+    console.log("Sending call message:", callForm);
+
+    // Simulate API call
+    setTimeout(() => {
+      toast.success("Call message sent successfully!");
+      setCallModal({ isOpen: false, phoneNumber: '', leadName: '' });
+      setCallForm({ phone: '', message: '' });
+      setIsCallSending(false);
+    }, 2000);
+  };
+
+  const handleCallModalClose = () => {
+    setCallModal({ isOpen: false, phoneNumber: '', leadName: '' });
+    setCallForm({ phone: '', message: '' });
+  };
+
+  // View lead handler function
+  // Change this function:
+  const handleViewLead = (leadId: string, orderId: string) => {
+    navigate(`/order/${leadId}`, { state: { openOrderId: orderId } });
+  };
+
+  // Add project handler function
+  const handleAddProject = (leadId: string) => {
+    console.log("Adding project for lead:", leadId);
+    setOpenAddProjectModal(true);
+  };
+
+  const handleProjectAdded = (projectData: any) => {
+    console.log("Project added:", projectData);
+    // Refresh kanban board after project is added
     if (onRefresh) {
       try {
         onRefresh();
       } catch (e) {
-        console.log("onRefresh error", e);
+        console.log("onRefresh error after project add", e);
       }
     }
-  } catch (error) {
-    console.error("Error updating status", error);
-    toast.error("Failed to update status. Please try again.");
-  }
-};
-
-// Email handler functions
-const handleEmailClick = (leadEmail: string, leadName: string) => {
-  setEmailModal({
-    isOpen: true,
-    leadEmail,
-    leadName
-  });
-  setEmailForm({
-    to: leadEmail,
-    subject: `Follow up - ${leadName}`,
-    message: `Hi ${leadName},\n\nI hope this email finds you well. I wanted to follow up on our previous conversation...\n\nBest regards,`
-  });
-};
-
-const handleEmailSend = () => {
-  if (!emailForm.to.trim() || !emailForm.subject.trim() || !emailForm.message.trim()) {
-    toast.error('Please fill in all fields.');
-    return;
-  }
-
-  setIsEmailSending(true);
-  const payload = {
-    reciepent: emailForm.to,
-    sender: 'teams@showmecustomapparel', // You can replace this with actual sender email
-    subject: emailForm.subject,
-    replyBody: emailForm.message,
   };
-
-  axios.post('https://n8n.bestworks.cloud/webhook/email-sender', payload)
-    .then(res => {
-      if (res.status === 200) {
-        toast.success('Email Sent Successfully!');
-        setEmailModal({ isOpen: false, leadEmail: '', leadName: '' });
-        setEmailForm({ to: '', subject: '', message: '' });
-      } else {
-        toast.error('Failed to send email. Please try again.');
-      }
-    })
-    .catch(err => {
-      console.error("Error sending email:", err);
-      toast.error('An error occurred while sending the email.');
-    })
-    .finally(() => {
-      setIsEmailSending(false);
-    });
-};
-
-const handleEmailModalClose = () => {
-  setEmailModal({ isOpen: false, leadEmail: '', leadName: '' });
-  setEmailForm({ to: '', subject: '', message: '' });
-};
-
-// Call modal handler functions
-const handleCallClick = (phoneNumber: string, leadName: string) => {
-  setCallModal({
-    isOpen: true,
-    phoneNumber,
-    leadName
-  });
-  setCallForm({
-    phone: phoneNumber,
-    message: `Hi ${leadName},\n\nI hope this call finds you well. I wanted to follow up on our previous conversation...\n\nBest regards,`
-  });
-};
-
-const handleCallSend = () => {
-  if (!callForm.phone.trim() || !callForm.message.trim()) {
-    toast.error('Please fill in all fields.');
-    return;
-  }
-
-  setIsCallSending(true);
-  // Sample handler function - you can replace this with actual API call
-  console.log("Sending call message:", callForm);
-  
-  // Simulate API call
-  setTimeout(() => {
-    toast.success("Call message sent successfully!");
-    setCallModal({ isOpen: false, phoneNumber: '', leadName: '' });
-    setCallForm({ phone: '', message: '' });
-    setIsCallSending(false);
-  }, 2000);
-};
-
-const handleCallModalClose = () => {
-  setCallModal({ isOpen: false, phoneNumber: '', leadName: '' });
-  setCallForm({ phone: '', message: '' });
-};
-
-// View lead handler function
-const handleViewLead = (leadId: string) => {
-  navigate(`/lead-details/${leadId}`);
-};
-
-// Add project handler function
-const handleAddProject = (leadId: string) => {
-  console.log("Adding project for lead:", leadId);
-  setOpenAddProjectModal(true);
-};
-
-const handleProjectAdded = (projectData: any) => {
-  console.log("Project added:", projectData);
-  // Refresh kanban board after project is added
-  if (onRefresh) {
-    try {
-      onRefresh();
-    } catch (e) {
-      console.log("onRefresh error after project add", e);
-    }
-  }
-};
   // Prevent incorrect drags
   // function onDragStart(args: any) {
   //   if (args.data.Status === "Closed Won" || args.data.Status === "Closed Lost") {
@@ -322,26 +321,26 @@ const handleProjectAdded = (projectData: any) => {
   //   }
   // }
 
-function onDragStop(args: any) {
-  // let cardData = Array.isArray(args.data) ? args.data : args.data;
- const cardData = Array.isArray(args.data) ? args.data[0] : args.data;
-console.log('args',args)
-  // If cardData.Status is already the target column status after drop
+  function onDragStop(args: any) {
+    // let cardData = Array.isArray(args.data) ? args.data : args.data;
+    const cardData = Array.isArray(args.data) ? args.data[0] : args.data;
+    console.log('args', args)
+    // If cardData.Status is already the target column status after drop
 
-  if (!cardData) return;
+    if (!cardData) return;
 
-  // Now call handleStatusUpdate with the updated status
-  console.log("leadData.id", leadData);
-  const existing = leadData.find((x) => x.Id === cardData.Id);
-  console.log("find", existing);
+    // Now call handleStatusUpdate with the updated status
+    console.log("leadData.id", leadData);
+    const existing = leadData.find((x) => x.Id === cardData.Id);
+    console.log("find", existing);
 
-  // Only trigger if status actually changed
-  if (!existing || existing.Status === cardData.Status) {
-    return;
+    // Only trigger if status actually changed
+    if (!existing || existing.Status === cardData.Status) {
+      return;
+    }
+
+    handleStatusUpdate(cardData);
   }
-
-  handleStatusUpdate(cardData);
-}
 
 
 
@@ -350,265 +349,264 @@ console.log('args',args)
   const cardTemplate = (props: any) => {
     return (
       <div
-  className="e-card-content"
-  style={{
-    background: '#ffffff',
-    border: '1px solid #e2e8f0',
-    borderRadius: '10px',
-    boxShadow: '0 2px 4px rgba(0,0,0,0.06)',
-    margin: '5px',
-    transition: 'all 0.2s ease-in-out',
-    cursor: 'pointer',
-    minWidth: '240px',
-    width: '240px',
-    overflow: 'hidden'
-  }}
->
-  {/* Header */}
-  <div
-    style={{
-      padding: '10px 12px 8px 12px',
-      position: 'relative',
-      background: 'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)',
-      borderBottom: '1px solid #e2e8f0'
-    }}
-  >
-    {/* View Icon */}
-    <button
-      onClick={(e) => {
-        e.stopPropagation();
-        handleViewLead(props.LeadId || props.Id);
-
-
-
-      }}
-      style={{
-        position: 'absolute',
-        top: '8px',
-        right: '8px',
-        width: '28px',
-        height: '28px',
-        borderRadius: '50%',
-        background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
-        color: 'white',
-        border: 'none',
-        cursor: 'pointer',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        boxShadow: '0 1px 3px rgba(0,0,0,0.12)',
-        transition: 'all 0.2s ease-in-out',
-        zIndex: 10
-      }}
-      onMouseOver={(e) => {
-        (e.target as HTMLButtonElement).style.transform = 'scale(1.06)';
-      }}
-      onMouseOut={(e) => {
-        (e.target as HTMLButtonElement).style.transform = 'scale(1)';
-      }}
-      aria-label="View"
-      title="View"
-    >
-      <TbEyeShare size={14} />
-    </button>
-
-    {/* Lead Info */}
-    <div style={{ display: 'flex', alignItems: 'center', marginBottom: '6px' }}>
-      <div
+        className="e-card-content"
         style={{
-          width: '36px',
-          height: '36px',
-          background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
-          borderRadius: '50%',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          color: 'white',
-          marginRight: '8px',
-          boxShadow: '0 1px 2px rgba(0,0,0,0.08)'
+          background: '#ffffff',
+          border: '1px solid #e2e8f0',
+          borderRadius: '10px',
+          boxShadow: '0 2px 4px rgba(0,0,0,0.06)',
+          margin: '5px',
+          transition: 'all 0.2s ease-in-out',
+          cursor: 'pointer',
+          minWidth: '240px',
+          width: '240px',
+          overflow: 'hidden'
         }}
       >
-        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-        </svg>
-      </div>
-      <div style={{ flex: 1, minWidth: 0 }}>
+        {/* Header */}
         <div
           style={{
-            fontSize: '15px',
-            fontWeight: '700',
-            color: '#1f2937',
-            marginBottom: '2px',
-            lineHeight: 1.15,
-            whiteSpace: 'nowrap',
-            overflow: 'hidden',
-            textOverflow: 'ellipsis'
+            padding: '10px 12px 8px 12px',
+            position: 'relative',
+            background: 'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)',
+            borderBottom: '1px solid #e2e8f0'
           }}
         >
-          {props.LeadName || 'Unknown Lead'}
-        </div>
-        <div style={{ fontSize: '12px', color: '#6b7280', fontWeight: 500, lineHeight: 1.2 }}>
-          {props.Company || 'No Company'}
-        </div>
-      </div>
-    </div>
+          {/* View Icon */}
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              handleViewLead(props.LeadId, String(props.Id));
 
-    {/* Order Info */}
-    <div
-      style={{
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        background: 'white',
-        padding: '6px 8px',
-        borderRadius: '6px',
-        border: '1px solid #e5e7eb'
-      }}
-    >
-      <div>
-        <div style={{ fontSize: '10px', color: '#6b7280', fontWeight: 600, marginBottom: '1px' }}>Order</div>
-        <div style={{ fontSize: '12px', color: '#1f2937', fontWeight: 600, lineHeight: 1.2 }}>
-          {props.Title || 'N/A'}
-        </div>
-      </div>
-      <div style={{ textAlign: 'right' }}>
-        <div style={{ fontSize: '10px', color: '#6b7280', fontWeight: 600, marginBottom: '1px' }}>Amount</div>
-        <div style={{ fontSize: '13px', color: '#059669', fontWeight: 700, lineHeight: 1.2 }}>
-          ${props.OrderAmount ? props.OrderAmount.toLocaleString() : '0'}
-        </div>
-      </div>
-    </div>
-  </div>
 
-  {/* Contact */}
-  <div style={{ padding: '8px 12px' }}>
-    <div
-      style={{
-        display: 'flex',
-        alignItems: 'center',
-        marginBottom: '4px',
-        padding: '2px 0'
-      }}
-    >
-      <svg
-        style={{ width: '13px', height: '13px', marginRight: '5px', color: '#6b7280' }}
-        fill="none"
-        stroke="currentColor"
-        viewBox="0 0 24 24"
-      >
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-      </svg>
-      <span style={{ fontSize: '12px', color: '#374151', fontWeight: 500, lineHeight: 1.2 }}>
-        {props.Email || 'No email provided'}
-      </span>
-    </div>
-
-    <div
-      style={{
-        display: 'flex',
-        alignItems: 'center',
-        marginBottom: '6px',
-        padding: '2px 0'
-      }}
-    >
-      <svg
-        style={{ width: '13px', height: '13px', marginRight: '5px', color: '#6b7280' }}
-        fill="none"
-        stroke="currentColor"
-        viewBox="0 0 24 24"
-      >
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
-      </svg>
-      <span style={{ fontSize: '12px', color: '#374151', fontWeight: 500, lineHeight: 1.2 }}>
-        {props.Phone || 'No phone provided'}
-      </span>
-    </div>
-
-    {/* Actions */}
-    <div style={{ display: 'flex', gap: '6px', marginBottom: '8px' }}>
-      <button
-        onClick={(e) => {
-          e.stopPropagation();
-          handleEmailClick(props.Email, props.LeadName || props.Title);
-        }}
-        style={{
-          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-          color: 'white',
-          border: 'none',
-          borderRadius: '6px',
-          padding: '6px 8px',
-          fontSize: '11px',
-          fontWeight: 700,
-          cursor: 'pointer',
-          flex: 1,
-          transition: 'all 0.2s ease-in-out'
-        }}
-      >
-        Email
-      </button>
-
-      <button
-        onClick={(e) => {
-          e.stopPropagation();
-          handleCallClick(props.Phone, props.LeadName || props.Title);
-        }}
-        style={{
-          background: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
-          color: 'white',
-          border: 'none',
-          borderRadius: '6px',
-          padding: '6px 8px',
-          fontSize: '11px',
-          fontWeight: 700,
-          cursor: 'pointer',
-          flex: 1,
-          transition: 'all 0.2s ease-in-out'
-        }}
-      >
-        Text
-      </button>
-    </div>
-
-    {/* Tags */}
-    {props.OrderType && props.OrderType.length > 0 && (
-      <div
-        style={{
-          display: 'flex',
-          flexWrap: 'wrap',
-          gap: '4px',
-          paddingTop: '4px',
-          borderTop: '1px solid #e5e7eb'
-        }}
-      >
-        {props.OrderType.map((type: string, index: number) => (
-          <span
-            key={index}
+            }}
             style={{
-              background: getOrderTypeColor(type),
-              color: '#374151',
-              padding: '3px 7px',
-              borderRadius: '12px',
-              fontSize: '10px',
-              fontWeight: 700,
-              display: 'inline-block',
-              border: '1px solid rgba(0,0,0,0.04)',
-              lineHeight: 1.1
+              position: 'absolute',
+              top: '8px',
+              right: '8px',
+              width: '28px',
+              height: '28px',
+              borderRadius: '50%',
+              background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+              color: 'white',
+              border: 'none',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              boxShadow: '0 1px 3px rgba(0,0,0,0.12)',
+              transition: 'all 0.2s ease-in-out',
+              zIndex: 10
+            }}
+            onMouseOver={(e) => {
+              (e.target as HTMLButtonElement).style.transform = 'scale(1.06)';
+            }}
+            onMouseOut={(e) => {
+              (e.target as HTMLButtonElement).style.transform = 'scale(1)';
+            }}
+            aria-label="View"
+            title="View"
+          >
+            <TbEyeShare size={14} />
+          </button>
+
+          {/* Lead Info */}
+          <div style={{ display: 'flex', alignItems: 'center', marginBottom: '6px' }}>
+            <div
+              style={{
+                width: '36px',
+                height: '36px',
+                background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
+                borderRadius: '50%',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: 'white',
+                marginRight: '8px',
+                boxShadow: '0 1px 2px rgba(0,0,0,0.08)'
+              }}
+            >
+              <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+              </svg>
+            </div>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div
+                style={{
+                  fontSize: '15px',
+                  fontWeight: '700',
+                  color: '#1f2937',
+                  marginBottom: '2px',
+                  lineHeight: 1.15,
+                  whiteSpace: 'nowrap',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis'
+                }}
+              >
+                {props.LeadName || 'Unknown Lead'}
+              </div>
+              <div style={{ fontSize: '12px', color: '#6b7280', fontWeight: 500, lineHeight: 1.2 }}>
+                {props.Company || 'No Company'}
+              </div>
+            </div>
+          </div>
+
+          {/* Order Info */}
+          <div
+            style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              background: 'white',
+              padding: '6px 8px',
+              borderRadius: '6px',
+              border: '1px solid #e5e7eb'
             }}
           >
-            {type}
-          </span>
-        ))}
+            <div>
+              <div style={{ fontSize: '10px', color: '#6b7280', fontWeight: 600, marginBottom: '1px' }}>Order</div>
+              <div style={{ fontSize: '12px', color: '#1f2937', fontWeight: 600, lineHeight: 1.2 }}>
+                {props.Title || 'N/A'}
+              </div>
+            </div>
+            <div style={{ textAlign: 'right' }}>
+              <div style={{ fontSize: '10px', color: '#6b7280', fontWeight: 600, marginBottom: '1px' }}>Amount</div>
+              <div style={{ fontSize: '13px', color: '#059669', fontWeight: 700, lineHeight: 1.2 }}>
+                ${props.OrderAmount ? props.OrderAmount.toLocaleString() : '0'}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Contact */}
+        <div style={{ padding: '8px 12px' }}>
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              marginBottom: '4px',
+              padding: '2px 0'
+            }}
+          >
+            <svg
+              style={{ width: '13px', height: '13px', marginRight: '5px', color: '#6b7280' }}
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+            </svg>
+            <span style={{ fontSize: '12px', color: '#374151', fontWeight: 500, lineHeight: 1.2 }}>
+              {props.Email || 'No email provided'}
+            </span>
+          </div>
+
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              marginBottom: '6px',
+              padding: '2px 0'
+            }}
+          >
+            <svg
+              style={{ width: '13px', height: '13px', marginRight: '5px', color: '#6b7280' }}
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+            </svg>
+            <span style={{ fontSize: '12px', color: '#374151', fontWeight: 500, lineHeight: 1.2 }}>
+              {props.Phone || 'No phone provided'}
+            </span>
+          </div>
+
+          {/* Actions */}
+          <div style={{ display: 'flex', gap: '6px', marginBottom: '8px' }}>
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                handleEmailClick(props.Email, props.LeadName || props.Title);
+              }}
+              style={{
+                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                color: 'white',
+                border: 'none',
+                borderRadius: '6px',
+                padding: '6px 8px',
+                fontSize: '11px',
+                fontWeight: 700,
+                cursor: 'pointer',
+                flex: 1,
+                transition: 'all 0.2s ease-in-out'
+              }}
+            >
+              Email
+            </button>
+
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                handleCallClick(props.Phone, props.LeadName || props.Title);
+              }}
+              style={{
+                background: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+                color: 'white',
+                border: 'none',
+                borderRadius: '6px',
+                padding: '6px 8px',
+                fontSize: '11px',
+                fontWeight: 700,
+                cursor: 'pointer',
+                flex: 1,
+                transition: 'all 0.2s ease-in-out'
+              }}
+            >
+              Text
+            </button>
+          </div>
+
+          {/* Tags */}
+          {props.OrderType && props.OrderType.length > 0 && (
+            <div
+              style={{
+                display: 'flex',
+                flexWrap: 'wrap',
+                gap: '4px',
+                paddingTop: '4px',
+                borderTop: '1px solid #e5e7eb'
+              }}
+            >
+              {props.OrderType.map((type: string, index: number) => (
+                <span
+                  key={index}
+                  style={{
+                    background: getOrderTypeColor(type),
+                    color: '#374151',
+                    padding: '3px 7px',
+                    borderRadius: '12px',
+                    fontSize: '10px',
+                    fontWeight: 700,
+                    display: 'inline-block',
+                    border: '1px solid rgba(0,0,0,0.04)',
+                    lineHeight: 1.1
+                  }}
+                >
+                  {type}
+                </span>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
-    )}
-  </div>
-</div>
 
 
     );
   };
 
   return (
-    <div style={{ 
+    <div style={{
       padding: '5px',
       backgroundColor: '#fff'
     }}>
@@ -630,7 +628,7 @@ console.log('args',args)
         }}>
           Bulk Orders Kanban Board
         </h2>
-        
+
         <button
           onClick={() => setOpenAddProjectModal(true)}
           style={{
@@ -662,9 +660,9 @@ console.log('args',args)
         </button>
       </div>
 
-      <div style={{ 
-        overflowX: "auto", 
-        width: "100%", 
+      <div style={{
+        overflowX: "auto",
+        width: "100%",
         whiteSpace: "nowrap",
         padding: '10px 0'
       }}>
@@ -832,7 +830,7 @@ console.log('args',args)
                 <input
                   type="email"
                   value={emailForm.to}
-                  onChange={(e) => setEmailForm({...emailForm, to: e.target.value})}
+                  onChange={(e) => setEmailForm({ ...emailForm, to: e.target.value })}
                   style={{
                     width: '100%',
                     padding: '10px 12px',
@@ -861,7 +859,7 @@ console.log('args',args)
                 <input
                   type="text"
                   value={emailForm.subject}
-                  onChange={(e) => setEmailForm({...emailForm, subject: e.target.value})}
+                  onChange={(e) => setEmailForm({ ...emailForm, subject: e.target.value })}
                   style={{
                     width: '100%',
                     padding: '10px 12px',
@@ -889,7 +887,7 @@ console.log('args',args)
                 </label>
                 <textarea
                   value={emailForm.message}
-                  onChange={(e) => setEmailForm({...emailForm, message: e.target.value})}
+                  onChange={(e) => setEmailForm({ ...emailForm, message: e.target.value })}
                   rows={6}
                   style={{
                     width: '100%',
@@ -945,7 +943,7 @@ console.log('args',args)
                     fontSize: '14px',
                     fontWeight: '600',
                     color: 'white',
-                    background: isEmailSending 
+                    background: isEmailSending
                       ? 'linear-gradient(135deg, #9ca3af 0%, #6b7280 100%)'
                       : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
                     cursor: isEmailSending ? 'not-allowed' : 'pointer',
@@ -1048,7 +1046,7 @@ console.log('args',args)
                 <input
                   type="tel"
                   value={callForm.phone}
-                  onChange={(e) => setCallForm({...callForm, phone: e.target.value})}
+                  onChange={(e) => setCallForm({ ...callForm, phone: e.target.value })}
                   style={{
                     width: '100%',
                     padding: '10px 12px',
@@ -1076,7 +1074,7 @@ console.log('args',args)
                 </label>
                 <textarea
                   value={callForm.message}
-                  onChange={(e) => setCallForm({...callForm, message: e.target.value})}
+                  onChange={(e) => setCallForm({ ...callForm, message: e.target.value })}
                   rows={6}
                   style={{
                     width: '100%',
@@ -1132,7 +1130,7 @@ console.log('args',args)
                     fontSize: '14px',
                     fontWeight: '600',
                     color: 'white',
-                    background: isCallSending 
+                    background: isCallSending
                       ? 'linear-gradient(135deg, #9ca3af 0%, #6b7280 100%)'
                       : 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
                     cursor: isCallSending ? 'not-allowed' : 'pointer',

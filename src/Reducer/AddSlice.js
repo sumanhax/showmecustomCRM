@@ -1,6 +1,7 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import api from "../store/Api";
 import axios from "axios";
+import newApi from "../store/NewApi";
 
 // export const addRep = createAsyncThunk(
 //     'add/addRep',
@@ -26,7 +27,7 @@ export const addManager = createAsyncThunk(
     async (userInput, { rejectWithValue }) => {
         try {
             const response = await api.post('/api/admin/dashboard/add-manager', userInput);
-            console.log("response",response)
+            console.log("response", response)
             if (response?.data?.status_code === 201) {
                 return response.data;
             } else {
@@ -64,10 +65,10 @@ export const addManager = createAsyncThunk(
 export const repDashboard = createAsyncThunk(
     'add/repDashboard',
     async (userInput, { rejectWithValue }) => {
-        console.log("userInput",userInput);
+        console.log("userInput", userInput);
         try {
             const response = await api.get(`/api/rep/dashboard/${userInput}/task-list`);
-            console.log("action response",response)
+            console.log("action response", response)
             if (response?.data?.status_code === 200) {
                 return response.data;
             } else {
@@ -85,10 +86,10 @@ export const repDashboard = createAsyncThunk(
 export const addLeadNote = createAsyncThunk(
     'add/addLeadNote',
     async (userInput, { rejectWithValue }) => {
-        console.log("userInput",userInput);
+        console.log("userInput", userInput);
         try {
             const response = await api.post(`/api/admin/dashboard/add-leadnote`, userInput);
-            console.log("action response",response)
+            console.log("action response", response)
             if (response?.data?.status_code === 201) {
                 return response.data;
             } else {
@@ -106,10 +107,10 @@ export const addLeadNote = createAsyncThunk(
 export const getLeadNote = createAsyncThunk(
     'add/getLeadNote',
     async (userInput, { rejectWithValue }) => {
-        console.log("userInput",userInput);
+        console.log("userInput", userInput);
         try {
             const response = await api.post(`/api/rep/dashboard/list/lead-notes`, userInput);
-            console.log("action response",response)
+            console.log("action response", response)
             if (response?.data?.status_code === 200) {
                 return response.data;
             } else {
@@ -127,10 +128,10 @@ export const getLeadNote = createAsyncThunk(
 export const getLeadNoteAdmin = createAsyncThunk(
     'add/getLeadNoteAdmin',
     async (userInput, { rejectWithValue }) => {
-        console.log("userInput",userInput);
+        console.log("userInput", userInput);
         try {
             const response = await api.get(`/api/admin/dashboard/all-notes`, userInput);
-            console.log("action response",response)
+            console.log("action response", response)
             if (response?.data?.status_code === 200) {
                 return response.data;
             } else {
@@ -397,7 +398,7 @@ export const addAction = createAsyncThunk(
     'add/addAction',
     async (userInput, { rejectWithValue }) => {
         try {
-            const response = await api.post('/postgresapi/admin/lead-manage/create-action',userInput);
+            const response = await api.post('/postgresapi/admin/lead-manage/create-action', userInput);
             if (response?.data?.status_code === 200 || response?.data?.status_code === 201) {
                 return response.data;
             } else {
@@ -416,7 +417,7 @@ export const actionList = createAsyncThunk(
     'add/actionList',
     async (userInput, { rejectWithValue }) => {
         try {
-            const response = await api.get('/postgresapi/admin/lead-manage/actions/list?page=1&limit=20',userInput);
+            const response = await api.get('/postgresapi/admin/lead-manage/actions/list?page=1&limit=20', userInput);
             if (response?.data?.status_code === 200 || response?.data?.status_code === 201) {
                 return response.data;
             } else {
@@ -492,7 +493,7 @@ export const actionStatusChange = createAsyncThunk(
     'add/actionStatusChange',
     async (userInput, { rejectWithValue }) => {
         try {
-            const response = await api.post(`/postgresapi/reps/dashboard/action/change`,userInput);
+            const response = await api.post(`/postgresapi/reps/dashboard/action/change`, userInput);
             if (response?.data?.status_code === 200 || response?.data?.status_code === 201) {
                 return response.data;
             } else {
@@ -511,11 +512,11 @@ export const actionListbyRep = createAsyncThunk(
     'add/actionListbyRep',
     async (token, { rejectWithValue }) => {
         try {
-            const response = await api.get(`/postgresapi/reps/dashboard/actions/list`,{
+            const response = await api.get(`/postgresapi/reps/dashboard/actions/list`, {
                 headers: {
-                  'Authorization': `Bearer ${token}`
+                    'Authorization': `Bearer ${token}`
                 }
-              });
+            });
             if (response?.data?.status_code === 200 || response?.data?.status_code === 201) {
                 return response.data;
             } else {
@@ -531,25 +532,48 @@ export const actionListbyRep = createAsyncThunk(
     }
 )
 
+export const leadListNew = createAsyncThunk(
+    'add/leadListNew',
+    async (_, { rejectWithValue }) => {
+        try {
+            const response = await newApi.get('/api/leads/list');
+            if (response?.status === 200 || response?.status === 201) {
+                return response.data;
+            } else {
+                return rejectWithValue(
+                    response?.data?.message || 'Failed to fetch leads'
+                );
+            }
+        } catch (err) {
+            return rejectWithValue(
+                err.response?.data?.message || err.message || 'Something went wrong'
+            );
+        }
+    }
+)
 
 const initialState = {
     error: null,
-    loading: false, 
-    repListData:{},
-    ManagerDataResponse:{},
-    actionListData:{},
-    repDashboardData:{},
-    addLeadNoteData:{},
-    getLeadNoteData:{},
-    getLeadNoteAdminData:{},
-    updatePartnerClassificationResponse:{},
-    kanbanListData:{},
-    kanbanBulkOrderListData:{},
-    leadListData:{},
-    leadSingleData:{},
-    leadListSearchData:{},
-    actionListbyRepData:{},
-    leadListbyRepData:{}
+    loading: false,
+    repListData: {},
+    ManagerDataResponse: {},
+    actionListData: {},
+    repDashboardData: {},
+    addLeadNoteData: {},
+    getLeadNoteData: {},
+    getLeadNoteAdminData: {},
+    updatePartnerClassificationResponse: {},
+    kanbanListData: {},
+    kanbanBulkOrderListData: {},
+    leadListData: {},
+    leadSingleData: {},
+    leadListSearchData: {},
+    actionListbyRepData: {},
+    leadListbyRepData: {},
+
+    leadListNewData: {},
+    leadListNewLoading: false,
+    leadListNewError: null,
 }
 
 //slice part
@@ -567,7 +591,7 @@ const AddSlice = createSlice(
                 .addCase(addRep.fulfilled, (state, { payload }) => {
                     state.loading = false;
                     state.message = payload;
-                    
+
                 })
                 .addCase(addRep.rejected, (state, { payload }) => {
                     state.loading = false;
@@ -581,7 +605,7 @@ const AddSlice = createSlice(
                 .addCase(addManager.fulfilled, (state, { payload }) => {
                     state.loading = false;
                     state.message = payload;
-                    state.ManagerDataResponse=payload
+                    state.ManagerDataResponse = payload
                 })
                 .addCase(addManager.rejected, (state, { payload }) => {
                     state.loading = false;
@@ -595,251 +619,265 @@ const AddSlice = createSlice(
                 .addCase(actionList.fulfilled, (state, { payload }) => {
                     state.loading = false;
                     state.message = payload;
-                    state.actionListData=payload
+                    state.actionListData = payload
                 })
                 .addCase(actionList.rejected, (state, { payload }) => {
                     state.loading = false;
                     state.error = payload;
                 })
-                    .addCase(repDashboard.pending, (state) => {
-                        state.message = null
-                        state.loading = true;
-                        state.error = null
-                    })
-                    .addCase(repDashboard.fulfilled, (state, { payload }) => {
-                        state.loading = false;
-                        state.message = payload;
-                        state.repDashboardData=payload
-                    })
-                    .addCase(repDashboard.rejected, (state, { payload }) => {
-                        state.loading = false;
-                        state.error = payload;
-                    })
-                    .addCase(addLeadNote.pending, (state) => {
-                        state.message = null
-                        state.loading = true;
-                        state.error = null
-                    })
-                    .addCase(addLeadNote.fulfilled, (state, { payload }) => {
-                        state.loading = false;
-                        state.message = payload;
-                        state.addLeadNoteData=payload
-                    })
-                    .addCase(addLeadNote.rejected, (state, { payload }) => {
-                        state.loading = false;
-                        state.error = payload;
-                    })
-                    .addCase(getLeadNote.pending, (state) => {
-                        state.message = null
-                        state.loading = true;
-                        state.error = null
-                    })
-                    .addCase(getLeadNote.fulfilled, (state, { payload }) => {
-                        state.loading = false;
-                        state.message = payload;
-                        state.getLeadNoteData=payload
-                    })
-                    .addCase(getLeadNote.rejected, (state, { payload }) => {
-                        state.loading = false;
-                        state.error = payload;
-                    })
-                    .addCase(getLeadNoteAdmin.pending, (state) => {
-                        state.message = null
-                        state.loading = true;
-                        state.error = null
-                    })
-                    .addCase(getLeadNoteAdmin.fulfilled, (state, { payload }) => {
-                        state.loading = false;
-                        state.message = payload;
-                        state.getLeadNoteAdminData=payload
-                    })
-                    .addCase(getLeadNoteAdmin.rejected, (state, { payload }) => {
-                        state.loading = false;
-                        state.error = payload;
-                    })
-                    .addCase(updatePartnerClassification.pending, (state) => {
-                        state.message = null
-                        state.loading = true;
-                        state.error = null
-                    })
-                    .addCase(updatePartnerClassification.fulfilled, (state, { payload }) => {
-                        state.loading = false;
-                        state.message = payload;
-                        state.updatePartnerClassificationResponse = payload;
-                    })
-                    .addCase(updatePartnerClassification.rejected, (state, { payload }) => {
-                        state.loading = false;
-                        state.error = payload;
-                    })
-                    // lead
-                    .addCase(addLead.pending, (state) => {
-                        state.message = null
-                        state.loading = true;
-                        state.error = null
-                    })
-                    .addCase(addLead.fulfilled, (state, { payload }) => {
-                        state.loading = false;
-                        state.message = payload;
-                    })
-                    .addCase(addLead.rejected, (state, { payload }) => {
-                        state.loading = false;
-                        state.error = payload;
-                    })
-                    .addCase(leadList.pending, (state) => {
-                        state.message = null
-                        state.loading = true;
-                        state.error = null
-                    })
-                    .addCase(leadList.fulfilled, (state, { payload }) => {
-                        state.loading = false;
-                        state.message = payload;
-                        state.leadListData=payload
-                    })
-                    .addCase(leadList.rejected, (state, { payload }) => {
-                        state.loading = false;
-                        state.error = payload;
-                    })
-                    .addCase(leadSingle.pending, (state) => {
-                        state.message = null
-                        state.loading = true;
-                        state.error = null
-                    })
-                    .addCase(leadSingle.fulfilled, (state, { payload }) => {
-                        state.loading = false;
-                        state.message = payload;
-                        state.leadSingleData=payload
-                    })
-                    .addCase(leadSingle.rejected, (state, { payload }) => {
-                        state.loading = false;
-                        state.error = payload;
-                    })
-                    // rep
-                    .addCase(repList.pending, (state) => {
-                        state.message = null
-                        state.loading = true;
-                        state.error = null
-                    })
-                    .addCase(repList.fulfilled, (state, { payload }) => {
-                        state.loading = false;
-                        state.message = payload;
-                        state.repListData=payload
-                    })
-                    .addCase(repList.rejected, (state, { payload }) => {
-                        state.loading = false;
-                        state.error = payload;
-                    })
-                    // kanban
-                    .addCase(kanbanList.pending, (state) => {
-                        state.message = null
-                        state.loading = true;
-                        state.error = null
-                    })
-                    .addCase(kanbanList.fulfilled, (state, { payload }) => {
-                        state.loading = false;
-                        state.message = payload;
-                        state.kanbanListData=payload
-                    })
-                    .addCase(kanbanList.rejected, (state, { payload }) => {
-                        state.loading = false;
-                        state.error = payload;
-                    })
-                    .addCase(kanbanDragnDrop.pending, (state) => {
-                        state.message = null
-                        state.loading = true;
-                        state.error = null
-                    })
-                    .addCase(kanbanDragnDrop.fulfilled, (state, { payload }) => {
-                        state.loading = false;
-                        state.message = payload;
-                    })
-                    .addCase(kanbanDragnDrop.rejected, (state, { payload }) => {
-                        state.loading = false;
-                        state.error = payload;
-                    })
-                    .addCase(leadListSearch.pending, (state) => {
-                        state.message = null
-                        state.loading = true;
-                        state.error = null
-                    })
-                    .addCase(leadListSearch.fulfilled, (state, { payload }) => {
-                        state.loading = false;
-                        state.message = payload;
-                        state.leadListSearchData=payload
-                    })
-                    .addCase(leadListSearch.rejected, (state, { payload }) => {
-                        state.loading = false;
-                        state.error = payload;
-                    })
-                    .addCase(kanbanAddProject.pending, (state) => {
-                        state.message = null
-                        state.loading = true;
-                        state.error = null
-                    })
-                    .addCase(kanbanAddProject.fulfilled, (state, { payload }) => {
-                        state.loading = false;
-                        state.message = payload;
-                    })
-                    .addCase(kanbanAddProject.rejected, (state, { payload }) => {
-                        state.loading = false;
-                        state.error = payload;
-                    })
-                    .addCase(kanbanBulkOrderList.pending, (state) => {
-                        state.message = null;
-                        state.loading = true;
-                        state.error = null;
-                    })
-                    .addCase(kanbanBulkOrderList.fulfilled, (state, { payload }) => {
-                        state.loading = false;
-                        state.message = payload;
-                        state.kanbanBulkOrderListData = payload;
-                    })
-                    .addCase(kanbanBulkOrderList.rejected, (state, { payload }) => {
-                        state.loading = false;
-                        state.error = payload;
-                    })
-                    .addCase(kanbanBulkOrderDragnDrop.pending, (state) => {
-                        state.message = null;
-                        state.loading = true;
-                        state.error = null;
-                    })
-                    .addCase(kanbanBulkOrderDragnDrop.fulfilled, (state, { payload }) => {
-                        state.loading = false;
-                        state.message = payload;
-                    })
-                    .addCase(kanbanBulkOrderDragnDrop.rejected, (state, { payload }) => {
-                        state.loading = false;
-                        state.error = payload;
-                    })
-                    // actions
-                    .addCase(actionListbyRep.pending, (state) => {
-                        state.message = null;
-                        state.loading = true;
-                        state.error = null;
-                    })
-                    .addCase(actionListbyRep.fulfilled, (state, { payload }) => {
-                        state.loading = false;
-                        state.actionListbyRepData=payload?.data
-                        state.message = payload;
-                    })
-                    .addCase(actionListbyRep.rejected, (state, { payload }) => {
-                        state.loading = false;
-                        state.error = payload;
-                    })
-                    // repleads
-                    .addCase(leadListbyRep.pending, (state) => {
-                        state.message = null;
-                        state.loading = true;
-                        state.error = null;
-                    })
-                    .addCase(leadListbyRep.fulfilled, (state, { payload }) => {
-                        state.loading = false;
-                        state.leadListbyRepData=payload
-                        state.message = payload;
-                    })
-                    .addCase(leadListbyRep.rejected, (state, { payload }) => {
-                        state.loading = false;
-                        state.error = payload;
-                    });
+                .addCase(repDashboard.pending, (state) => {
+                    state.message = null
+                    state.loading = true;
+                    state.error = null
+                })
+                .addCase(repDashboard.fulfilled, (state, { payload }) => {
+                    state.loading = false;
+                    state.message = payload;
+                    state.repDashboardData = payload
+                })
+                .addCase(repDashboard.rejected, (state, { payload }) => {
+                    state.loading = false;
+                    state.error = payload;
+                })
+                .addCase(addLeadNote.pending, (state) => {
+                    state.message = null
+                    state.loading = true;
+                    state.error = null
+                })
+                .addCase(addLeadNote.fulfilled, (state, { payload }) => {
+                    state.loading = false;
+                    state.message = payload;
+                    state.addLeadNoteData = payload
+                })
+                .addCase(addLeadNote.rejected, (state, { payload }) => {
+                    state.loading = false;
+                    state.error = payload;
+                })
+                .addCase(getLeadNote.pending, (state) => {
+                    state.message = null
+                    state.loading = true;
+                    state.error = null
+                })
+                .addCase(getLeadNote.fulfilled, (state, { payload }) => {
+                    state.loading = false;
+                    state.message = payload;
+                    state.getLeadNoteData = payload
+                })
+                .addCase(getLeadNote.rejected, (state, { payload }) => {
+                    state.loading = false;
+                    state.error = payload;
+                })
+                .addCase(getLeadNoteAdmin.pending, (state) => {
+                    state.message = null
+                    state.loading = true;
+                    state.error = null
+                })
+                .addCase(getLeadNoteAdmin.fulfilled, (state, { payload }) => {
+                    state.loading = false;
+                    state.message = payload;
+                    state.getLeadNoteAdminData = payload
+                })
+                .addCase(getLeadNoteAdmin.rejected, (state, { payload }) => {
+                    state.loading = false;
+                    state.error = payload;
+                })
+                .addCase(updatePartnerClassification.pending, (state) => {
+                    state.message = null
+                    state.loading = true;
+                    state.error = null
+                })
+                .addCase(updatePartnerClassification.fulfilled, (state, { payload }) => {
+                    state.loading = false;
+                    state.message = payload;
+                    state.updatePartnerClassificationResponse = payload;
+                })
+                .addCase(updatePartnerClassification.rejected, (state, { payload }) => {
+                    state.loading = false;
+                    state.error = payload;
+                })
+                // lead
+                .addCase(addLead.pending, (state) => {
+                    state.message = null
+                    state.loading = true;
+                    state.error = null
+                })
+                .addCase(addLead.fulfilled, (state, { payload }) => {
+                    state.loading = false;
+                    state.message = payload;
+                })
+                .addCase(addLead.rejected, (state, { payload }) => {
+                    state.loading = false;
+                    state.error = payload;
+                })
+                .addCase(leadList.pending, (state) => {
+                    state.message = null
+                    state.loading = true;
+                    state.error = null
+                })
+                .addCase(leadList.fulfilled, (state, { payload }) => {
+                    state.loading = false;
+                    state.message = payload;
+                    state.leadListData = payload
+                })
+                .addCase(leadList.rejected, (state, { payload }) => {
+                    state.loading = false;
+                    state.error = payload;
+                })
+                .addCase(leadSingle.pending, (state) => {
+                    state.message = null
+                    state.loading = true;
+                    state.error = null
+                })
+                .addCase(leadSingle.fulfilled, (state, { payload }) => {
+                    state.loading = false;
+                    state.message = payload;
+                    state.leadSingleData = payload
+                })
+                .addCase(leadSingle.rejected, (state, { payload }) => {
+                    state.loading = false;
+                    state.error = payload;
+                })
+                // rep
+                .addCase(repList.pending, (state) => {
+                    state.message = null
+                    state.loading = true;
+                    state.error = null
+                })
+                .addCase(repList.fulfilled, (state, { payload }) => {
+                    state.loading = false;
+                    state.message = payload;
+                    state.repListData = payload
+                })
+                .addCase(repList.rejected, (state, { payload }) => {
+                    state.loading = false;
+                    state.error = payload;
+                })
+                // kanban
+                .addCase(kanbanList.pending, (state) => {
+                    state.message = null
+                    state.loading = true;
+                    state.error = null
+                })
+                .addCase(kanbanList.fulfilled, (state, { payload }) => {
+                    state.loading = false;
+                    state.message = payload;
+                    state.kanbanListData = payload
+                })
+                .addCase(kanbanList.rejected, (state, { payload }) => {
+                    state.loading = false;
+                    state.error = payload;
+                })
+                .addCase(kanbanDragnDrop.pending, (state) => {
+                    state.message = null
+                    state.loading = true;
+                    state.error = null
+                })
+                .addCase(kanbanDragnDrop.fulfilled, (state, { payload }) => {
+                    state.loading = false;
+                    state.message = payload;
+                })
+                .addCase(kanbanDragnDrop.rejected, (state, { payload }) => {
+                    state.loading = false;
+                    state.error = payload;
+                })
+                .addCase(leadListSearch.pending, (state) => {
+                    state.message = null
+                    state.loading = true;
+                    state.error = null
+                })
+                .addCase(leadListSearch.fulfilled, (state, { payload }) => {
+                    state.loading = false;
+                    state.message = payload;
+                    state.leadListSearchData = payload
+                })
+                .addCase(leadListSearch.rejected, (state, { payload }) => {
+                    state.loading = false;
+                    state.error = payload;
+                })
+                .addCase(kanbanAddProject.pending, (state) => {
+                    state.message = null
+                    state.loading = true;
+                    state.error = null
+                })
+                .addCase(kanbanAddProject.fulfilled, (state, { payload }) => {
+                    state.loading = false;
+                    state.message = payload;
+                })
+                .addCase(kanbanAddProject.rejected, (state, { payload }) => {
+                    state.loading = false;
+                    state.error = payload;
+                })
+                .addCase(kanbanBulkOrderList.pending, (state) => {
+                    state.message = null;
+                    state.loading = true;
+                    state.error = null;
+                })
+                .addCase(kanbanBulkOrderList.fulfilled, (state, { payload }) => {
+                    state.loading = false;
+                    state.message = payload;
+                    state.kanbanBulkOrderListData = payload;
+                })
+                .addCase(kanbanBulkOrderList.rejected, (state, { payload }) => {
+                    state.loading = false;
+                    state.error = payload;
+                })
+                .addCase(kanbanBulkOrderDragnDrop.pending, (state) => {
+                    state.message = null;
+                    state.loading = true;
+                    state.error = null;
+                })
+                .addCase(kanbanBulkOrderDragnDrop.fulfilled, (state, { payload }) => {
+                    state.loading = false;
+                    state.message = payload;
+                })
+                .addCase(kanbanBulkOrderDragnDrop.rejected, (state, { payload }) => {
+                    state.loading = false;
+                    state.error = payload;
+                })
+                // actions
+                .addCase(actionListbyRep.pending, (state) => {
+                    state.message = null;
+                    state.loading = true;
+                    state.error = null;
+                })
+                .addCase(actionListbyRep.fulfilled, (state, { payload }) => {
+                    state.loading = false;
+                    state.actionListbyRepData = payload?.data
+                    state.message = payload;
+                })
+                .addCase(actionListbyRep.rejected, (state, { payload }) => {
+                    state.loading = false;
+                    state.error = payload;
+                })
+                // repleads
+                .addCase(leadListbyRep.pending, (state) => {
+                    state.message = null;
+                    state.loading = true;
+                    state.error = null;
+                })
+                .addCase(leadListbyRep.fulfilled, (state, { payload }) => {
+                    state.loading = false;
+                    state.leadListbyRepData = payload
+                    state.message = payload;
+                })
+                .addCase(leadListbyRep.rejected, (state, { payload }) => {
+                    state.loading = false;
+                    state.error = payload;
+                })
+
+                .addCase(leadListNew.pending, (state) => {
+                    state.leadListNewLoading = true;
+                    state.leadListNewError = null;
+                })
+                .addCase(leadListNew.fulfilled, (state, { payload }) => {
+                    state.leadListNewLoading = false;
+                    state.leadListNewData = payload;
+                    state.leadListNewError = null;
+                })
+                .addCase(leadListNew.rejected, (state, { payload }) => {
+                    state.leadListNewLoading = false;
+                    state.leadListNewError = payload;
+                })
 
         }
     }

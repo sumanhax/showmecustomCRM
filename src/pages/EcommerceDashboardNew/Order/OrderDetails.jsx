@@ -392,7 +392,7 @@
 // export default OrderDetails;
 
 import { useEffect, useMemo, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import {
   FaArrowLeft, FaCheckCircle, FaTimesCircle, FaChevronDown,
@@ -439,6 +439,8 @@ const OrderDetails = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { orderListData, loading } = useSelector((state) => state.newecom);
+  const location = useLocation();
+  const openOrderId = location.state?.openOrderId;
 
   useEffect(() => {
     if (!orderListData?.data?.length) {
@@ -529,6 +531,7 @@ const OrderDetails = () => {
               title={`ORDER ${order.order_number}`}
               badge={order.status}
               icon={FaBox}
+              defaultOpen={String(order.id) === String(openOrderId)}
             >
               <div className="space-y-6">
 
