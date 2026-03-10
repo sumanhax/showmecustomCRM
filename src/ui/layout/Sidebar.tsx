@@ -312,7 +312,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                                     }`}
                                 >
                                   <PiKanbanFill className='text-xl' />
-                                  Kanban Sample
+                                  Leads Kanban
                                 </NavLink>
                               </li>
                             )} 
