@@ -47,6 +47,7 @@ import ManageWareHouseNewSlice from '../Reducer/ManageWareHouseNewSlice'
 import ManageDecorationNewSlice from '../Reducer/ManageDecorationNewSlice'
 import AddInvetoryNewSlice from '../Reducer/AddInvetoryNewSlice'
 import BulkUploadSlice from '../Reducer/BulkUploadSlice'
+import NewCouponSlice from '../Reducer/NewCouponSlice' 
 const store = configureStore({
   reducer: {
     auth: AuthSlice,
@@ -55,6 +56,7 @@ const store = configureStore({
     product: ProductSlice,
     pricing: PricingSlice,
     coupon: CouponSlice,
+    newCoupons: NewCouponSlice,
     upSellProduct: UpSellSlice,
     downSellProduct: DownSellSlice,
     editor: EditorSlice,

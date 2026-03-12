@@ -63,6 +63,7 @@ import ManageOrder from '../pages/EcommerceDashboardNew/Order/ManageOrder.jsx';
 import OrderDetails from '../pages/EcommerceDashboardNew/Order/OrderDetails.jsx';
 import BulkUpload from '../pages/BulkUpload/BulkUpload.jsx';
 import CMSUpload from '../pages/CMSUpload/CMSUpload.jsx';
+import ManageCoupon from '../pages/ManageCoupon/ManageCoupon.jsx';
 
 const allRoutes = [
   {
@@ -585,6 +586,16 @@ const allRoutes = [
       {
         index: true,
         element: <ManageOrder />,
+      },
+    ],
+  },
+  {
+    path: '/manage-coupon',
+    element: <InsideLayout />,
+    children: [
+      {
+        index: true,
+        element: <ManageCoupon />,
       },
     ],
   },

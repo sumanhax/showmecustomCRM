@@ -50,7 +50,7 @@ const InsideLayout = () => {
     <>
       <div className="dark:bg-boxdark-2 dark:text-bodydark">
         {/* <!-- ===== Page Wrapper Start ===== --> */}
-        <div className="lg:flex overflow-hidden pl-5 temp_bg pt-5">
+        <div className="lg:flex overflow-hidden pl-5 temp_bg pt-5 min-h-[100vh]">
           {/* <!-- ===== Sidebar Start ===== --> */}
           <Sidebar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
           {/* <!-- ===== Sidebar End ===== --> */}

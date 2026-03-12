@@ -152,11 +152,24 @@ export function KanbanBoardBulkOrder({
       await dispatch(kanbanBulkOrderDragnDrop({ id: card.Id, order_stage_id: targetCol.stageId, source: card.Source })).unwrap();
       toast.success("Stage updated successfully!");
       onRefresh?.();
-    } catch {
-      // Rollback on failure
-      setLeadData((prev) => prev.map((c) => c.Id === card.Id ? { ...c, Status: prevStatus, StageId: prevStageId } : c));
-      toast.error("Failed to update status. Please try again.");
-    }
+    } catch (error: any) {
+    setLeadData((prev) => prev.map((c) =>
+      c.Id === card.Id ? { ...c, Status: prevStatus, StageId: prevStageId } : c
+    ));
+
+    const errMsg =
+      typeof error === "string"
+        ? error
+        : error?.message || "Failed to update status. Please try again.";
+
+    toast.error(
+      <div>
+        <p style={{ fontWeight: 700, marginBottom: 4 }}>Stage Change Failed</p>
+        <p style={{ fontSize: 13, lineHeight: 1.5 }}>{errMsg}</p>
+      </div>,
+      { autoClose: 6000 }
+    );
+  }
   }, [columns, dispatch, onRefresh]);
 
   // ─── Show confirmation popup before move ────────────────────────────────────

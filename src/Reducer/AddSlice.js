@@ -372,22 +372,19 @@ export const kanbanBulkOrderDragnDrop = createAsyncThunk(
         try {
             const response = await api.patch(
                 `/postgresapi/admin/lead-manage/order-manage/kanban/${id}/change_stage`,
-                {
-                    order_stage_id,
-                    source,
-                }
+                { order_stage_id, source }
             );
             if (response?.data?.status_code === 200 || response?.data?.status_code === 201) {
                 return response.data;
             } else {
-                if (response?.data?.errors) {
-                    return rejectWithValue(response.data.errors);
-                } else {
-                    return rejectWithValue('Something went wrong.');
-                }
+                return rejectWithValue(
+                    response?.data?.message || 'Something went wrong.'
+                );
             }
         } catch (err) {
-            return rejectWithValue(err);
+            return rejectWithValue(
+                err?.response?.data?.message || err?.message || 'Something went wrong.'
+            );
         }
     }
 )
