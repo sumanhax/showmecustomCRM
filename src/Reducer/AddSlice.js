@@ -555,7 +555,7 @@ export const updateFromAdminStages = createAsyncThunk(
     async (payload, { rejectWithValue }) => {
         try {
             const response = await axios.patch(
-                'https://n8nnode.showmecustomapparel.com/webhook-test/update_from_admin_stages',
+                'https://n8nnode.showmecustomapparel.com/webhook/update_from_admin_stages',
                 payload,
                 {
                     headers: {
