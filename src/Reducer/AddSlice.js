@@ -549,6 +549,30 @@ export const leadListNew = createAsyncThunk(
     }
 )
 
+/* ================= UPDATE FROM ADMIN STAGES ================= */
+export const updateFromAdminStages = createAsyncThunk(
+    'add/updateFromAdminStages',
+    async (payload, { rejectWithValue }) => {
+        try {
+            const response = await axios.patch(
+                'https://n8nnode.showmecustomapparel.com/webhook-test/update_from_admin_stages',
+                payload,
+                {
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                }
+            );
+            if (response?.status === 200 || response?.status === 201) {
+                return response.data;
+            }
+            return rejectWithValue(response?.data?.message || 'Failed to update admin stages');
+        } catch (err) {
+            return rejectWithValue(err.response?.data?.message || err.message || 'Something went wrong');
+        }
+    }
+);
+
 const initialState = {
     error: null,
     loading: false,
@@ -571,6 +595,16 @@ const initialState = {
     leadListNewData: {},
     leadListNewLoading: false,
     leadListNewError: null,
+
+    // ── Headwear Order Email ──
+    headwearEmailLoading: false,
+    headwearEmailSuccess: false,
+    headwearEmailError: null,
+
+    // ── Update Admin Stages ──
+    updateAdminStagesLoading: false,
+    updateAdminStagesSuccess: false,
+    updateAdminStagesError: null,
 }
 
 //slice part
@@ -874,6 +908,22 @@ const AddSlice = createSlice(
                 .addCase(leadListNew.rejected, (state, { payload }) => {
                     state.leadListNewLoading = false;
                     state.leadListNewError = payload;
+                })
+
+                /* -------- UPDATE FROM ADMIN STAGES -------- */
+                .addCase(updateFromAdminStages.pending, (state) => {
+                    state.updateAdminStagesLoading = true;
+                    state.updateAdminStagesSuccess = false;
+                    state.updateAdminStagesError = null;
+                })
+                .addCase(updateFromAdminStages.fulfilled, (state) => {
+                    state.updateAdminStagesLoading = false;
+                    state.updateAdminStagesSuccess = true;
+                })
+                .addCase(updateFromAdminStages.rejected, (state, { payload }) => {
+                    state.updateAdminStagesLoading = false;
+                    state.updateAdminStagesSuccess = false;
+                    state.updateAdminStagesError = payload;
                 })
 
         }

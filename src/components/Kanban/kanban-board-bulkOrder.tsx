@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { FaPlus } from "react-icons/fa";
 import { TbEyeShare } from "react-icons/tb";
-import { kanbanBulkOrderDragnDrop } from "../../Reducer/AddSlice";
+import { kanbanBulkOrderDragnDrop, updateFromAdminStages} from "../../Reducer/AddSlice";
 import AddProjectModal from "../../pages/ManageLeads/AddProjectModal";
 import axios from "axios";
 import { MdOutlineEmail } from "react-icons/md";
@@ -139,37 +139,104 @@ export function KanbanBoardBulkOrder({
   }, [columnsData, source]);
 
   // ─── Status update (Optimistic UI) ──────────────────────────────────────────
+  // const executeStatusUpdate = useCallback(async (card: CardData, newStatus: string) => {
+  //   const targetCol = columns.find((c) => c.keyField === newStatus);
+  //   if (!targetCol?.stageId) return;
+  //   const prevStatus  = card.Status;
+  //   const prevStageId = card.StageId;
+
+  //   // Optimistic update — move card immediately
+  //   setLeadData((prev) => prev.map((c) => c.Id === card.Id ? { ...c, Status: newStatus, StageId: targetCol.stageId } : c));
+
+  //   try {
+  //     await dispatch(kanbanBulkOrderDragnDrop({ id: card.Id, order_stage_id: targetCol.stageId, source: card.Source })).unwrap();
+  //     toast.success("Stage updated successfully!");
+  //     onRefresh?.();
+  //   } catch (error: any) {
+  //   setLeadData((prev) => prev.map((c) =>
+  //     c.Id === card.Id ? { ...c, Status: prevStatus, StageId: prevStageId } : c
+  //   ));
+
+  //   const errMsg =
+  //     typeof error === "string"
+  //       ? error
+  //       : error?.message || "Failed to update status. Please try again.";
+
+  //   toast.error(
+  //     <div>
+  //       <p style={{ fontWeight: 700, marginBottom: 4 }}>Stage Change Failed</p>
+  //       <p style={{ fontSize: 13, lineHeight: 1.5 }}>{errMsg}</p>
+  //     </div>,
+  //     { autoClose: 6000 }
+  //   );
+  // }
+  // }, [columns, dispatch, onRefresh]);
+
   const executeStatusUpdate = useCallback(async (card: CardData, newStatus: string) => {
     const targetCol = columns.find((c) => c.keyField === newStatus);
     if (!targetCol?.stageId) return;
     const prevStatus  = card.Status;
     const prevStageId = card.StageId;
 
-    // Optimistic update — move card immediately
+    // Optimistic update
     setLeadData((prev) => prev.map((c) => c.Id === card.Id ? { ...c, Status: newStatus, StageId: targetCol.stageId } : c));
 
     try {
-      await dispatch(kanbanBulkOrderDragnDrop({ id: card.Id, order_stage_id: targetCol.stageId, source: card.Source })).unwrap();
+      const stageRes = await dispatch(kanbanBulkOrderDragnDrop({ 
+        id: card.Id, 
+        order_stage_id: targetCol.stageId, 
+        source: card.Source 
+      })).unwrap();
+
+      // ── Webhook call after successful stage change ──
+      if (stageRes?.status_code === 200) {
+        const webhookPayload = {
+          // customer details from card
+          customer: {
+            name: card.LeadName,
+            email: card.Email,
+            phone: card.Phone,
+            company_name: card.Company,
+          },
+          // stage change details from API response
+          order_id: stageRes?.data?.order_id,
+          source: stageRes?.data?.source,
+          old_order_stage_id: stageRes?.data?.old_order_stage_id,
+          new_order_stage_id: stageRes?.data?.new_order_stage_id,
+          history_id: stageRes?.data?.history_id,
+          // new stage name
+          new_stage_name: newStatus,
+          old_stage_name: card.Status,
+        };
+
+        try {
+          await dispatch(updateFromAdminStages(webhookPayload)).unwrap();
+        } catch (webhookErr) {
+          console.error("Webhook failed (non-blocking):", webhookErr);
+        }
+      }
+
       toast.success("Stage updated successfully!");
       onRefresh?.();
     } catch (error: any) {
-    setLeadData((prev) => prev.map((c) =>
-      c.Id === card.Id ? { ...c, Status: prevStatus, StageId: prevStageId } : c
-    ));
+      // Rollback on failure
+      setLeadData((prev) => prev.map((c) =>
+        c.Id === card.Id ? { ...c, Status: prevStatus, StageId: prevStageId } : c
+      ));
 
-    const errMsg =
-      typeof error === "string"
-        ? error
-        : error?.message || "Failed to update status. Please try again.";
+      const errMsg =
+        typeof error === "string"
+          ? error
+          : error?.message || "Failed to update status. Please try again.";
 
-    toast.error(
-      <div>
-        <p style={{ fontWeight: 700, marginBottom: 4 }}>Stage Change Failed</p>
-        <p style={{ fontSize: 13, lineHeight: 1.5 }}>{errMsg}</p>
-      </div>,
-      { autoClose: 6000 }
-    );
-  }
+      toast.error(
+        <div>
+          <p style={{ fontWeight: 700, marginBottom: 4 }}>Stage Change Failed</p>
+          <p style={{ fontSize: 13, lineHeight: 1.5 }}>{errMsg}</p>
+        </div>,
+        { autoClose: 6000 }
+      );
+    }
   }, [columns, dispatch, onRefresh]);
 
   // ─── Show confirmation popup before move ────────────────────────────────────
