@@ -597,6 +597,30 @@ export const updateLeadStages = createAsyncThunk(
     }
 );
 
+/* ================= SEND OFFLINE ORDER EMAIL ================= */
+export const sendOfflineOrderEmail = createAsyncThunk(
+    'add/sendOfflineOrderEmail',
+    async (payload, { rejectWithValue }) => {
+        try {
+            const response = await axios.patch(
+                'https://n8nnode.showmecustomapparel.com/webhook/offline_order_email',
+                payload,
+                {
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                }
+            );
+            if (response?.status === 200 || response?.status === 201) {
+                return response.data;
+            }
+            return rejectWithValue(response?.data?.message || 'Failed to send offline order email');
+        } catch (err) {
+            return rejectWithValue(err.response?.data?.message || err.message || 'Something went wrong');
+        }
+    }
+);
+
 const initialState = {
     error: null,
     loading: false,
@@ -634,6 +658,11 @@ const initialState = {
     updateLeadStagesLoading: false,
     updateLeadStagesSuccess: false,
     updateLeadStagesError: null,
+
+     // ── Send Offline Order Email ──
+    offlineOrderEmailLoading: false,
+    offlineOrderEmailSuccess: false,
+    offlineOrderEmailError: null,
 }
 
 //slice part
@@ -969,6 +998,22 @@ const AddSlice = createSlice(
                     state.updateLeadStagesLoading = false;
                     state.updateLeadStagesSuccess = false;
                     state.updateLeadStagesError = payload;
+                })
+
+                  /* -------- SEND OFFLINE ORDER EMAIL -------- */
+                .addCase(sendOfflineOrderEmail.pending, (state) => {
+                    state.offlineOrderEmailLoading = true;
+                    state.offlineOrderEmailSuccess = false;
+                    state.offlineOrderEmailError = null;
+                })
+                .addCase(sendOfflineOrderEmail.fulfilled, (state) => {
+                    state.offlineOrderEmailLoading = false;
+                    state.offlineOrderEmailSuccess = true;
+                })
+                .addCase(sendOfflineOrderEmail.rejected, (state, { payload }) => {
+                    state.offlineOrderEmailLoading = false;
+                    state.offlineOrderEmailSuccess = false;
+                    state.offlineOrderEmailError = payload;
                 })
 
         }

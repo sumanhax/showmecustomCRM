@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { FaPlus } from "react-icons/fa";
 import { TbEyeShare } from "react-icons/tb";
-import { kanbanBulkOrderDragnDrop, updateFromAdminStages} from "../../Reducer/AddSlice";
+import { kanbanBulkOrderDragnDrop, sendOfflineOrderEmail, updateFromAdminStages} from "../../Reducer/AddSlice";
 import AddProjectModal from "../../pages/ManageLeads/AddProjectModal";
 import axios from "axios";
 import { MdOutlineEmail } from "react-icons/md";
@@ -209,10 +209,24 @@ export function KanbanBoardBulkOrder({
           old_stage_name: card.Status,
         };
 
-        try {
-          await dispatch(updateFromAdminStages(webhookPayload)).unwrap();
-        } catch (webhookErr) {
-          console.error("Webhook failed (non-blocking):", webhookErr);
+        // try {
+        //   await dispatch(updateFromAdminStages(webhookPayload)).unwrap();
+        // } catch (webhookErr) {
+        //   console.error("Webhook failed (non-blocking):", webhookErr);
+        // }
+
+        if (card.Source === "ONLINE") {
+          try {
+            await dispatch(updateFromAdminStages(webhookPayload)).unwrap();
+          } catch (webhookErr) {
+            console.error("Webhook failed (non-blocking):", webhookErr);
+          }
+        } else {
+          try {
+            await dispatch(sendOfflineOrderEmail(webhookPayload)).unwrap();
+          } catch (emailErr) {
+            console.error("Offline order email failed (non-blocking):", emailErr);
+          }
         }
       }
 
