@@ -261,14 +261,50 @@ const executeStatusUpdate = useCallback(async (card: CardData, newStatus: string
     setEmailForm({ to: leadEmail, subject: `Follow up - ${leadName}`, message: `Hi ${leadName},\n\nI hope this email finds you well. I wanted to follow up on our previous conversation...\n\nBest regards,` });
   };
 
-  const handleEmailSend = () => {
-    if (!emailForm.to.trim() || !emailForm.subject.trim() || !emailForm.message.trim()) { toast.error("Please fill in all fields."); return; }
-    setIsEmailSending(true);
-    axios.post("https://n8n.bestworks.cloud/webhook/email-sender", { reciepent: emailForm.to, sender: "noreply@company.com", subject: emailForm.subject, replyBody: emailForm.message })
-      .then((res) => { if (res.status === 200) { toast.success("Email Sent Successfully!"); setEmailModal({ isOpen: false, leadEmail: "", leadName: "" }); setEmailForm({ to: "", subject: "", message: "" }); } else toast.error("Failed to send email. Please try again."); })
-      .catch(() => toast.error("An error occurred while sending the email."))
-      .finally(() => setIsEmailSending(false));
+  // const handleEmailSend = () => {
+  //   if (!emailForm.to.trim() || !emailForm.subject.trim() || !emailForm.message.trim()) { toast.error("Please fill in all fields."); return; }
+  //   setIsEmailSending(true);
+  //   axios.post("https://n8n.bestworks.cloud/webhook/email-sender", { reciepent: emailForm.to, sender: "noreply@company.com", subject: emailForm.subject, replyBody: emailForm.message })
+  //     .then((res) => { if (res.status === 200) { toast.success("Email Sent Successfully!"); setEmailModal({ isOpen: false, leadEmail: "", leadName: "" }); setEmailForm({ to: "", subject: "", message: "" }); } else toast.error("Failed to send email. Please try again."); })
+  //     .catch(() => toast.error("An error occurred while sending the email."))
+  //     .finally(() => setIsEmailSending(false));
+  // };
+
+    const handleEmailSend = () => {
+  if (!emailForm.to.trim() || !emailForm.subject.trim() || !emailForm.message.trim()) { 
+    toast.error("Please fill in all fields."); 
+    return; 
+  }
+  setIsEmailSending(true);
+
+  // Match the n8n JSON input exactly
+
+  const payload = {
+    reciepent: emailForm.to,       
+    sender: "projects@showmecustomapparel.com", 
+    subject: emailForm.subject,
+    message: emailForm.message        
+
   };
+ 
+  axios.post("https://n8nnode.showmecustomapparel.com/webhook/email-sender", payload)
+    .then((res) => { 
+      console.log('resss',res)
+      if (res.status === 200) { 
+        toast.success("Email Sent Successfully!"); 
+        setEmailModal({ isOpen: false, leadEmail: "", leadName: "" }); 
+        setEmailForm({ to: "", subject: "", message: "" }); 
+      } else {
+        toast.error("Failed to send email.");
+      }
+
+    })
+
+    .catch(() => toast.error("An error occurred while sending the email."))
+
+    .finally(() => setIsEmailSending(false));
+
+};
 
   const handleEmailModalClose = () => { setEmailModal({ isOpen: false, leadEmail: "", leadName: "" }); setEmailForm({ to: "", subject: "", message: "" }); };
 

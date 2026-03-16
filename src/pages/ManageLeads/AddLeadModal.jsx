@@ -575,7 +575,7 @@ const AddLeadModal = ({ openAddLeadModal, setOpenAddLeadModal, onLeadAdded, isOp
                         ? <img src={img} alt={id} style={{ width: "100%", aspectRatio: "1", objectFit: "contain", padding: "10px", display: "block" }} />
                         : <div style={{ width: "100%", aspectRatio: "1", background: "#f8fafc", display: "flex", alignItems: "center", justifyContent: "center", color: "#d1d5db", fontSize: "11px" }}>No img</div>
                       }
-                      <div style={{ textAlign: "center", padding: "4px 6px 10px", fontSize: "12px", fontWeight: 600, color: "#374151" }}>{id}</div>
+                      <div style={{ textAlign: "center", padding: "4px 6px 10px", fontSize: "12px", fontWeight: 600, color: "#374151" }}>{hat.name || id}</div>
                     </div>
                   );
                 })}
