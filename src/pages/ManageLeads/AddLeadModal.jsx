@@ -116,20 +116,20 @@ const Opt = ({ label, selected, onClick }) => (
       width: "100%",
       transition: "border-color 0.12s, background 0.12s",
       outline: "none",
+      boxSizing: "border-box",
     }}
   >
-    <span style={{ fontSize: "15px", fontWeight: selected ? 600 : 400, color: "#111827", lineHeight: 1.3 }}>
+    <span style={{
+      fontSize: "15px",
+      fontWeight: selected ? 600 : 400,
+      color: "#111827",
+      lineHeight: 1.3,
+      flex: 1,
+    }}>
       {label}
     </span>
     {selected && (
-      <span style={{
-        width: "24px", height: "24px", minWidth: "24px",
-        borderRadius: "50%", background: "#dc2626",
-        display: "flex", alignItems: "center", justifyContent: "center",
-        marginLeft: "10px",
-      }}>
-        <Check />
-      </span>
+      <span style={{ fontSize: "18px", marginLeft: "10px", flexShrink: 0 }}>✅</span>
     )}
   </button>
 );
@@ -636,41 +636,83 @@ const AddLeadModal = ({ openAddLeadModal, setOpenAddLeadModal, onLeadAdded, isOp
             <h2 style={{ fontSize: "22px", fontWeight: 700, color: "#111827", margin: "0 0 24px" }}>
               Which size would you like for each hat?
             </h2>
-            <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
               {form.selectedHats.map((hatId) => {
                 const hat = hats.find((h) => (h.id || h.sku || h.hat_id) === hatId);
                 const selectedColorName = form.hatColors[hatId];
                 const colorObj = hat?.colors?.find((c) => c.name === selectedColorName);
                 const sizes = colorObj?.variants?.map((v) => v.sizeLabel) ||
                   hat?.colors?.[0]?.variants?.map((v) => v.sizeLabel) || [];
+
+                const BASE_URL = import.meta.env.VITE_API_BASE_URL || "";
+                // Get image for selected color
+                const selectedColor = hat?.colors?.find((c) => c.name === selectedColorName);
+                const colorImgUrl = selectedColor
+                  ? hat?.images?.find((img) => img.hatColorId === selectedColor.id)?.imageUrl
+                  : hat?.images?.find((img) => img.hatColorId === 0)?.imageUrl;
+                const displayImg = colorImgUrl ? `${BASE_URL}/${colorImgUrl}` : "";
+
                 return (
-                  <div key={hatId}>
-                    <div style={{ fontWeight: 700, fontSize: "15px", color: "#1f2937", marginBottom: "10px" }}>{hatId}</div>
-                    <div style={{ display: "flex", flexWrap: "wrap", gap: "8px" }}>
-                      {sizes.length > 0 ? sizes.map((s) => {
-                        const sz = typeof s === "string" ? s : (s.name || s.size_name);
-                        const sel = form.hatSizes[hatId] === sz;
-                        return (
-                          <button key={sz} type="button"
-                            onClick={() => set("hatSizes", { ...form.hatSizes, [hatId]: sz })}
-                            style={{
-                              padding: "8px 20px",
-                              border: sel ? "2px solid #dc2626" : "1.5px solid #d1d5db",
-                              borderRadius: "8px",
-                              background: sel ? "#fef2f2" : "#fff",
-                              color: sel ? "#dc2626" : "#374151",
-                              fontWeight: sel ? 700 : 500, fontSize: "14px",
-                              cursor: "pointer", transition: "all 0.15s", outline: "none",
-                            }}>
-                            {sz}
-                          </button>
-                        );
-                      }) : (
-                        <input type="text" placeholder="e.g. OSFM"
-                          value={form.hatSizes[hatId] || ""}
-                          onChange={(e) => set("hatSizes", { ...form.hatSizes, [hatId]: e.target.value })}
-                          style={{ ...inp, width: "200px" }} />
+                  <div key={hatId} style={{
+                    border: "1.5px solid #e2e8f0",
+                    borderRadius: "12px",
+                    overflow: "hidden",
+                    background: "#fff",
+                  }}>
+                    {/* Hat header with image + name */}
+                    <div style={{ display: "flex", alignItems: "center", gap: "14px", padding: "14px 16px", borderBottom: "1px solid #f1f5f9" }}>
+                      {displayImg ? (
+                        <img src={displayImg} alt={hat?.name || hatId}
+                          style={{ width: "60px", height: "60px", objectFit: "contain", borderRadius: "8px", background: "#f8fafc", padding: "4px", flexShrink: 0 }} />
+                      ) : (
+                        <div style={{ width: "60px", height: "60px", background: "#f1f5f9", borderRadius: "8px", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", color: "#94a3b8", fontSize: "11px" }}>No img</div>
                       )}
+                      <div>
+                        <div style={{ fontWeight: 700, fontSize: "15px", color: "#111827" }}>{hat?.name || hatId}</div>
+                        {selectedColorName && (
+                          <div style={{ fontSize: "12px", color: "#6b7280", marginTop: "2px" }}>Color: {selectedColorName}</div>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Size buttons */}
+                    <div style={{ padding: "14px 16px" }}>
+                      <div style={{ fontSize: "13px", fontWeight: 600, color: "#374151", marginBottom: "10px" }}>Select Size</div>
+                      <div style={{ display: "flex", flexWrap: "wrap", gap: "8px" }}>
+                        {sizes.length > 0 ? sizes.map((s) => {
+                          const sz = typeof s === "string" ? s : (s.name || s.size_name);
+                          const sel = form.hatSizes[hatId] === sz;
+                          return (
+                            <button key={sz} type="button"
+                              onClick={() => set("hatSizes", { ...form.hatSizes, [hatId]: sz })}
+                              style={{
+                                display: "flex", alignItems: "center", gap: "6px",
+                                padding: "9px 18px",
+                                border: sel ? "2px solid #dc2626" : "1.5px solid #d1d5db",
+                                borderRadius: "8px",
+                                background: sel ? "#dc2626" : "#fff",
+                                color: sel ? "#fff" : "#374151",
+                                fontWeight: sel ? 700 : 500,
+                                fontSize: "14px",
+                                cursor: "pointer",
+                                transition: "all 0.15s",
+                                outline: "none",
+                              }}>
+                              {sel && (
+                                <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
+                                  <path d="M2 6.5l3.5 3.5 5.5-6" stroke="white" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
+                                </svg>
+                              )}
+                              {sz}
+                            </button>
+                          );
+                        }) : (
+                          <input type="text" placeholder="e.g. OSFM"
+                            value={form.hatSizes[hatId] || ""}
+                            onChange={(e) => set("hatSizes", { ...form.hatSizes, [hatId]: e.target.value })}
+                            style={{ ...inp, width: "200px" }} />
+                        )}
+                      </div>
                     </div>
                   </div>
                 );
