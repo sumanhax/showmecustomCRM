@@ -573,6 +573,30 @@ export const updateFromAdminStages = createAsyncThunk(
     }
 );
 
+/* ================= UPDATE LEAD STAGES ================= */
+export const updateLeadStages = createAsyncThunk(
+    'add/updateLeadStages',
+    async (payload, { rejectWithValue }) => {
+        try {
+            const response = await axios.patch(
+                'https://n8nnode.showmecustomapparel.com/webhook/lead_status_update',
+                payload,
+                {
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                }
+            );
+            if (response?.status === 200 || response?.status === 201) {
+                return response.data;
+            }
+            return rejectWithValue(response?.data?.message || 'Failed to update lead stages');
+        } catch (err) {
+            return rejectWithValue(err.response?.data?.message || err.message || 'Something went wrong');
+        }
+    }
+);
+
 const initialState = {
     error: null,
     loading: false,
@@ -605,6 +629,11 @@ const initialState = {
     updateAdminStagesLoading: false,
     updateAdminStagesSuccess: false,
     updateAdminStagesError: null,
+
+    // ── Update Lead Stages ──
+    updateLeadStagesLoading: false,
+    updateLeadStagesSuccess: false,
+    updateLeadStagesError: null,
 }
 
 //slice part
@@ -924,6 +953,22 @@ const AddSlice = createSlice(
                     state.updateAdminStagesLoading = false;
                     state.updateAdminStagesSuccess = false;
                     state.updateAdminStagesError = payload;
+                })
+
+                /* -------- UPDATE LEAD STAGES -------- */
+                .addCase(updateLeadStages.pending, (state) => {
+                    state.updateLeadStagesLoading = true;
+                    state.updateLeadStagesSuccess = false;
+                    state.updateLeadStagesError = null;
+                })
+                .addCase(updateLeadStages.fulfilled, (state) => {
+                    state.updateLeadStagesLoading = false;
+                    state.updateLeadStagesSuccess = true;
+                })
+                .addCase(updateLeadStages.rejected, (state, { payload }) => {
+                    state.updateLeadStagesLoading = false;
+                    state.updateLeadStagesSuccess = false;
+                    state.updateLeadStagesError = payload;
                 })
 
         }

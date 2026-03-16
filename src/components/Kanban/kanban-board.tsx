@@ -3,7 +3,7 @@ import { TbEyeShare } from "react-icons/tb";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { leadListNew, kanbanDragnDrop } from "../../Reducer/AddSlice";
+import { leadListNew, kanbanDragnDrop, updateLeadStages } from "../../Reducer/AddSlice";
 import axios from "axios";
 import { MdOutlineEmail } from "react-icons/md";
 import { IoCallOutline } from "react-icons/io5";
@@ -202,8 +202,8 @@ export function KanbanBoard() {
   };
 
   // ─── Execute after confirmation ───────────────────────────────────────────────
-  const executeStatusUpdate = useCallback(async (card: CardData, newStatus: string) => {
-    const newStatusId      = STATUS_NAME_TO_ID[newStatus];
+const executeStatusUpdate = useCallback(async (card: CardData, newStatus: string) => {
+    const newStatusId = STATUS_NAME_TO_ID[newStatus];
     if (!newStatusId) { toast.error(`No status id found for: ${newStatus}`); return; }
     const prevStatus       = card.Status;
     const prevLeadStatusId = card.LeadStatusId;
@@ -214,10 +214,36 @@ export function KanbanBoard() {
     ));
 
     try {
-      const res: any = await (dispatch as any)(
+      const stageRes: any = await (dispatch as any)(
         kanbanDragnDrop({ lead_id: String(card.Id), lead_status_id: Number(newStatusId) } as any)
       ).unwrap();
-      toast.success(res.message || "Status updated successfully");
+
+      toast.success(stageRes.message || "Status updated successfully");
+
+      // ── Webhook call after successful stage change ──
+      if (stageRes?.status_code === 200) {
+        const webhookPayload = {
+          lead_id:        stageRes?.data?.lead_id,
+          old_status_id:  stageRes?.data?.old_status_id,
+          new_status_id:  stageRes?.data?.new_status_id,
+          // customer details from card
+          customer: {
+            name:         card.Title,
+            email:        card.Email,
+            phone:        card.Phone,
+            company_name: card.Company,
+          },
+          new_stage_name: newStatus,
+          old_stage_name: card.Status,
+        };
+
+        try {
+          await (dispatch as any)(updateLeadStages(webhookPayload)).unwrap();
+        } catch (webhookErr) {
+          console.error("Webhook failed (non-blocking):", webhookErr);
+        }
+      }
+
       dispatch(leadListNew() as any);
     } catch (err) {
       console.error(err);
