@@ -189,25 +189,24 @@ export function KanbanBoardBulkOrder({
       })).unwrap();
 
       // ── Webhook call after successful stage change ──
-      if (stageRes?.status_code === 200) {
-        const webhookPayload = {
-          // customer details from card
-          customer: {
-            name: card.LeadName,
-            email: card.Email,
-            phone: card.Phone,
-            company_name: card.Company,
-          },
-          // stage change details from API response
-          order_id: stageRes?.data?.order_id,
-          source: stageRes?.data?.source,
-          old_order_stage_id: stageRes?.data?.old_order_stage_id,
-          new_order_stage_id: stageRes?.data?.new_order_stage_id,
-          history_id: stageRes?.data?.history_id,
-          // new stage name
-          new_stage_name: newStatus,
-          old_stage_name: card.Status,
-        };
+   if (stageRes) {
+       const orderData = stageRes?.data || stageRes;
+
+const webhookPayload = {
+  customer: {
+    name: card.LeadName,
+    email: card.Email,
+    phone: card.Phone,
+    company_name: card.Company,
+  },
+  order_id: orderData?.order_id ?? card.Id,
+  source: orderData?.source ?? card.Source,
+  old_order_stage_id: orderData?.old_order_stage_id,
+  new_order_stage_id: orderData?.new_order_stage_id,
+  history_id: orderData?.history_id,
+  new_stage_name: newStatus,
+  old_stage_name: card.Status,
+};
 
         // try {
         //   await dispatch(updateFromAdminStages(webhookPayload)).unwrap();

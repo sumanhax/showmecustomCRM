@@ -4,6 +4,7 @@ let domain = window.location.origin
 const formDataURL = [
     '/api/logo-placement/save',
     '/api/banners/save',
+    '/api/admin/leads/image-upload',
 ];
 newApi.interceptors.request.use((req) => {
     let userTokenData;

@@ -48,6 +48,7 @@ import ManageDecorationNewSlice from '../Reducer/ManageDecorationNewSlice'
 import AddInvetoryNewSlice from '../Reducer/AddInvetoryNewSlice'
 import BulkUploadSlice from '../Reducer/BulkUploadSlice'
 import NewCouponSlice from '../Reducer/NewCouponSlice' 
+import LeadSlice from '../Reducer/LeadSlice' 
 const store = configureStore({
   reducer: {
     auth: AuthSlice,
@@ -98,7 +99,8 @@ const store = configureStore({
     warehouse:ManageWareHouseNewSlice,
     invent:AddInvetoryNewSlice,
     decaddon:ManageDecorationNewSlice,
-    bulkUpload:BulkUploadSlice
+    bulkUpload:BulkUploadSlice,
+    lead:LeadSlice
   },
   devTools: import.meta.env.DEV,
 });

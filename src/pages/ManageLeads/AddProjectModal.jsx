@@ -2,13 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'react-toastify';
 import { useDispatch, useSelector } from 'react-redux';
-import { leadListSearch, kanbanAddProject } from '../../Reducer/AddSlice';
+import { leadListSearch, kanbanAddProject, sendAddProjectEmail } from '../../Reducer/AddSlice';
 import AddLeadModal from './AddLeadModal';
 
-const AddProjectModal = ({ 
-  isOpen, 
-  onClose, 
-  onProjectAdded 
+const AddProjectModal = ({
+  isOpen,
+  onClose,
+  onProjectAdded
 }) => {
   const dispatch = useDispatch();
   const { leadListSearchData } = useSelector((state) => state.add);
@@ -46,7 +46,7 @@ const AddProjectModal = ({
   const handleProjectTypeChange = (type) => {
     setProjectType(type);
     setValue('projectType', type);
-    
+
     // Clear selected lead and search when switching types
     setSelectedLead(null);
     setSearchTerm('');
@@ -108,16 +108,16 @@ const AddProjectModal = ({
   // Handle new lead creation success
   const handleNewLeadCreated = (newLead) => {
     console.log("New lead created:", newLead);
-    
+
     // Normalize lead payload keys
     const leadData = {
       id: newLead?.lead_id || newLead?.id,
       LeadName: newLead?.lead_name || newLead?.name,
       Email: newLead?.lead_email || newLead?.email
     };
-    
+
     console.log("Processed lead data:", leadData);
-    
+
     setNewLeadId(leadData.id);
     setSelectedLead(leadData);
     setValue('leadId', leadData.id);
@@ -129,18 +129,18 @@ const AddProjectModal = ({
   // Handle form submission
   const onSubmit = async (data) => {
     console.log('Project form data:', data);
-    
+
     // Validate required fields
     if (!data.leadId) {
       toast.error('Please select a lead');
       return;
     }
-    
+
     if (!data.orderTypes || data.orderTypes.length === 0) {
       toast.error('Please select at least one order type');
       return;
     }
-    
+
     if (!data.orderAmount || data.orderAmount <= 0) {
       toast.error('Please enter a valid order amount');
       return;
@@ -161,17 +161,25 @@ const AddProjectModal = ({
     };
 
     console.log('Submitting project payload:', payload);
-    
+
     try {
       const result = await dispatch(kanbanAddProject(payload)).unwrap();
       console.log('Project added successfully:', result);
+      try {
+        await dispatch(sendAddProjectEmail(result)).unwrap();
+        console.log('Add project email sent successfully');
+      } catch (emailError) {
+        console.error('Failed to send add project email:', emailError);
+      }
+
       toast.success('Project added successfully!');
-      
+
+
       // Call the callback to refresh data
       if (onProjectAdded) {
         onProjectAdded(payload);
       }
-      
+
       // Close modal
       onClose();
     } catch (error) {
@@ -246,7 +254,7 @@ const AddProjectModal = ({
                     onFocus={() => setShowDropdown(true)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
-                  
+
                   {/* Dropdown */}
                   {showDropdown && filteredLeads.length > 0 && (
                     <div className="absolute z-10 w-full bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto">
@@ -324,7 +332,7 @@ const AddProjectModal = ({
                 type="number"
                 step="0.01"
                 min="0"
-                {...register('orderAmount', { 
+                {...register('orderAmount', {
                   required: 'Order amount is required',
                   min: { value: 0.01, message: 'Order amount must be greater than 0' }
                 })}

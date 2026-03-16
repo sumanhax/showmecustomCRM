@@ -621,6 +621,30 @@ export const sendOfflineOrderEmail = createAsyncThunk(
     }
 );
 
+/* ================= SEND ADD PROJECT EMAIL ================= */
+export const sendAddProjectEmail = createAsyncThunk(
+    'add/sendAddProjectEmail',
+    async (payload, { rejectWithValue }) => {
+        try {
+            const response = await axios.post(
+                'https://n8nnode.showmecustomapparel.com/webhook/add_project_email',
+                payload,
+                {
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                }
+            );
+            if (response?.status === 200 || response?.status === 201) {
+                return response.data;
+            }
+            return rejectWithValue(response?.data?.message || 'Failed to send add project email');
+        } catch (err) {
+            return rejectWithValue(err.response?.data?.message || err.message || 'Something went wrong');
+        }
+    }
+);
+
 const initialState = {
     error: null,
     loading: false,
@@ -659,10 +683,15 @@ const initialState = {
     updateLeadStagesSuccess: false,
     updateLeadStagesError: null,
 
-     // ── Send Offline Order Email ──
+    // ── Send Offline Order Email ──
     offlineOrderEmailLoading: false,
     offlineOrderEmailSuccess: false,
     offlineOrderEmailError: null,
+
+     // ── Send Add Project Email ──
+    addProjectEmailLoading: false,
+    addProjectEmailSuccess: false,
+    addProjectEmailError: null,
 }
 
 //slice part
@@ -1000,7 +1029,7 @@ const AddSlice = createSlice(
                     state.updateLeadStagesError = payload;
                 })
 
-                  /* -------- SEND OFFLINE ORDER EMAIL -------- */
+                /* -------- SEND OFFLINE ORDER EMAIL -------- */
                 .addCase(sendOfflineOrderEmail.pending, (state) => {
                     state.offlineOrderEmailLoading = true;
                     state.offlineOrderEmailSuccess = false;
@@ -1014,6 +1043,22 @@ const AddSlice = createSlice(
                     state.offlineOrderEmailLoading = false;
                     state.offlineOrderEmailSuccess = false;
                     state.offlineOrderEmailError = payload;
+                })
+
+                /* -------- SEND ADD PROJECT EMAIL -------- */
+                .addCase(sendAddProjectEmail.pending, (state) => {
+                    state.addProjectEmailLoading = true;
+                    state.addProjectEmailSuccess = false;
+                    state.addProjectEmailError = null;
+                })
+                .addCase(sendAddProjectEmail.fulfilled, (state) => {
+                    state.addProjectEmailLoading = false;
+                    state.addProjectEmailSuccess = true;
+                })
+                .addCase(sendAddProjectEmail.rejected, (state, { payload }) => {
+                    state.addProjectEmailLoading = false;
+                    state.addProjectEmailSuccess = false;
+                    state.addProjectEmailError = payload;
                 })
 
         }
