@@ -89,15 +89,15 @@ const AddVariantModal = ({
       const formData = new FormData();
       formData.append("hat_style_id",hatId)
       formData.append("name", data.name || "");
-      formData.append("color_code", data.color_code || "");
-      formData.append("is_active", data.is_active ? 1 : 0);
+       formData.append("colorCode", data.color_code || ""); 
+      formData.append("isActive", data.is_active ? 1 : 0);
 
       if (selectedImage) {
         // send uploaded file as primary_image_url
-        formData.append("image", selectedImage);
+        formData.append("imageFile", selectedImage);
       } else if (isEdit && hatColorSingleData?.primary_image_url && !selectedImage) {
         // keep existing image on edit if user doesn't change it
-        formData.append("image", hatColorSingleData.primary_image_url);
+        formData.append("imageFile", hatColorSingleData.primary_image_url);
       }
 
       if (isEdit && hatColorSingleData) {
@@ -171,7 +171,8 @@ const AddVariantModal = ({
         dispatch(hatColorAdd(formData))
           .unwrap()
           .then((response) => {
-            if (response?.status_code === 200 || response?.status_code === 201) {
+            console.log('resp',response)
+            if (response?.status === 200 || response?.status === 201 || response?.status === true) {
               dispatch(hatColorSingle(hatId))
               toast.success(response?.message || "Added successfully!", {
                 position: "top-right",
@@ -182,13 +183,7 @@ const AddVariantModal = ({
                 position: "top-right",
                 autoClose: 3000,
               });
-            } else {
-              toast.error(response?.message || "Failed to add", {
-                position: "top-right",
-                autoClose: 3000,
-              });
-            }
-
+            } 
             reset();
             setSelectedImage(null);
             setImagePreview(null);
