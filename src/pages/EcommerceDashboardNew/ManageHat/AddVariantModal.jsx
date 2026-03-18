@@ -94,10 +94,10 @@ const AddVariantModal = ({
 
       if (selectedImage) {
         // send uploaded file as primary_image_url
-        formData.append("imageFile", selectedImage);
+        formData.append("imageFiles", selectedImage);
       } else if (isEdit && hatColorSingleData?.primary_image_url && !selectedImage) {
         // keep existing image on edit if user doesn't change it
-        formData.append("imageFile", hatColorSingleData.primary_image_url);
+        formData.append("imageFiles", hatColorSingleData.primary_image_url);
       }
 
       if (isEdit && hatColorSingleData) {

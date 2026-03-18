@@ -347,12 +347,32 @@ export const hatColorList = createAsyncThunk(
         }
     }
 )
+// export const hatColorSingle = createAsyncThunk(
+//     'ecommerce/hatColorSingle',
+//     async (id, { rejectWithValue }) => {
+//         try {
+//             const response = await api.get(`/postgresapi/admin/hat/color/list?hat_style_id=${id}`);
+//             if (response?.data?.status_code === 201 || response?.data?.status_code === 200) {
+//                 return response.data;
+//             } else {
+//                 if (response?.data?.errors) {
+//                     return rejectWithValue(response.data.errors);
+//                 } else {
+//                     return rejectWithValue('Something went wrong.');
+//                 }
+//             }
+//         } catch (err) {
+//             return rejectWithValue(err);
+//         }
+//     }
+// )
+
 export const hatColorSingle = createAsyncThunk(
     'ecommerce/hatColorSingle',
     async (id, { rejectWithValue }) => {
         try {
-            const response = await api.get(`/postgresapi/admin/hat/color/list?hat_style_id=${id}`);
-            if (response?.data?.status_code === 201 || response?.data?.status_code === 200) {
+            const response = await newApi.get(`/api/hats/${id}/colors`);
+            if (response?.status === 200 || response?.status === 201 || response?.data?.status === true) {
                 return response.data;
             } else {
                 if (response?.data?.errors) {
@@ -482,15 +502,36 @@ export const inventoryWiseUpdate = createAsyncThunk(
     }
 )
 
+// export const variantWiseUpdateStatus = createAsyncThunk(
+//     'ecommerce/variantWiseUpdateStatus',
+//     async ({ inventoryId, userInput }, { rejectWithValue }) => {
+//         try {
+//             const response = await newApi.put(
+//                 `api/hats/variants/${inventoryId}/status`,
+//                 userInput
+//             );
+//             if (response?.status === 200 || response?.status === 201 || response?.data?.status === true) {
+//                 return response.data;
+//             }
+//             return rejectWithValue(response?.data?.message || response?.data?.errors || 'Something went wrong.');
+//         } catch (err) {
+//             return rejectWithValue(err);
+//         }
+//     }
+// )
+
 export const variantWiseUpdateStatus = createAsyncThunk(
     'ecommerce/variantWiseUpdateStatus',
-    async ({ colorId, userInput }, { rejectWithValue }) => {
+    async ({ sizeId, userInput }, { rejectWithValue }) => {
         try {
-            const response = await newApi.put(`/api/hats/colors/${colorId}/variants/status`, userInput);
+            const response = await newApi.put(
+                `api/hats/variants/${sizeId}/status`,
+                userInput
+            );
             if (response?.status === 200 || response?.status === 201 || response?.data?.status === true) {
                 return response.data;
             }
-            return rejectWithValue(response?.data?.message || response?.data?.errors || 'Something went wrong.');
+            return rejectWithValue(response?.data?.message || 'Something went wrong.');
         } catch (err) {
             return rejectWithValue(err);
         }
