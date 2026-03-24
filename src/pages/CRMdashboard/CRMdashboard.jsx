@@ -25,15 +25,45 @@ import {
 import Loader from "../../components/Loader";
 import { useForm } from "react-hook-form";
 import { FaUsers, FaDollarSign, FaChartLine, FaUserTie, FaBell } from "react-icons/fa";
+import { getOfflineOrderProfit, getOfflineTotalSales, getOnlineOrderSales, getTotalLeads, getLeadDistribution, getLeadDistributionState } from "../../Reducer/DashBoardSlice";
+
+const useAnimatedCounter = (target, duration = 1200) => {
+  const [count, setCount] = useState(0);
+
+  useEffect(() => {
+    if (target === 0) { setCount(0); return; }
+
+    setCount(0);
+
+    let start = 0;
+    const step = target / (duration / 16);
+    const timer = setInterval(() => {
+      start += step;
+      if (start >= target) {
+        setCount(target);
+        clearInterval(timer);
+      } else {
+        setCount(Math.floor(start));
+      }
+    }, 16);
+
+    return () => clearInterval(timer);
+  }, [target, duration]);
+
+  return count;
+};;
 
 const CRMdashboard = () => {
   const [leadData, setLeadData] = useState([]);
   const [repData, setRepData] = useState([]);
-  const [selectedPeriod, setSelectedPeriod] = useState(7);
   const [isLoadingLeads, setIsLoadingLeads] = useState(true);
   const [isLoadingReps, setIsLoadingReps] = useState(true);
   const [openManagerModal, setOpenManagerModal] = useState(false);
   const [showNotificationDropdown, setShowNotificationDropdown] = useState(false);
+  const [offlineProfit, setOfflineProfit] = useState(0);
+  const [offlineRevenue, setOfflineRevenue] = useState(0);
+  const [activeTab, setActiveTab] = useState("offline");
+  const [selectedPeriod, setSelectedPeriod] = useState("daily");
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -49,7 +79,21 @@ const CRMdashboard = () => {
     };
   }, [showNotificationDropdown]);
 
-  const {loading,leadListData, actionListData,getLeadNoteAdminData} = useSelector((state)=>state.add);
+  const { loading, leadListData, actionListData, getLeadNoteAdminData } = useSelector((state) => state.add);
+  const { offlineProfitLoading, offlineProfitData, onlineTotalSalesData, offlineTotalSalesData, totalLeadsData, leadDistributionData, leadDistributionStateData } = useSelector((state) => state.dash);
+  console.log('onlineTotalSalesData', onlineTotalSalesData)
+  console.log('offlineTotalSalesData', offlineTotalSalesData)
+
+
+  useEffect(() => {
+    if (offlineProfitData?.data) {
+      setOfflineProfit(offlineProfitData.data.totalProfit || 0);
+      setOfflineRevenue(offlineProfitData.data.totalRevenue || 0);
+    }
+  }, [offlineProfitData]);
+
+
+
   // React Hook Form setup
   const {
     register,
@@ -62,22 +106,22 @@ const CRMdashboard = () => {
   // Action status options
   const actionStatusOptions = [
     "Pending",
-    "Completed", 
+    "Completed",
     "Overdue"
   ];
 
-  console.log("getLeadNoteAdminData",getLeadNoteAdminData);
+  console.log("getLeadNoteAdminData", getLeadNoteAdminData);
   // Custom cell renderer for Status with dropdown
   const StatusRenderer = (params) => {
     const status = params.value;
-  
+
     const getStatusStyle = (status) => {
       const statusStyles = {
         PENDING: { backgroundColor: "#FEF3C7", color: "#D97706", borderColor: "#F59E0B" },
         COMPLETED: { backgroundColor: "#D1FAE5", color: "#059669", borderColor: "#10B981" },
         OVERDUE: { backgroundColor: "#FEE2E2", color: "#DC2626", borderColor: "#EF4444" },
       };
-  
+
       return (
         statusStyles?.[String(status || "").toUpperCase()] || {
           backgroundColor: "#F3F4F6",
@@ -86,9 +130,9 @@ const CRMdashboard = () => {
         }
       );
     };
-  
+
     const style = getStatusStyle(status);
-  
+
     return (
       <div style={{ display: "flex", alignItems: "center", justifyContent: "center", width: "100%" }}>
         <span
@@ -116,35 +160,35 @@ const CRMdashboard = () => {
       </div>
     );
   };
-  
-  
+
+
 
   // Handler for action status change
   const handleActionStatusChange = (actionId, newStatus) => {
     console.log("Updating action status:", { actionId, newStatus });
-    
+
     axios.post("https://n8n.bestworks.cloud/webhook/action-status-update", {
       id: actionId,
       status: newStatus
     })
-    .then(() => {
-      toast.success("Action status updated successfully");
-      // Refresh the action list data
-      dispatch(actionList()).then((res) => {
-        console.log("Action list refreshed:", res);
-      }).catch((err) => {
-        console.log("Error refreshing action list:", err);
+      .then(() => {
+        toast.success("Action status updated successfully");
+        // Refresh the action list data
+        dispatch(actionList()).then((res) => {
+          console.log("Action list refreshed:", res);
+        }).catch((err) => {
+          console.log("Error refreshing action list:", err);
+        });
+      })
+      .catch((error) => {
+        console.error("Error updating action status", error);
+        toast.error("Failed to update action status. Please try again.");
       });
-    })
-    .catch((error) => {
-      console.error("Error updating action status", error);
-      toast.error("Failed to update action status. Please try again.");
-    });
   };
 
   // Form submission handler for manager
   const onSubmitManager = (data) => {
-   
+
     dispatch(addManager(data))
       .then((res) => {
         console.log("res", res);
@@ -160,10 +204,16 @@ const CRMdashboard = () => {
   };
 
   useEffect(() => {
-    dispatch(actionList()).then((res)=>{
-      console.log("actionlist",res);
-    }).catch((err)=>{
-      console.log("actionlist err",err);
+    dispatch(actionList()).then((res) => {
+      console.log("actionlist", res);
+      dispatch(getOfflineOrderProfit())
+      dispatch(getOnlineOrderSales())
+      dispatch(getOfflineTotalSales())
+      dispatch(getTotalLeads())
+      dispatch(getLeadDistribution())
+      dispatch(getLeadDistributionState());
+    }).catch((err) => {
+      console.log("actionlist err", err);
     })
   }, [])
 
@@ -187,16 +237,16 @@ const CRMdashboard = () => {
       id: noteId,
       isRead: true
     })
-    .then(res => {
-      console.log("Note marked as read successfully:", res.data);
-      toast.success("Notification marked as read");
-      // Refresh notes to update the count and UI
-      fetchLeadNotes();
-    })
-    .catch(err => {
-      console.error("Error marking note as read:", err);
-      toast.error("Failed to mark notification as read");
-    });
+      .then(res => {
+        console.log("Note marked as read successfully:", res.data);
+        toast.success("Notification marked as read");
+        // Refresh notes to update the count and UI
+        fetchLeadNotes();
+      })
+      .catch(err => {
+        console.error("Error marking note as read:", err);
+        toast.error("Failed to mark notification as read");
+      });
   };
 
   // Calculate unread count
@@ -233,7 +283,7 @@ const CRMdashboard = () => {
 
   useEffect(() => {
     setIsLoadingReps(true);
-    dispatch(repList({page:1,limit:100}))
+    dispatch(repList({ page: 1, limit: 100 }))
       .then((res) => {
         console.log("res", res?.data);
         setRepData(res?.payload?.data?.list || []);
@@ -249,6 +299,7 @@ const CRMdashboard = () => {
 
   // Calculate dynamic data for cards
   const totalLeads = leadData.length;
+
   const totalProfit = useMemo(() => {
     return leadData.reduce((sum, lead) => {
       const profit = parseFloat(lead["Profit 2"]) || 0;
@@ -265,95 +316,179 @@ const CRMdashboard = () => {
 
   const totalReps = repData.length;
 
+
+  const animLeads = useAnimatedCounter(totalLeads);
+  const animReps = useAnimatedCounter(totalReps);
+  const animProfit = useAnimatedCounter(activeTab === "offline" ? offlineProfit : totalProfit);
+  const animRevenue = useAnimatedCounter(activeTab === "offline" ? offlineRevenue : totalRevenue);
+
+  const animTotalOrders = useAnimatedCounter(
+    activeTab === "offline"
+      ? offlineTotalSalesData?.data?.totalOrders || 0
+      : onlineTotalSalesData?.data?.totalOrders || 0
+  );
+
+  const animTotalSales = useAnimatedCounter(
+    activeTab === "offline"
+      ? offlineTotalSalesData?.data?.totalSales || 0
+      : onlineTotalSalesData?.data?.totalSales || 0
+  );
+
   // Lead trends data by date
+  // const leadTrendsData = useMemo(() => {
+  //   const now = new Date();
+  //   const daysAgo = new Date(
+  //     now.getTime() - selectedPeriod * 24 * 60 * 60 * 1000
+  //   );
+
+  //   const dateMap = {};
+
+  //   // Initialize all dates in the period with 0 leads
+  //   for (let i = 0; i < selectedPeriod; i++) {
+  //     const date = new Date(now.getTime() - i * 24 * 60 * 60 * 1000);
+  //     const dateStr = date.toISOString().split("T")[0];
+  //     dateMap[dateStr] = 0;
+  //   }
+
+  //   // Count leads for each date
+  //   leadData.forEach((lead) => {
+  //     if (lead["Typeform Date"]) {
+  //       const leadDate = lead["Typeform Date"];
+  //       if (dateMap.hasOwnProperty(leadDate)) {
+  //         dateMap[leadDate]++;
+  //       }
+  //     }
+  //   });
+
+  //   // Convert to array and sort by date, ensure round numbers
+  //   return Object.entries(dateMap)
+  //     .map(([date, count]) => ({
+  //       date: new Date(date).toLocaleDateString("en-US", {
+  //         month: "short",
+  //         day: "numeric",
+  //       }),
+  //       leads: Math.round(count),
+  //     }))
+  //     .sort((a, b) => new Date(a.date) - new Date(b.date));
+  // }, [leadData, selectedPeriod]);
+
   const leadTrendsData = useMemo(() => {
-    const now = new Date();
-    const daysAgo = new Date(
-      now.getTime() - selectedPeriod * 24 * 60 * 60 * 1000
-    );
+    if (!totalLeadsData?.data) return [];
+    const labelMap = {
+      daily: (p) => {
+        const d = new Date(p);
+        return d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+      },
+      weekly: (p) => `Week ${p.split("-")[1]}`,
+      fifteenDays: (p) => {
+        const [yr, mo, half] = p.split("-");
+        const month = new Date(`${yr}-${mo}-01`).toLocaleString("en-US", { month: "short" });
+        return half === "H1" ? `${month} 1–15` : `${month} 16–31`;
+      },
+      monthly: (p) => {
+        const [yr, mo] = p.split("-");
+        return new Date(`${yr}-${mo}-01`).toLocaleString("en-US", { month: "short", year: "numeric" });
+      },
+    };
 
-    const dateMap = {};
-
-    // Initialize all dates in the period with 0 leads
-    for (let i = 0; i < selectedPeriod; i++) {
-      const date = new Date(now.getTime() - i * 24 * 60 * 60 * 1000);
-      const dateStr = date.toISOString().split("T")[0];
-      dateMap[dateStr] = 0;
-    }
-
-    // Count leads for each date
-    leadData.forEach((lead) => {
-      if (lead["Typeform Date"]) {
-        const leadDate = lead["Typeform Date"];
-        if (dateMap.hasOwnProperty(leadDate)) {
-          dateMap[leadDate]++;
-        }
-      }
-    });
-
-    // Convert to array and sort by date, ensure round numbers
-    return Object.entries(dateMap)
-      .map(([date, count]) => ({
-        date: new Date(date).toLocaleDateString("en-US", {
-          month: "short",
-          day: "numeric",
-        }),
-        leads: Math.round(count),
-      }))
-      .sort((a, b) => new Date(a.date) - new Date(b.date));
-  }, [leadData, selectedPeriod]);
+    const periodData = totalLeadsData.data[selectedPeriod] || [];
+    const fmt = labelMap[selectedPeriod] || ((p) => p);
+    return periodData.map((item) => ({
+      date: fmt(item.period),
+      leads: item.leadCount,
+    }));
+  }, [totalLeadsData, selectedPeriod]);
 
   // Lead status distribution
+  // const leadStatusData = useMemo(() => {
+  //   const statusCount = {};
+  //   const colors = [
+  //     "#3B82F6",
+  //     "#10B981",
+  //     "#F59E0B",
+  //     "#8B5CF6",
+  //     "#EF4444",
+  //     "#EC4899",
+  //     "#06B6D4",
+  //     "#84CC16",
+  //   ];
+
+  //   leadData.forEach((lead) => {
+  //     const status = lead["Lead Status"] || "Unknown";
+  //     statusCount[status] = (statusCount[status] || 0) + 1;
+  //   });
+
+  //   return Object.entries(statusCount).map(([name, value], index) => ({
+  //     name,
+  //     value,
+  //     color: colors[index % colors.length],
+  //   }));
+  // }, [leadData]);
+
   const leadStatusData = useMemo(() => {
-    const statusCount = {};
     const colors = [
-      "#3B82F6",
-      "#10B981",
-      "#F59E0B",
-      "#8B5CF6",
-      "#EF4444",
-      "#EC4899",
-      "#06B6D4",
-      "#84CC16",
+      "#f20c32", "#3B82F6", "#10B981", "#F59E0B",
+      "#8B5CF6", "#EC4899", "#06B6D4", "#84CC16",
     ];
 
-    leadData.forEach((lead) => {
-      const status = lead["Lead Status"] || "Unknown";
-      statusCount[status] = (statusCount[status] || 0) + 1;
-    });
+    const distributionList = leadDistributionData?.data || [];
 
-    return Object.entries(statusCount).map(([name, value], index) => ({
-      name,
-      value,
-      color: colors[index % colors.length],
-    }));
-  }, [leadData]);
+    return distributionList.map((item, index) => {
+      const matchedRep = repData.find((r) => {
+        const id = r["Rep ID"] || r["id"] || r["repId"];
+        return String(id) === String(item.repId);
+      });
+      const name = matchedRep?.["Rep Name"] || matchedRep?.["name"] || `Rep ${item.repId}`;
+      return {
+        name,
+        value: item.leadCount,
+        color: colors[index % colors.length],
+      };
+    });
+  }, [leadDistributionData, repData]);
 
   // Lead by state distribution
+  // const leadStateData = useMemo(() => {
+  //   const stateCount = {};
+  //   const colors = [
+  //     "#3B82F6",
+  //     "#10B981",
+  //     "#F59E0B",
+  //     "#8B5CF6",
+  //     "#EF4444",
+  //     "#EC4899",
+  //     "#06B6D4",
+  //     "#84CC16",
+  //   ];
+
+  //   leadData.forEach((lead) => {
+  //     const state = lead["State"] || "Unknown";
+  //     stateCount[state] = (stateCount[state] || 0) + 1;
+  //   });
+
+  //   return Object.entries(stateCount).map(([name, value], index) => ({
+  //     name,
+  //     value,
+  //     color: colors[index % colors.length],
+  //   }));
+  // }, [leadData]);
+
+  // Lead by state distribution from API
   const leadStateData = useMemo(() => {
-    const stateCount = {};
     const colors = [
-      "#3B82F6",
-      "#10B981",
-      "#F59E0B",
-      "#8B5CF6",
-      "#EF4444",
-      "#EC4899",
-      "#06B6D4",
-      "#84CC16",
+      "#3B82F6", "#10B981", "#F59E0B", "#8B5CF6",
+      "#EF4444", "#EC4899", "#06B6D4", "#84CC16",
     ];
 
-    leadData.forEach((lead) => {
-      const state = lead["State"] || "Unknown";
-      stateCount[state] = (stateCount[state] || 0) + 1;
-    });
+    const distributionList = leadDistributionStateData?.data || [];
 
-    return Object.entries(stateCount).map(([name, value], index) => ({
-      name,
-      value,
+    return distributionList.map((item, index) => ({
+      name: item.state || "Unknown",
+      value: item.leadCount,    
+      percentage: item.percentage, 
       color: colors[index % colors.length],
     }));
-  }, [leadData]);
+  }, [leadDistributionStateData]);
 
   // Hat Usage data with fixed colors
   const hatUsageData = useMemo(() => {
@@ -604,7 +739,7 @@ const CRMdashboard = () => {
                     </span>
                   )}
                 </button>
-                
+
                 {/* Notification Dropdown */}
                 {showNotificationDropdown && (
                   <div className="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-lg border border-gray-200 z-50">
@@ -630,19 +765,17 @@ const CRMdashboard = () => {
                             item?.isRead === "TRUE";
                           const isUnread = !isRead;
                           return (
-                            <div 
-                              key={index} 
-                              className={`p-4 border-b border-gray-100 transition-all ${
-                                isUnread 
-                                  ? 'bg-blue-50 hover:bg-blue-100' 
-                                  : 'bg-white hover:bg-gray-50'
-                              }`}
+                            <div
+                              key={index}
+                              className={`p-4 border-b border-gray-100 transition-all ${isUnread
+                                ? 'bg-blue-50 hover:bg-blue-100'
+                                : 'bg-white hover:bg-gray-50'
+                                }`}
                             >
                               <div className="flex items-start space-x-3">
                                 <div className="flex-shrink-0">
-                                  <div className={`w-2 h-2 rounded-full mt-2 ${
-                                    isUnread ? 'bg-blue-500' : 'bg-gray-300'
-                                  }`}></div>
+                                  <div className={`w-2 h-2 rounded-full mt-2 ${isUnread ? 'bg-blue-500' : 'bg-gray-300'
+                                    }`}></div>
                                 </div>
                                 <div className="flex-1 min-w-0">
                                   <div className="flex items-center justify-between mb-1">
@@ -655,9 +788,8 @@ const CRMdashboard = () => {
                                       </span>
                                     )}
                                   </div>
-                                  <div className={`text-sm mt-1 ${
-                                    isUnread ? 'text-red-700 font-semibold' : 'text-red-600 font-medium'
-                                  }`}>
+                                  <div className={`text-sm mt-1 ${isUnread ? 'text-red-700 font-semibold' : 'text-red-600 font-medium'
+                                    }`}>
                                     {item.note_description}
                                   </div>
                                   <div className="flex items-center space-x-4 mt-2 text-xs text-gray-500">
@@ -676,17 +808,17 @@ const CRMdashboard = () => {
                                       className="p-2 text-blue-600 hover:text-blue-800 hover:bg-blue-100 rounded-full transition-colors"
                                       title="Mark as read"
                                     >
-                                      <svg 
-                                        className="w-5 h-5" 
-                                        fill="none" 
-                                        stroke="currentColor" 
+                                      <svg
+                                        className="w-5 h-5"
+                                        fill="none"
+                                        stroke="currentColor"
                                         viewBox="0 0 24 24"
                                       >
-                                        <path 
-                                          strokeLinecap="round" 
-                                          strokeLinejoin="round" 
-                                          strokeWidth={2} 
-                                          d="M5 13l4 4L19 7" 
+                                        <path
+                                          strokeLinecap="round"
+                                          strokeLinejoin="round"
+                                          strokeWidth={2}
+                                          d="M5 13l4 4L19 7"
                                         />
                                       </svg>
                                     </button>
@@ -713,30 +845,47 @@ const CRMdashboard = () => {
                   </div>
                 )}
               </div>
-              
+
               <Button
                 onClick={() => setOpenManagerModal(true)}
                 className="bg-[#f20c32] hover:bg-black px-4 py-2 text-white text-base font-semibold flex justify-center items-center rounded-md "
               >
                 <FaUserTie className="mr-2" />
-               Add Manager
+                Add Manager
               </Button>
             </div>
           </div>
 
+          {/* ── Tab Switcher ── */}
+          <div className="flex gap-2 mb-6 bg-white rounded-xl p-2 shadow-sm w-fit">
+            <button
+              onClick={() => setActiveTab("offline")}
+              className={`px-6 py-2 rounded-lg text-sm font-semibold transition-all ${activeTab === "offline"
+                ? "bg-[#f20c32] text-white shadow"
+                : "text-gray-500 hover:text-gray-700"
+                }`}
+            >
+              Offline Orders
+            </button>
+            <button
+              onClick={() => setActiveTab("online")}
+              className={`px-6 py-2 rounded-lg text-sm font-semibold transition-all ${activeTab === "online"
+                ? "bg-[#f20c32] text-white shadow"
+                : "text-gray-500 hover:text-gray-700"
+                }`}
+            >
+              Online Orders
+            </button>
+          </div>
+
           {/* Top Section - Cards Row */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-6 mb-6">
             {/* Total Leads Card */}
             <div className="bg-white rounded-xl p-6 shadow-sm">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-gray-600">
-                    Total Leads
-                  </p>
-                  <p className="text-2xl font-bold text-gray-900">
-                    {totalLeads}
-                  </p>
-                  {/* <p className="text-sm text-green-600">+12% from last month</p> */}
+                  <p className="text-sm font-medium text-gray-600">Total Leads</p>
+                  <p className="text-2xl font-bold text-gray-900">{animLeads}</p>
                 </div>
                 <div className="w-12 h-12 bg-[#f20c32] rounded-lg flex items-center justify-center">
                   <FaUsers className="w-6 h-6 text-white" />
@@ -748,13 +897,8 @@ const CRMdashboard = () => {
             <div className="bg-white rounded-xl p-6 shadow-sm">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-gray-600">
-                    Total Profit
-                  </p>
-                  <p className="text-2xl font-bold text-gray-900">
-                    ${totalProfit.toFixed(0)}
-                  </p>
-                  {/* <p className="text-sm text-green-600">+8% from last month</p> */}
+                  <p className="text-sm font-medium text-gray-600">Total Profit</p>
+                  <p className="text-2xl font-bold text-gray-900">${animProfit.toLocaleString()}</p>
                 </div>
                 <div className="w-12 h-12 bg-[#f20c32] rounded-lg flex items-center justify-center">
                   <FaDollarSign className="w-6 h-6 text-white" />
@@ -766,13 +910,8 @@ const CRMdashboard = () => {
             <div className="bg-white rounded-xl p-6 shadow-sm">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-gray-600">
-                    Total Revenue
-                  </p>
-                  <p className="text-2xl font-bold text-gray-900">
-                    ${totalRevenue.toFixed(0)}
-                  </p>
-                  {/* <p className="text-sm text-green-600">+15% from last month</p> */}
+                  <p className="text-sm font-medium text-gray-600">Total Revenue</p>
+                  <p className="text-2xl font-bold text-gray-900">${animRevenue.toLocaleString()}</p>
                 </div>
                 <div className="w-12 h-12 bg-[#f20c32] rounded-lg flex items-center justify-center">
                   <FaChartLine className="w-6 h-6 text-white" />
@@ -784,16 +923,42 @@ const CRMdashboard = () => {
             <div className="bg-white rounded-xl p-6 shadow-sm">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-gray-600">
-                    Total Reps
-                  </p>
-                  <p className="text-2xl font-bold text-gray-900">
-                    {totalReps}
-                  </p>
-                  {/* <p className="text-sm text-green-600">+2 from last month</p> */}
+                  <p className="text-sm font-medium text-gray-600">Total Reps</p>
+                  <p className="text-2xl font-bold text-gray-900">{animReps}</p>
                 </div>
                 <div className="w-12 h-12 bg-[#f20c32] rounded-lg flex items-center justify-center">
                   <FaUserTie className="w-6 h-6 text-white" />
+                </div>
+              </div>
+            </div>
+
+            {/* Total Orders Card - NEW */}
+            <div className="bg-white rounded-xl p-6 shadow-sm">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-600">Total Orders</p>
+                  <p className="text-2xl font-bold text-gray-900">
+                    {animTotalOrders}
+                  </p>
+
+                </div>
+                <div className="w-12 h-12 bg-[#f20c32] rounded-lg flex items-center justify-center">
+                  <FaChartLine className="w-6 h-6 text-white" />
+                </div>
+              </div>
+            </div>
+
+            {/* Total Sales Card - NEW */}
+            <div className="bg-white rounded-xl p-6 shadow-sm">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-600">Total Sales</p>
+                  <p className="text-2xl font-bold text-gray-900">
+                    ${animTotalSales.toLocaleString()}
+                  </p>
+                </div>
+                <div className="w-12 h-12 bg-[#f20c32] rounded-lg flex items-center justify-center">
+                  <FaDollarSign className="w-6 h-6 text-white" />
                 </div>
               </div>
             </div>
@@ -802,7 +967,7 @@ const CRMdashboard = () => {
           {/* Second Row - Lead by Date and Lead Status */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
             {/* Lead by Date Chart */}
-            <div className="bg-white rounded-xl p-6 shadow-sm">
+            {/* <div className="bg-white rounded-xl p-6 shadow-sm">
               <div className="flex justify-between items-center mb-6">
                 <h2 className="text-xl font-semibold text-gray-900">
                   Lead by Date
@@ -828,139 +993,190 @@ const CRMdashboard = () => {
                   <Bar dataKey="leads" fill="#3B82F6" name="Leads" />
                 </BarChart>
               </ResponsiveContainer>
+            </div> */}
+
+            {/* Lead by Date Chart */}
+            <div className="bg-white rounded-xl p-6 shadow-sm">
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-xl font-semibold text-gray-900">Lead by Date</h2>
+                <select
+                  value={selectedPeriod}
+                  onChange={(e) => setSelectedPeriod(e.target.value)}
+                  className="px-3 py-1 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="daily">Daily</option>
+                  <option value="weekly">Weekly</option>
+                  <option value="fifteenDays">15 Days</option>
+                  <option value="monthly">Monthly</option>
+                </select>
+              </div>
+              <ResponsiveContainer width="100%" height={300}>
+                <BarChart data={leadTrendsData}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="date" tick={{ fontSize: 11 }} />
+                  <YAxis domain={[0, "dataMax"]} allowDecimals={false} />
+                  <Tooltip formatter={(value) => [Math.round(value), "Leads"]} />
+                  <Bar dataKey="leads" fill="#f20c32" name="Leads" radius={[4, 4, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
             </div>
 
             {/* Lead Status Pie Chart */}
+            {/* Lead Distribution Pie Chart */}
             <div className="bg-white rounded-xl p-6 shadow-sm">
-              <h2 className="text-xl font-semibold text-gray-900 mb-6">
-                Lead Status Distribution
+              <h2 className="text-xl font-semibold text-gray-900 mb-1">
+                Lead Distribution
               </h2>
-              <ResponsiveContainer width="100%" height={300}>
+              <p className="text-sm text-gray-500 mb-4">Leads assigned per rep</p>
+              <ResponsiveContainer width="100%" height={260}>
                 <PieChart>
                   <Pie
                     data={leadStatusData}
                     cx="50%"
                     cy="50%"
-                    labelLine={false}
-                    label={({ name, percent }) =>
-                      `${name} ${(percent * 100).toFixed(0)}%`
-                    }
-                    outerRadius={80}
-                    fill="#8884d8"
+                    innerRadius={55}
+                    outerRadius={90}
+                    paddingAngle={3}
                     dataKey="value"
                   >
                     {leadStatusData.map((entry, index) => (
                       <Cell key={`cell-${index}`} fill={entry.color} />
                     ))}
                   </Pie>
-                  <Tooltip />
+                  <Tooltip
+                    formatter={(value, name) => [`${value} leads`, name]}
+                    contentStyle={{
+                      borderRadius: "8px",
+                      border: "1px solid #e5e7eb",
+                      fontSize: "13px",
+                    }}
+                  />
                 </PieChart>
               </ResponsiveContainer>
+              {/* Custom Legend */}
+              <div className="mt-2 space-y-2">
+                {leadStatusData.map((entry, index) => (
+                  <div key={index} className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <span
+                        className="inline-block w-3 h-3 rounded-sm flex-shrink-0"
+                        style={{ backgroundColor: entry.color }}
+                      />
+                      <span className="text-sm text-gray-700 truncate max-w-[160px]">
+                        {entry.name}
+                      </span>
+                    </div>
+                    <span className="text-sm font-semibold text-gray-900">
+                      {entry.value}
+                    </span>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
 
           {/* Actions List Table */}
           <div className="bg-white rounded-xl p-6 shadow-sm mb-6">
-  <h2 className="text-xl font-semibold text-gray-900 mb-6">
-    Actions List
-  </h2>
-  <div className="ag-theme-alpine" style={{ height: 400, width: '100%' }}>
-    <AgGridReact
-      // Matches your new response nesting: res.data.actions
-      rowData={actionListData?.data?.actions || []}
-      columnDefs={[
-        {
-          headerName: "ID",
-          field: "id",
-          width: 80,
-          sortable: true,
-          filter: true
-        },
-        {
-          headerName: "Title",
-          field: "title",
-          width: 150,
-          cellRenderer: (params) => params.value || "No Title"
-        },
-        {
-          headerName: "Description",
-          field: "description",
-          width: 250,
-          sortable: true,
-          filter: true,
-          cellRenderer: (params) => params.value || "N/A"
-        },
-        {
-          headerName: "Due Date",
-          field: "due_at", // Updated from due_date
-          width: 150,
-          sortable: true,
-          filter: true,
-          cellRenderer: (params) => {
-            return params.value ? new Date(params.value).toLocaleDateString() : "N/A";
-          }
-        },
-        {
-          headerName: "Status",
-          field: "action_status", // Updated from status
-          width: 120,
-          sortable: true,
-          filter: true,
-          cellRenderer: StatusRenderer
-        },
-        {
-          headerName: "Action Type",
-          field: "action_type",
-          width: 120,
-        },
-        {
-          headerName: "Priority",
-          field: "priority",
-          width: 120,
-          cellClassRules: {
-            'text-red-600 font-bold': params => params.value === 'HIGH',
-            'text-orange-500': params => params.value === 'MEDIUM',
-          }
-        },
-        {
-          headerName: "Created Date",
-          field: "created_at", // Updated from created_date
-          width: 150,
-          cellRenderer: (params) => {
-            if (!params.value) return "N/A";
-            return new Date(params.value).toLocaleDateString();
-          }
-        },
-        {
-          headerName: "Lead Name",
-          field: "lead.name", // Direct nested access
-          width: 180,
-          sortable: true,
-          filter: true,
-          valueGetter: (params) => params.data.lead?.name || "N/A"
-        },
-        {
-          headerName: "Assigned To",
-          field: "rep.name", // Direct nested access
-          width: 180,
-          sortable: true,
-          filter: true,
-          valueGetter: (params) => params.data.rep?.name || "Unassigned"
-        }
-      ]}
-      defaultColDef={{
-        resizable: true,
-        sortable: true,
-        filter: true
-      }}
-      pagination={true}
-      paginationPageSize={10}
-      suppressRowClickSelection={true}
-      rowSelection="multiple"
-      animateRows={true}
-    />
-  </div>
-</div>
+            <h2 className="text-xl font-semibold text-gray-900 mb-6">
+              Actions List
+            </h2>
+            <div className="ag-theme-alpine" style={{ height: 400, width: '100%' }}>
+              <AgGridReact
+                // Matches your new response nesting: res.data.actions
+                rowData={actionListData?.data?.actions || []}
+                columnDefs={[
+                  {
+                    headerName: "ID",
+                    field: "id",
+                    width: 80,
+                    sortable: true,
+                    filter: true
+                  },
+                  {
+                    headerName: "Title",
+                    field: "title",
+                    width: 150,
+                    cellRenderer: (params) => params.value || "No Title"
+                  },
+                  {
+                    headerName: "Description",
+                    field: "description",
+                    width: 250,
+                    sortable: true,
+                    filter: true,
+                    cellRenderer: (params) => params.value || "N/A"
+                  },
+                  {
+                    headerName: "Due Date",
+                    field: "due_at", // Updated from due_date
+                    width: 150,
+                    sortable: true,
+                    filter: true,
+                    cellRenderer: (params) => {
+                      return params.value ? new Date(params.value).toLocaleDateString() : "N/A";
+                    }
+                  },
+                  {
+                    headerName: "Status",
+                    field: "action_status", // Updated from status
+                    width: 120,
+                    sortable: true,
+                    filter: true,
+                    cellRenderer: StatusRenderer
+                  },
+                  {
+                    headerName: "Action Type",
+                    field: "action_type",
+                    width: 120,
+                  },
+                  {
+                    headerName: "Priority",
+                    field: "priority",
+                    width: 120,
+                    cellClassRules: {
+                      'text-red-600 font-bold': params => params.value === 'HIGH',
+                      'text-orange-500': params => params.value === 'MEDIUM',
+                    }
+                  },
+                  {
+                    headerName: "Created Date",
+                    field: "created_at", // Updated from created_date
+                    width: 150,
+                    cellRenderer: (params) => {
+                      if (!params.value) return "N/A";
+                      return new Date(params.value).toLocaleDateString();
+                    }
+                  },
+                  {
+                    headerName: "Lead Name",
+                    field: "lead.name", // Direct nested access
+                    width: 180,
+                    sortable: true,
+                    filter: true,
+                    valueGetter: (params) => params.data.lead?.name || "N/A"
+                  },
+                  {
+                    headerName: "Assigned To",
+                    field: "rep.name", // Direct nested access
+                    width: 180,
+                    sortable: true,
+                    filter: true,
+                    valueGetter: (params) => params.data.rep?.name || "Unassigned"
+                  }
+                ]}
+                defaultColDef={{
+                  resizable: true,
+                  sortable: true,
+                  filter: true
+                }}
+                pagination={true}
+                paginationPageSize={10}
+                suppressRowClickSelection={true}
+                rowSelection="multiple"
+                animateRows={true}
+              />
+            </div>
+          </div>
 
           {/* Third Row - Rep Performance and Leads by State */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
@@ -1009,7 +1225,7 @@ const CRMdashboard = () => {
               </div>
             </div>
 
-            {/* Lead by State Pie Chart */}
+           {/* Lead by State Pie Chart */}
             <div className="bg-white rounded-xl p-6 shadow-sm">
               <h2 className="text-xl font-semibold text-gray-900 mb-6">
                 Leads by State
@@ -1021,8 +1237,8 @@ const CRMdashboard = () => {
                     cx="50%"
                     cy="50%"
                     labelLine={false}
-                    label={({ name, percent }) =>
-                      `${name} ${(percent * 100).toFixed(0)}%`
+                    label={({ name, percentage }) =>
+                      `${name} ${percentage?.toFixed(0) || 0}%`
                     }
                     outerRadius={80}
                     fill="#8884d8"
@@ -1032,7 +1248,12 @@ const CRMdashboard = () => {
                       <Cell key={`cell-${index}`} fill={entry.color} />
                     ))}
                   </Pie>
-                  <Tooltip />
+                  <Tooltip 
+                    formatter={(value, name, props) => [
+                      `${value} Leads (${props.payload.percentage}%)`, 
+                      name
+                    ]} 
+                  />
                 </PieChart>
               </ResponsiveContainer>
             </div>
@@ -1409,7 +1630,7 @@ const CRMdashboard = () => {
                       transition: "all 0.2s",
                     }}
                   >
-                    {loading?"Processing...":"Add Manager"}
+                    {loading ? "Processing..." : "Add Manager"}
                   </button>
                 </div>
               </form>

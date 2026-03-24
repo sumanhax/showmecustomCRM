@@ -196,7 +196,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
               </li> */}
 
               {/* CRM Dashboard - Only visible to manager and admin */}
-              {(userRole === 'manager' || userRole === 'admin') && (
+              {(userRole === 'manager' || userRole === 'admin' || userRole === 'rep') && (
                 <SidebarLinkGroup
                   activeCondition={pathname.includes('crm-dashboard') || pathname.includes('leads') || pathname.includes('reps') || pathname.includes('partner') || pathname.includes('admin-mailbox') || pathname.includes('kanban-sample') || pathname.includes('kanban-bulk')}
                 >
@@ -243,7 +243,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                               </li>
                             )}
                             {/* Leads - Only visible to manager and admin */}
-                            {(userRole === 'manager' || userRole === 'admin') && (
+                            {(userRole === 'manager' || userRole === 'admin' || userRole === 'rep') && (
                               <li>
                                 <NavLink
                                   to="/leads"
@@ -258,7 +258,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                             )}
 
                             {/* Reps - Only visible to manager and admin */}
-                            {(userRole === 'manager' || userRole === 'admin') && (
+                            {(userRole === 'manager' || userRole === 'admin' || userRole === 'rep') && (
                               <li>
                                 <NavLink
                                   to="/reps"
@@ -303,7 +303,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                             )} */}
 
                             {/* Kanban Sample - Only visible to manager and admin */}
-                             {(userRole === 'manager' || userRole === 'admin') && (
+                             {(userRole === 'manager' || userRole === 'admin' || userRole === 'rep') && (
                               <li>
                                 <NavLink
                                   to="/kanban-sample"
@@ -318,7 +318,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                             )} 
 
                             {/* Kanban Bulk Order - Only visible to manager and admin */}
-                            {(userRole === 'manager' || userRole === 'admin') && (
+                            {(userRole === 'manager' || userRole === 'admin' || userRole === 'rep') && (
                               <li>
                                 <NavLink
                                   to="/kanban-bulk"
@@ -339,7 +339,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                 </SidebarLinkGroup>
               )}
               {/* Ecommerce Dashboard - Only visible to manager and admin */}
-              {(userRole === 'manager' || userRole === 'admin') && (
+              {(userRole === 'manager' || userRole === 'admin' || userRole === 'rep') && (
                 <SidebarLinkGroup
                   activeCondition={pathname.includes('ecommerce-dashboard') || pathname.includes('supplier')}
                 >

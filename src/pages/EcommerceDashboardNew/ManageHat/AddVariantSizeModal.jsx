@@ -72,6 +72,7 @@ const AddVariantSizeModal=({
                 <option className="h-[50px] overflow-y-scroll"  value="XL/XXL">XL/XXL</option>
                 <option className="h-[50px] overflow-y-scroll"  value="L/XL">L/XL</option>
                 <option className="h-[50px] overflow-y-scroll"  value="OSFA">OSFA</option>
+                <option className="h-[50px] overflow-y-scroll"  value="OSFM">OSFM</option>
                 <option className="h-[50px] overflow-y-scroll"  value="S/M">S/M</option>
                 
                 </div>

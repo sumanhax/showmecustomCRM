@@ -605,6 +605,7 @@ const webhookPayload = {
           </button>
 
           {/* Add Project */}
+          {source === "OFFLINE" && (
           <button
             onClick={() => setOpenAddProjectModal(true)}
             style={{
@@ -618,6 +619,7 @@ const webhookPayload = {
           >
             <FaPlus size={14} /> Add Project
           </button>
+          )}
         </div>
       </div>
 
