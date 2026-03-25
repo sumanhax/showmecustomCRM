@@ -1,6 +1,7 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import api from "../store/Api";
 import errorHandler from "../store/ErrorHandler";
+import newApi from "../store/NewApi";
 
 //get orderList
 export const getOrderList = createAsyncThunk(
@@ -40,11 +41,32 @@ export const getCount = createAsyncThunk(
     }
 
 )
+
+
+export const getOfflineOrderDetails = createAsyncThunk(
+    'order/getOfflineOrderDetails',
+    async (id, { rejectWithValue }) => {
+        try {
+            const response = await newApi.get(`/api/orders/offline-details/${id}`);
+            if (response?.status === 200 || response?.data?.status === true || response?.data?.status_code === 200) {
+                return response.data;
+            } else {
+                return rejectWithValue(response?.data?.message || 'Failed to fetch offline order details.');
+            }
+        } catch (err) {
+            return rejectWithValue(err.response?.data?.message || err.message || 'Something went wrong.');
+        }
+    }
+);
+
 const initialState = {
     loading: false,
     error: false,
     orderList: [],
-    count: {}
+    count: {},
+    offlineOrderDetailsLoading: false,
+    offlineOrderDetailsError: null,
+    offlineOrderDetailsData: null,
 }
 const OrderSlice = createSlice(
     {
@@ -85,6 +107,21 @@ const OrderSlice = createSlice(
                             ? payload.message
                             : 'Something went wrong. Try again later.';
                 })
+
+                // Offline Order Details Cases
+                .addCase(getOfflineOrderDetails.pending, (state) => {
+                    state.offlineOrderDetailsLoading = true;
+                    state.offlineOrderDetailsError = null;
+                })
+                .addCase(getOfflineOrderDetails.fulfilled, (state, { payload }) => {
+                    state.offlineOrderDetailsLoading = false;
+                    state.offlineOrderDetailsData = payload;
+                    state.offlineOrderDetailsError = null;
+                })
+                .addCase(getOfflineOrderDetails.rejected, (state, { payload }) => {
+                    state.offlineOrderDetailsLoading = false;
+                    state.offlineOrderDetailsError = payload || 'Failed to fetch offline order details.';
+                });
         }
     }
 )

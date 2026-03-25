@@ -130,7 +130,7 @@ export function KanbanBoardBulkOrder({
             Status: stageName, Summary: `Status: ${order.order_status} | Origin: ${order.order_origin} | Start: ${order.start_date}`,
             Company: lead.company_name || "", Email: lead.email || "", Phone: lead.phone || "",
             OrderType: order.order_types || [], OrderAmount: Number(order.order_amount || 0),
-            LeadId: String(order.lead_id), StageId: stageId, Source: "OFFLINE",
+           LeadId: String(order.lead_id ?? order.id), StageId: stageId, Source: "OFFLINE",
           });
         }
       });
@@ -692,7 +692,15 @@ const webhookPayload = {
                         <div style={{ padding: "10px 12px 8px 12px", position: "relative", background: "linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)", borderBottom: "1px solid #e2e8f0" }}>
                           {/* View button */}
                           <button
-                            onClick={(e) => { e.stopPropagation(); navigate(`/order/${card.LeadId}`, { state: { openOrderId: card.Id } }); }}
+                            // onClick={(e) => { e.stopPropagation(); navigate(`/order/${card.LeadId}`, { state: { openOrderId: card.Id } }); }}
+                           onClick={(e) => { 
+  e.stopPropagation(); 
+  if (card.Source === "OFFLINE") {
+    navigate(`/offline-order/${card.Id}`);
+  } else {
+    navigate(`/order/${card.LeadId}`, { state: { openOrderId: card.Id } });
+  }
+}}
                             style={{ position: "absolute", top: "8px", right: "8px", width: "28px", height: "28px", borderRadius: "50%", background: "linear-gradient(135deg, #10b981 0%, #059669 100%)", color: "white", border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 1px 3px rgba(0,0,0,0.12)", transition: "all 0.2s ease-in-out", zIndex: 10 }}
                             onMouseOver={(e) => { (e.currentTarget as HTMLButtonElement).style.transform = "scale(1.06)"; }}
                             onMouseOut={(e)  => { (e.currentTarget as HTMLButtonElement).style.transform = "scale(1)"; }}

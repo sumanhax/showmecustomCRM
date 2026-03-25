@@ -118,6 +118,9 @@ input {
 .ag-theme-alpine {
   min-height: 600px !important;
 }
+.ag-theme-alpine .ag-header-cell-label {
+    justify-content: center !important;
+}
 
 .edit_user_profile_btn span {
   background: #f5f8ff;

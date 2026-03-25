@@ -11,7 +11,7 @@ import AddNoteModal from "./AddNoteModal";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { updatePartnerClassification, leadList } from "../../Reducer/AddSlice";
-import { FaSearch, FaTimes } from "react-icons/fa";
+import { FaSearch, FaTimes, FaEye} from "react-icons/fa";
 
 const ManageLeads = () => {
   // const { moodsList, singleMoodMaster } = useSelector(
@@ -117,7 +117,9 @@ const ManageLeads = () => {
         "Lead Status": lead.lead_status?.name || "Unknown",
         "Typeform Date": lead.typeform_date
           ? new Date(lead.typeform_date).toLocaleDateString()
-          : "",
+          : lead.created_at
+            ? new Date(lead.created_at).toLocaleDateString()
+            : "",
         "Partner Classification": lead.partner_classification || "",
         Orders: lead.orders || [],
       }));
@@ -147,8 +149,8 @@ const ManageLeads = () => {
     // Apply partner filter when selected (only for leads that have orders)
     const matchesPartner = partnerFilter
       ? Array.isArray(lead?.Orders) &&
-        lead.Orders.length > 0 &&
-        (lead?.["Partner Classification"] || "") === partnerFilter
+      lead.Orders.length > 0 &&
+      (lead?.["Partner Classification"] || "") === partnerFilter
       : true;
 
     // Apply lead status filter when selected
@@ -403,67 +405,67 @@ const ManageLeads = () => {
       sortable: true,
       filter: true,
     },
-    {
-      field: "Partner Classification",
-      headerName: "Partner",
-      width: 200,
-      cellRenderer: (params) => {
-        const lead = params.data;
-        const hasOrders = Array.isArray(lead?.Orders) && lead.Orders.length > 0;
-        if (!hasOrders) {
-          return (
-            <span style={{ fontSize: "12px", color: "#6B7280" }}>N/A</span>
-          );
-        }
-        const current = lead?.["Partner Classification"] || "";
-        const style = getPartnerStyle(current);
-        return (
-          <select
-            value={current}
-            onChange={(e) => handlePartnerChange(lead.id, e.target.value)}
-            style={{
-              padding: "6px 10px",
-              borderRadius: "16px",
-              border: `1px solid ${style.borderColor}`,
-              fontSize: "12px",
-              fontWeight: 700,
-              minWidth: "140px",
-              cursor: "pointer",
-              background: style.backgroundColor,
-              color: style.color,
-            }}
-          >
-            <option value="" disabled>
-              Select option
-            </option>
-            {partnerOptions.map((opt) => {
-              const optStyle = getPartnerStyle(opt);
-              return (
-                <option
-                  key={opt}
-                  value={opt}
-                  style={{
-                    backgroundColor: optStyle.backgroundColor,
-                    color: optStyle.color,
-                    fontWeight: 700,
-                  }}
-                >
-                  {opt}
-                </option>
-              );
-            })}
-          </select>
-        );
-      },
-    },
-    {
-      field: "Lead Status",
-      headerName: "Lead Status",
-      sortable: true,
-      filter: true,
-      cellRenderer: StatusRenderer,
-      width: 200,
-    },
+    // {
+    //   field: "Partner Classification",
+    //   headerName: "Partner",
+    //   width: 200,
+    //   cellRenderer: (params) => {
+    //     const lead = params.data;
+    //     const hasOrders = Array.isArray(lead?.Orders) && lead.Orders.length > 0;
+    //     if (!hasOrders) {
+    //       return (
+    //         <span style={{ fontSize: "12px", color: "#6B7280" }}>N/A</span>
+    //       );
+    //     }
+    //     const current = lead?.["Partner Classification"] || "";
+    //     const style = getPartnerStyle(current);
+    //     return (
+    //       <select
+    //         value={current}
+    //         onChange={(e) => handlePartnerChange(lead.id, e.target.value)}
+    //         style={{
+    //           padding: "6px 10px",
+    //           borderRadius: "16px",
+    //           border: `1px solid ${style.borderColor}`,
+    //           fontSize: "12px",
+    //           fontWeight: 700,
+    //           minWidth: "140px",
+    //           cursor: "pointer",
+    //           background: style.backgroundColor,
+    //           color: style.color,
+    //         }}
+    //       >
+    //         <option value="" disabled>
+    //           Select option
+    //         </option>
+    //         {partnerOptions.map((opt) => {
+    //           const optStyle = getPartnerStyle(opt);
+    //           return (
+    //             <option
+    //               key={opt}
+    //               value={opt}
+    //               style={{
+    //                 backgroundColor: optStyle.backgroundColor,
+    //                 color: optStyle.color,
+    //                 fontWeight: 700,
+    //               }}
+    //             >
+    //               {opt}
+    //             </option>
+    //           );
+    //         })}
+    //       </select>
+    //     );
+    //   },
+    // },
+    // {
+    //   field: "Lead Status",
+    //   headerName: "Lead Status",
+    //   sortable: true,
+    //   filter: true,
+    //   cellRenderer: StatusRenderer,
+    //   width: 200,
+    // },
 
     {
       width: 300,
@@ -490,26 +492,44 @@ const ManageLeads = () => {
         );
       },
     },
+    // {
+    //   width: 250,
+    //   headerName: "Actions",
+    //   field: "actions",
+    //   cellRenderer: (params) => {
+    //     return (
+    //       <div className="flex gap-2">
+    //         <button
+    //           onClick={() => handleUpdateLead(params?.data?.id)}
+    //           className="bg-[#3B82F6] hover:bg-[#2563EB] px-3 py-1 text-white text-sm flex justify-center items-center rounded-full"
+    //           style={{ fontSize: "12px" }}
+    //         >
+    //           Update
+    //         </button>
+    //         <button
+    //           onClick={() => handleDeleteLead(params?.data?.id)}
+    //           className="bg-[#EF4444] hover:bg-[#DC2626] px-3 py-1 text-white text-sm flex justify-center items-center rounded-full"
+    //           style={{ fontSize: "12px" }}
+    //         >
+    //           Delete
+    //         </button>
+    //       </div>
+    //     );
+    //   },
+    // },
     {
-      width: 250,
+      width: 120,
       headerName: "Actions",
       field: "actions",
       cellRenderer: (params) => {
         return (
-          <div className="flex gap-2">
+          <div className="flex justify-start items-center h-full pt-1">
             <button
-              onClick={() => handleUpdateLead(params?.data?.id)}
-              className="bg-[#3B82F6] hover:bg-[#2563EB] px-3 py-1 text-white text-sm flex justify-center items-center rounded-full"
-              style={{ fontSize: "12px" }}
+              onClick={() => handleViewLead(params?.data?.id)}
+              className="bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white p-2 rounded-full transition-all duration-200 shadow-sm"
+              title="View Lead Details"
             >
-              Update
-            </button>
-            <button
-              onClick={() => handleDeleteLead(params?.data?.id)}
-              className="bg-[#EF4444] hover:bg-[#DC2626] px-3 py-1 text-white text-sm flex justify-center items-center rounded-full"
-              style={{ fontSize: "12px" }}
-            >
-              Delete
+              <FaEye size={16} />
             </button>
           </div>
         );
@@ -572,14 +592,14 @@ const ManageLeads = () => {
 
               {/* Filter + Add */}
               <div className="flex items-center gap-2">
-                <button
+                {/* <button
                   onClick={() => setShowFilter(!showFilter)}
                   className="bg-gray-500 hover:bg-black px-4 py-1 text-white text-base font-semibold flex justify-center items-center rounded-md"
                 >
                   {partnerFilter || statusFilter
                     ? `${partnerFilter || "All Partners"} • ${statusFilter || "All Statuses"}`
                     : "Filter"}
-                </button>
+                </button> */}
                 <Button
                   onClick={() => setOpenAddLeadModal(true)}
                   className="bg-[#f20c32] hover:bg-black px-4 py-1 text-white text-base font-semibold flex justify-center items-center rounded-md"
@@ -663,6 +683,13 @@ const ManageLeads = () => {
                 paginationPageSize={10}
                 domLayout="autoHeight"
                 getRowHeight={() => 50}
+                defaultColDef={{
+                  flex: 1, 
+                  minWidth: 150,
+                  resizable: true,
+                  headerClass: "center-header", 
+                  cellStyle: { display: 'flex', alignItems: 'center', justifyContent: 'center' } 
+                }}
               />
             </div>
           </div>

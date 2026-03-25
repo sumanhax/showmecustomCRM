@@ -484,8 +484,8 @@ const CRMdashboard = () => {
 
     return distributionList.map((item, index) => ({
       name: item.state || "Unknown",
-      value: item.leadCount,    
-      percentage: item.percentage, 
+      value: item.leadCount,
+      percentage: item.percentage,
       color: colors[index % colors.length],
     }));
   }, [leadDistributionStateData]);
@@ -650,31 +650,57 @@ const CRMdashboard = () => {
   }, [leadData]);
 
   // Rep performance data
+  // const repPerformanceData = useMemo(() => {
+  //   return repData
+  //     .map((rep) => {
+  //       const assignedLeadsCount = rep["Assigned Leads"]
+  //         ? rep["Assigned Leads"].length
+  //         : 0;
+  //       const assignedLeadNames = [];
+
+  //       if (rep["Assigned Leads"] && Array.isArray(rep["Assigned Leads"])) {
+  //         rep["Assigned Leads"].forEach((leadId) => {
+  //           const lead = leadData.find((l) => l.id === leadId);
+  //           if (lead && lead["Lead Name"]) {
+  //             assignedLeadNames.push(lead["Lead Name"]);
+  //           }
+  //         });
+  //       }
+
+  //       return {
+  //         repName: rep["Rep Name"] || "Unknown",
+  //         assignedLeads: Math.round(assignedLeadsCount),
+  //         leadNames: assignedLeadNames,
+  //       };
+  //     })
+  //     .filter((rep) => rep.assignedLeads > 0);
+  // }, [repData, leadData]);
+
+  // Rep performance data based on Action List / Rep List
   const repPerformanceData = useMemo(() => {
-    return repData
-      .map((rep) => {
-        const assignedLeadsCount = rep["Assigned Leads"]
-          ? rep["Assigned Leads"].length
-          : 0;
-        const assignedLeadNames = [];
-
-        if (rep["Assigned Leads"] && Array.isArray(rep["Assigned Leads"])) {
-          rep["Assigned Leads"].forEach((leadId) => {
-            const lead = leadData.find((l) => l.id === leadId);
-            if (lead && lead["Lead Name"]) {
-              assignedLeadNames.push(lead["Lead Name"]);
-            }
-          });
+    if (repData && repData.length > 0 && repData[0].hasOwnProperty('assigned_leads_count')) {
+      return repData.map((rep) => ({
+        repName: rep.name || "Unknown",
+        assignedLeads: parseInt(rep.assigned_leads_count) || 0,
+      })).sort((a, b) => b.assignedLeads - a.assignedLeads);
+    }
+    else if (actionListData?.data?.actions) {
+      const repCounts = {};
+      actionListData.data.actions.forEach(action => {
+        if (action.rep) {
+          const repId = action.rep.id;
+          const repName = action.rep.name || "Unknown";
+          if (!repCounts[repId]) {
+            repCounts[repId] = { repName: repName, assignedLeads: 0 };
+          }
+          repCounts[repId].assignedLeads += 1;
         }
+      });
+      return Object.values(repCounts).sort((a, b) => b.assignedLeads - a.assignedLeads);
+    }
 
-        return {
-          repName: rep["Rep Name"] || "Unknown",
-          assignedLeads: Math.round(assignedLeadsCount),
-          leadNames: assignedLeadNames,
-        };
-      })
-      .filter((rep) => rep.assignedLeads > 0);
-  }, [repData, leadData]);
+    return [];
+  }, [repData, actionListData]);
 
   // Helper function to get fixed color classes
   const getFixedColorClass = (color) => {
@@ -728,7 +754,7 @@ const CRMdashboard = () => {
             <div className="flex items-center gap-4">
               {/* Notification Bell */}
               <div className="relative notification-dropdown">
-                <button
+                {/* <button
                   onClick={() => setShowNotificationDropdown(!showNotificationDropdown)}
                   className="relative p-2 text-gray-600 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-full"
                 >
@@ -738,7 +764,7 @@ const CRMdashboard = () => {
                       {unreadCount}
                     </span>
                   )}
-                </button>
+                </button> */}
 
                 {/* Notification Dropdown */}
                 {showNotificationDropdown && (
@@ -846,13 +872,13 @@ const CRMdashboard = () => {
                 )}
               </div>
 
-              <Button
+              {/* <Button
                 onClick={() => setOpenManagerModal(true)}
                 className="bg-[#f20c32] hover:bg-black px-4 py-2 text-white text-base font-semibold flex justify-center items-center rounded-md "
               >
                 <FaUserTie className="mr-2" />
                 Add Manager
-              </Button>
+              </Button> */}
             </div>
           </div>
 
@@ -1180,52 +1206,90 @@ const CRMdashboard = () => {
 
           {/* Third Row - Rep Performance and Leads by State */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-            {/* Rep Performance */}
             <div className="bg-white rounded-xl p-6 shadow-sm">
-              <h2 className="text-xl font-semibold text-gray-900 mb-6">
-                Rep Performance
-              </h2>
-              <div className="space-y-4">
-                {repPerformanceData.map((rep, index) => (
-                  <div
-                    key={index}
-                    className="flex items-center justify-between p-4 bg-gray-50 rounded-lg"
-                  >
-                    <div className="flex items-center space-x-4">
-                      <div className="w-10 h-10 bg-[#f20c32] rounded-full flex items-center justify-center">
-                        <span className="text-white font-semibold text-sm">
-                          {rep.repName
-                            .split(" ")
-                            .map((n) => n[0])
-                            .join("")}
-                        </span>
-                      </div>
-                      <div>
-                        <p className="font-semibold text-gray-900">
-                          {rep.repName}
-                        </p>
-                        <div className="text-sm text-gray-600">
-                          <p className="font-medium">Assigned Leads:</p>
-                          <p className="mt-1">
-                            {rep.leadNames.length > 0
-                              ? rep.leadNames.join(", ")
-                              : "No assigned leads"}
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-2xl font-bold text-gray-900">
-                        {rep.assignedLeads}
-                      </p>
-                      <p className="text-sm text-gray-600">Total Leads</p>
-                    </div>
+              <h2 className="text-xl font-semibold text-gray-900 mb-1">Rep Performance</h2>
+              <p className="text-sm text-gray-500 mb-4">Lead assignment overview across all reps</p>
+
+              {/* Summary Metrics */}
+              <div className="grid grid-cols-4 gap-3 mb-6">
+                {[
+                  { val: repPerformanceData.length, lbl: "Total Reps" },
+                  { val: repPerformanceData.reduce((s, r) => s + r.assignedLeads, 0), lbl: "Leads Assigned" },
+                  { val: Math.round(repPerformanceData.reduce((s, r) => s + r.assignedLeads, 0) / (repPerformanceData.length || 1)), lbl: "Avg Per Rep" },
+                  { val: Math.max(...repPerformanceData.map(r => r.assignedLeads), 0), lbl: "Top Performer" },
+                ].map((m, i) => (
+                  <div key={i} className="bg-gray-50 rounded-lg p-3">
+                    <p className="text-xl font-bold text-gray-900">{m.val}</p>
+                    <p className="text-xs text-gray-500 mt-1">{m.lbl}</p>
                   </div>
                 ))}
               </div>
-            </div>
 
-           {/* Lead by State Pie Chart */}
+              {/* Bar Chart */}
+              {(() => {
+                const PALETTE = ["#f20c32", "#3B82F6", "#10B981", "#F59E0B", "#8B5CF6", "#EC4899", "#06B6D4", "#84CC16"];
+                const sorted = [...repPerformanceData].sort((a, b) => b.assignedLeads - a.assignedLeads);
+                const max = sorted[0]?.assignedLeads || 1;
+                return (
+                  <div className="space-y-3 mb-6">
+                    {sorted.map((rep, i) => {
+                      const pct = Math.round((rep.assignedLeads / max) * 100);
+                      const color = PALETTE[i % PALETTE.length];
+                      const initials = rep.repName.split(" ").map(n => n[0]).join("").slice(0, 2).toUpperCase();
+                      return (
+                        <div key={i} className="flex items-center gap-3">
+                          <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-medium flex-shrink-0"
+                            style={{ background: `${color}22`, color }}>
+                            {initials}
+                          </div>
+                          <div className="text-sm font-medium text-gray-700 w-28 truncate" title={rep.repName}>{rep.repName}</div>
+                          <div className="flex-1 bg-gray-100 rounded-full h-5 overflow-hidden">
+                            <div className="h-full rounded-full flex items-center justify-end pr-2 transition-all duration-700"
+                              style={{ width: `${pct}%`, background: color }}>
+                              <span className="text-white text-xs font-medium">{rep.assignedLeads}</span>
+                            </div>
+                          </div>
+                          {/* "Top" badge has been removed from here */}
+                        </div>
+                      );
+                    })}
+                  </div>
+                );
+              })()}
+
+              {/* Rep Cards */}
+              {(() => {
+                const PALETTE = ["#f20c32", "#3B82F6", "#10B981", "#F59E0B", "#8B5CF6", "#EC4899", "#06B6D4", "#84CC16"];
+                const sorted = [...repPerformanceData].sort((a, b) => b.assignedLeads - a.assignedLeads);
+                return (
+                  <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
+                    {sorted.map((rep, i) => {
+                      const color = PALETTE[i % PALETTE.length];
+                      const initials = rep.repName.split(" ").map(n => n[0]).join("").slice(0, 2).toUpperCase();
+
+                      return (
+                        <div key={i} className="border border-gray-100 rounded-xl p-4 bg-white shadow-sm hover:shadow-md transition-shadow">
+                          <div className="flex items-center gap-2 mb-3">
+                            <div className="w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold"
+                              style={{ background: `${color}15`, color }}>
+                              {initials}
+                            </div>
+                            <div className="overflow-hidden">
+                              <p className="text-sm font-semibold text-gray-900 truncate" title={rep.repName}>{rep.repName}</p>
+                              <p className="text-xs text-gray-400">Sales Representative</p>
+                            </div>
+                          </div>
+                          <div className="mt-4">
+                            <p className="text-3xl font-bold" style={{ color }}>{rep.assignedLeads}</p>
+                            <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mt-1">Total Assigned Leads</p>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                );
+              })()}
+            </div>
             <div className="bg-white rounded-xl p-6 shadow-sm">
               <h2 className="text-xl font-semibold text-gray-900 mb-6">
                 Leads by State
@@ -1248,11 +1312,11 @@ const CRMdashboard = () => {
                       <Cell key={`cell-${index}`} fill={entry.color} />
                     ))}
                   </Pie>
-                  <Tooltip 
+                  <Tooltip
                     formatter={(value, name, props) => [
-                      `${value} Leads (${props.payload.percentage}%)`, 
+                      `${value} Leads (${props.payload.percentage}%)`,
                       name
-                    ]} 
+                    ]}
                   />
                 </PieChart>
               </ResponsiveContainer>
@@ -1260,8 +1324,7 @@ const CRMdashboard = () => {
           </div>
 
           {/* Fourth Row - Tag-style Charts */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* Hat Usage */}
+          {/* <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <div className="bg-white rounded-xl p-6 shadow-sm">
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-xl font-semibold text-gray-900">
@@ -1302,7 +1365,6 @@ const CRMdashboard = () => {
               </div>
             </div>
 
-            {/* Past Headwear Issues */}
             <div className="bg-white rounded-xl p-6 shadow-sm">
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-xl font-semibold text-gray-900">
@@ -1343,7 +1405,6 @@ const CRMdashboard = () => {
               </div>
             </div>
 
-            {/* What's Most Important */}
             <div className="bg-white rounded-xl p-6 shadow-sm">
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-xl font-semibold text-gray-900">
@@ -1383,7 +1444,7 @@ const CRMdashboard = () => {
                 ))}
               </div>
             </div>
-          </div>
+          </div> */}
         </div>
 
         {/* Add Manager Modal */}

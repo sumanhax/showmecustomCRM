@@ -64,6 +64,7 @@ import OrderDetails from '../pages/EcommerceDashboardNew/Order/OrderDetails.jsx'
 import BulkUpload from '../pages/BulkUpload/BulkUpload.jsx';
 import CMSUpload from '../pages/CMSUpload/CMSUpload.jsx';
 import ManageCoupon from '../pages/ManageCoupon/ManageCoupon.jsx';
+import OfflineOrderDetails from '../pages/EcommerceDashboardNew/Order/OfflineOrderDetails.jsx';
 
 const allRoutes = [
   {
@@ -606,6 +607,17 @@ const allRoutes = [
       {
         index: true,
         element: <OrderDetails />,
+      },
+    ],
+  },
+
+  {
+    path: '/offline-order/:id',
+    element: <InsideLayout />,
+    children: [
+      {
+        index: true,
+        element: <OfflineOrderDetails />,
       },
     ],
   },

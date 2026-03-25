@@ -451,6 +451,13 @@ const ManageReps = () => {
                 paginationPageSize={10}
                 domLayout="autoHeight"
                 getRowHeight={() => 50}
+                defaultColDef={{
+                  flex: 1,
+                  minWidth: 150,
+                  resizable: true,
+                  headerClass: "center-header",
+                  cellStyle: { display: 'flex', alignItems: 'center', justifyContent: 'center' }
+                }}
               />
             </div>
           </div>
