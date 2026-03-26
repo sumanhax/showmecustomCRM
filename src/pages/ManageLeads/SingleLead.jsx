@@ -5,7 +5,7 @@ import { ToastContainer, toast } from "react-toastify";
 import Loader from "../../components/Loader";
 import AddNoteModal from "./AddNoteModal";
 import { useDispatch, useSelector } from "react-redux";
-import { leadSingle } from "../../Reducer/AddSlice";
+import { leadSingle, getLeadNotesByIdNew } from "../../Reducer/AddSlice";
 import {
   FaDollarSign,
   FaChartLine,
@@ -61,7 +61,7 @@ const SingleLead = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const { leadSingleData, loading } = useSelector((state) => state.add);
+  const { leadSingleData, loading, getLeadNotesByIdNewData } = useSelector((state) => state.add);
   const [leadData, setLeadData] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -78,6 +78,7 @@ const SingleLead = () => {
       setIsLoading(true);
       setError(null);
       dispatch(leadSingle(id));
+      dispatch(getLeadNotesByIdNew(id));
     }
   }, [id, dispatch]);
 
@@ -142,12 +143,13 @@ const SingleLead = () => {
       toast.error("Please fill in all fields."); return;
     }
     setIsEmailSending(true);
-    axios.post("https://n8n.bestworks.cloud/webhook/email-sender", {
-      reciepent: emailForm.to,
-      sender: "team@showmecustomapparel.com",
-      subject: emailForm.subject,
-      replyBody: emailForm.message,
-    })
+   const payload = {
+        reciepent: emailForm.to,
+        sender: "projects@showmecustomapparel.com",
+        subject: emailForm.subject,
+        message: emailForm.message,
+      };
+      axios.post("https://n8nnode.showmecustomapparel.com/webhook/email-sender", payload)
       .then((res) => {
         if (res.status === 200) {
           toast.success("Email Sent Successfully!");
@@ -810,6 +812,55 @@ const SingleLead = () => {
                 </div>
               )}
 
+              {/* ── Lead Notes ─────────────────────────────────────────────── */}
+              <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
+                <h2 className="text-xl font-semibold text-gray-900 mb-4 flex items-center">
+                  <FaStickyNote className="w-5 h-5 mr-2 text-[#f20c32]" /> Notes
+                </h2>
+
+                {/* Loading state */}
+                {!getLeadNotesByIdNewData?.data ? (
+                  <p className="text-sm text-gray-400 text-center py-4">Loading notes...</p>
+                ) : getLeadNotesByIdNewData?.data?.length === 0 ? (
+                  <p className="text-sm text-gray-400 text-center py-4">No notes yet.</p>
+                ) : (
+                  <div className="space-y-3 max-h-80 overflow-y-auto pr-1">
+                    {getLeadNotesByIdNewData?.data?.map((note, index) => (
+                      <div
+                        key={note.id || index}
+                        className="bg-amber-50 border border-amber-200 rounded-lg p-3"
+                      >
+                        <p className="text-gray-700 text-sm whitespace-pre-wrap">
+                          {note.noteDescriptions || note.note_descriptions || note.description || "—"}
+                        </p>
+                        <div className="flex items-center justify-between mt-2">
+                          {note.rep?.name && (
+                            <span className="text-xs text-amber-600 font-semibold">
+                              {note.rep.name}
+                            </span>
+                          )}
+                          <span className="text-xs text-gray-400 ml-auto">
+                            {note.date
+                              ? new Date(note.date).toLocaleDateString("en-US", {
+                                  year: "numeric",
+                                  month: "short",
+                                  day: "numeric",
+                                })
+                              : note.created_at
+                              ? new Date(note.created_at).toLocaleDateString("en-US", {
+                                  year: "numeric",
+                                  month: "short",
+                                  day: "numeric",
+                                })
+                              : ""}
+                          </span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
             </div>
           </div>
         </div>
@@ -878,9 +929,18 @@ const SingleLead = () => {
       )}
 
       {/* ── Add Note Modal ─────────────────────────────────────────────────── */}
-      {openNoteModal && leadData && (
+      {/* {openNoteModal && leadData && (
         <AddNoteModal leadsId={leadData.id} openNoteModal={openNoteModal} setOpenNoteModal={setOpenNoteModal} />
-      )}
+      )} */}
+      {openNoteModal && leadData && (
+  <AddNoteModal
+    leadsId={leadData.id}
+    repId={leadData?.rep_id || leadData?.rep?.id || null}  // ← add
+    openNoteModal={openNoteModal}
+    setOpenNoteModal={setOpenNoteModal}
+    onNoteAdded={fetchLeadData}
+  />
+)}
     </>
   );
 };

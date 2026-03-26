@@ -36,6 +36,8 @@ const ManageLeads = () => {
   const [showFilter, setShowFilter] = useState(false);
   const [partnerFilter, setPartnerFilter] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
+  const userRole = localStorage.getItem("user_role");
+  const [leadRepId, setLeadRepId] = useState(null);
 
   const api2 = "https://n8n.bestworks.cloud/webhook/lead-status-update";
   const partnerOptions = ["Whale", "Tuna", "Shrimp"];
@@ -265,12 +267,20 @@ const ManageLeads = () => {
     setOpenTaskModal(true);
   };
 
-  const handleAddNote = (id) => {
-    console.log("Note_id", id);
+  // const handleAddNote = (id) => {
+  //   console.log("Note_id", id);
 
-    setLeadsId(id);
-    setOpenNoteModal(true);
-  };
+  //   setLeadsId(id);
+  //   setOpenNoteModal(true);
+  // };
+
+  const handleAddNote = (id) => {
+  console.log("Note_id", id);
+  const lead = leadListData?.data?.find((l) => l.id === id);
+  setLeadsId(id);
+  setLeadRepId(lead?.rep_id || null); 
+  setOpenNoteModal(true);
+};
 
   const handleStatusChange = (leadId, newStatus) => {
     // TODO: Implement status update using kanbanDragnDrop or a new action
@@ -600,12 +610,14 @@ const ManageLeads = () => {
                     ? `${partnerFilter || "All Partners"} • ${statusFilter || "All Statuses"}`
                     : "Filter"}
                 </button> */}
-                <Button
-                  onClick={() => setOpenAddLeadModal(true)}
-                  className="bg-[#f20c32] hover:bg-black px-4 py-1 text-white text-base font-semibold flex justify-center items-center rounded-md"
-                >
-                  Add New Lead
-                </Button>
+                {userRole !== "rep" && (
+                  <Button
+                    onClick={() => setOpenAddLeadModal(true)}
+                    className="bg-[#f20c32] hover:bg-black px-4 py-1 text-white text-base font-semibold flex justify-center items-center rounded-md"
+                  >
+                    Add New Lead
+                  </Button>
+                )}
                 {showFilter && (
                   <div className="absolute right-0 top-12 bg-white border border-gray-200 rounded-lg shadow-lg p-4 w-80 z-50">
                     <div className="mb-3">
@@ -718,6 +730,7 @@ const ManageLeads = () => {
           {openNoteModal && (
             <AddNoteModal
               leadsId={leadsId}
+              repId={leadRepId}
               openNoteModal={openNoteModal}
               setOpenNoteModal={setOpenNoteModal}
             />

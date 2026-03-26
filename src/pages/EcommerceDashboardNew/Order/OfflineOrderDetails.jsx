@@ -252,8 +252,8 @@ const OfflineOrderDetails = () => {
                 <p className="text-xl font-black text-red-600">{money(orderData.expense)}</p>
               </div>
               <div className="p-4 bg-blue-50 rounded-xl border border-blue-100">
-                <p className="text-[10px] font-bold text-blue-400 uppercase mb-1">Revenue</p>
-                <p className="text-xl font-black text-blue-600">{money(orderData.revenue)}</p>
+                <p className="text-[10px] font-bold text-blue-400 uppercase mb-1">Profit</p>
+                <p className="text-xl font-black text-blue-600">{money(orderData.profit)}</p>
               </div>
             </div>
           </div>

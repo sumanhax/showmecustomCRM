@@ -258,7 +258,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                             )}
 
                             {/* Reps - Only visible to manager and admin */}
-                            {(userRole === 'manager' || userRole === 'admin' || userRole === 'rep') && (
+                            {(userRole === 'manager' || userRole === 'admin') && (
                               <li>
                                 <NavLink
                                   to="/reps"

@@ -785,7 +785,7 @@ const AddProjectModal = ({
             {/* Live Calculated Revenue (Read-Only) */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Revenue
+                Profit
               </label>
               <input
                 type="text"

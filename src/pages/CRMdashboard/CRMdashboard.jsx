@@ -905,7 +905,7 @@ const CRMdashboard = () => {
           </div>
 
           {/* Top Section - Cards Row */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-6 mb-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-6">
             {/* Total Leads Card */}
             <div className="bg-white rounded-xl p-6 shadow-sm">
               <div className="flex items-center justify-between">
@@ -933,7 +933,7 @@ const CRMdashboard = () => {
             </div>
 
             {/* Total Revenue Card */}
-            <div className="bg-white rounded-xl p-6 shadow-sm">
+            {/* <div className="bg-white rounded-xl p-6 shadow-sm">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-gray-600">Total Revenue</p>
@@ -943,7 +943,7 @@ const CRMdashboard = () => {
                   <FaChartLine className="w-6 h-6 text-white" />
                 </div>
               </div>
-            </div>
+            </div> */}
 
             {/* Total Reps Card */}
             <div className="bg-white rounded-xl p-6 shadow-sm">

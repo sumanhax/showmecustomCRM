@@ -645,6 +645,45 @@ export const sendAddProjectEmail = createAsyncThunk(
     }
 );
 
+// ── POST: Add Note (newApi) ──
+export const addLeadNoteNew = createAsyncThunk(
+    'add/addLeadNoteNew',
+    async (userInput, { rejectWithValue }) => {
+        // userInput: { leadId, repId, noteDescriptions, date }
+        try {
+            const response = await newApi.post('/api/admin/lead-manage/notes/add', userInput);
+            if (response?.status === 200 || response?.status === 201) {
+                return response.data;
+            } else {
+                return rejectWithValue(response?.data?.message || 'Failed to add note');
+            }
+        } catch (err) {
+            return rejectWithValue(
+                err.response?.data?.message || err.message || 'Something went wrong'
+            );
+        }
+    }
+)
+
+// ── GET: Notes by Lead ID (newApi) ──
+export const getLeadNotesByIdNew = createAsyncThunk(
+    'add/getLeadNotesByIdNew',
+    async (leadId, { rejectWithValue }) => {
+        try {
+            const response = await newApi.get(`/api/admin/lead-manage/notes/list/${leadId}`);
+            if (response?.status === 200 || response?.status === 201) {
+                return response.data;
+            } else {
+                return rejectWithValue(response?.data?.message || 'Failed to fetch notes');
+            }
+        } catch (err) {
+            return rejectWithValue(
+                err.response?.data?.message || err.message || 'Something went wrong'
+            );
+        }
+    }
+)
+
 const initialState = {
     error: null,
     loading: false,
@@ -688,10 +727,20 @@ const initialState = {
     offlineOrderEmailSuccess: false,
     offlineOrderEmailError: null,
 
-     // ── Send Add Project Email ──
+    // ── Send Add Project Email ──
     addProjectEmailLoading: false,
     addProjectEmailSuccess: false,
     addProjectEmailError: null,
+
+    // ── Add Lead Note New ──
+    addLeadNoteNewLoading: false,
+    addLeadNoteNewData: {},
+    addLeadNoteNewError: null,
+
+    // ── Get Lead Notes By Id New ──
+    getLeadNotesByIdNewLoading: false,
+    getLeadNotesByIdNewData: {},
+    getLeadNotesByIdNewError: null,
 }
 
 //slice part
@@ -1059,6 +1108,36 @@ const AddSlice = createSlice(
                     state.addProjectEmailLoading = false;
                     state.addProjectEmailSuccess = false;
                     state.addProjectEmailError = payload;
+                })
+
+                /* -------- ADD LEAD NOTE NEW -------- */
+                .addCase(addLeadNoteNew.pending, (state) => {
+                    state.addLeadNoteNewLoading = true;
+                    state.addLeadNoteNewError = null;
+                })
+                .addCase(addLeadNoteNew.fulfilled, (state, { payload }) => {
+                    state.addLeadNoteNewLoading = false;
+                    state.addLeadNoteNewData = payload;
+                    state.addLeadNoteNewError = null;
+                })
+                .addCase(addLeadNoteNew.rejected, (state, { payload }) => {
+                    state.addLeadNoteNewLoading = false;
+                    state.addLeadNoteNewError = payload;
+                })
+
+                /* -------- GET LEAD NOTES BY ID NEW -------- */
+                .addCase(getLeadNotesByIdNew.pending, (state) => {
+                    state.getLeadNotesByIdNewLoading = true;
+                    state.getLeadNotesByIdNewError = null;
+                })
+                .addCase(getLeadNotesByIdNew.fulfilled, (state, { payload }) => {
+                    state.getLeadNotesByIdNewLoading = false;
+                    state.getLeadNotesByIdNewData = payload;
+                    state.getLeadNotesByIdNewError = null;
+                })
+                .addCase(getLeadNotesByIdNew.rejected, (state, { payload }) => {
+                    state.getLeadNotesByIdNewLoading = false;
+                    state.getLeadNotesByIdNewError = payload;
                 })
 
         }

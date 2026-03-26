@@ -536,7 +536,7 @@ const OrderDetails = () => {
               <div className="space-y-6">
 
                 {/* 1. FINANCIAL SUMMARY */}
-                <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+                <div className={`grid gap-3 ${Number(order.coupon_add_amount) > 0 ? 'grid-cols-2 md:grid-cols-6' : 'grid-cols-2 md:grid-cols-5'}`}>
                   <div className="p-3 bg-gray-50 rounded-lg border border-gray-100">
                     <p className="text-[10px] font-bold text-gray-400 uppercase">Subtotal</p>
                     <p className="font-bold text-gray-700">{money(order.subtotal_amount)}</p>
@@ -553,9 +553,19 @@ const OrderDetails = () => {
                     <p className="text-[10px] font-bold text-gray-400 uppercase">Shipping</p>
                     <p className="font-bold text-gray-700">{money(order.shipping_amount)}</p>
                   </div>
+                  {Number(order.coupon_add_amount) > 0 && (
+                    <div className="p-3 bg-orange-50 rounded-lg border border-orange-100">
+                      <p className="text-[10px] font-bold text-orange-400 uppercase">Coupon Discount</p>
+                      <p className="font-bold text-orange-600">-{money(Number(order.grand_total_amount) - Number(order.coupon_add_amount))}</p>
+                    </div>
+                  )}
                   <div className="p-3 bg-green-600 text-white rounded-lg shadow-md">
-                    <p className="text-[10px] font-bold opacity-80 uppercase">Grand Total</p>
-                    <p className="text-lg font-black">{money(order.grand_total_amount)}</p>
+                    <p className="text-[10px] font-bold opacity-80 uppercase">
+                      {Number(order.coupon_add_amount) > 0 ? 'After Discount' : 'Grand Total'}
+                    </p>
+                    <p className="text-lg font-black">
+                      {Number(order.coupon_add_amount) > 0 ? money(order.coupon_add_amount) : money(order.grand_total_amount)}
+                    </p>
                   </div>
                 </div>
 
